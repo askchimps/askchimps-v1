@@ -79,6 +79,22 @@ export class QueryHistoryDto {
   leadId?: string;
 
   @ApiPropertyOptional({
+    description: 'Filter by call ID',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @IsString()
+  @IsOptional()
+  callId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by chat ID',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @IsString()
+  @IsOptional()
+  chatId?: string;
+
+  @ApiPropertyOptional({
     description: 'Filter by request ID',
     example: 'req_123456789',
   })

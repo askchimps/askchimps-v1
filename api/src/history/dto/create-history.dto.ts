@@ -86,6 +86,22 @@ export class CreateHistoryDto {
   leadId?: string;
 
   @ApiPropertyOptional({
+    description: 'Call ID context',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @IsString()
+  @IsOptional()
+  callId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Chat ID context',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @IsString()
+  @IsOptional()
+  chatId?: string;
+
+  @ApiPropertyOptional({
     description: 'Field name that changed (null for CREATE/DELETE)',
     example: 'name',
   })

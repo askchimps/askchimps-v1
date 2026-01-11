@@ -84,6 +84,14 @@ export class HistoryService {
       where.leadId = queryDto.leadId;
     }
 
+    if (queryDto.callId) {
+      where.callId = queryDto.callId;
+    }
+
+    if (queryDto.chatId) {
+      where.chatId = queryDto.chatId;
+    }
+
     if (queryDto.requestId) {
       where.requestId = queryDto.requestId;
     }
@@ -199,6 +207,8 @@ export class HistoryService {
     organisationId?: string;
     agentId?: string;
     leadId?: string;
+    callId?: string;
+    chatId?: string;
     trigger?: HISTORY_TRIGGER;
     reason?: string;
     metadata?: any;
@@ -225,6 +235,8 @@ export class HistoryService {
         organisationId: params.organisationId,
         agentId: params.agentId,
         leadId: params.leadId,
+        callId: params.callId,
+        chatId: params.chatId,
         newValue: value,
         reason: params.reason,
         description: `Created ${params.tableName} record - field: ${fieldName}`,
@@ -257,6 +269,8 @@ export class HistoryService {
     organisationId?: string;
     agentId?: string;
     leadId?: string;
+    callId?: string;
+    chatId?: string;
     trigger?: HISTORY_TRIGGER;
     reason?: string;
     metadata?: any;
@@ -284,6 +298,8 @@ export class HistoryService {
           organisationId: params.organisationId,
           agentId: params.agentId,
           leadId: params.leadId,
+          callId: params.callId,
+          chatId: params.chatId,
           oldValue: params.oldRecord[key],
           newValue: params.newRecord[key],
           reason: params.reason,

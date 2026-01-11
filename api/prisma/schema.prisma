@@ -300,6 +300,8 @@ model History {
   organisationId String? @map("organisation_id")
   agentId        String? @map("agent_id")
   leadId         String? @map("lead_id")
+  callId         String? @map("call_id")
+  chatId         String? @map("chat_id")
 
   // Change details - single field values
   oldValue Json? @map("old_value") // Old value of the field

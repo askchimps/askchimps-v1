@@ -13,6 +13,8 @@ export class HistoryEntity {
   organisationId?: string | null;
   agentId?: string | null;
   leadId?: string | null;
+  callId?: string | null;
+  chatId?: string | null;
   oldValue?: any;
   newValue?: any;
   reason?: string | null;
