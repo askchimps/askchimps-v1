@@ -4,6 +4,7 @@ import { IsULID } from '../../common/validators/is-ulid.validator';
 
 export enum CallStatus {
   ACTIVE = 'ACTIVE',
+  FAILED = 'FAILED',
   DISCONNECTED = 'DISCONNECTED',
   RESCHEDULED = 'RESCHEDULED',
   MISSED = 'MISSED',
