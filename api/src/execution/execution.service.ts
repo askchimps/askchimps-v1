@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
-  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateExecutionDto } from './dto/create-execution.dto';
@@ -79,15 +78,6 @@ export class ExecutionService {
       }
     }
 
-    // Check if externalId is unique
-    const existingExternalId = await this.prisma.execution.findFirst({
-      where: { externalId: createExecutionDto.externalId },
-    });
-
-    if (existingExternalId) {
-      throw new ConflictException('An execution with this external ID already exists');
-    }
-
     const execution = await this.prisma.execution.create({
       data: createExecutionDto,
     });
@@ -145,7 +135,7 @@ export class ExecutionService {
 
     // If not found by id, try externalId
     if (!execution) {
-      execution = await this.prisma.execution.findUnique({
+      execution = await this.prisma.execution.findFirst({
         where: { externalId: id },
       });
     }
@@ -186,7 +176,7 @@ export class ExecutionService {
 
     // If not found by id, try externalId
     if (!execution) {
-      execution = await this.prisma.execution.findUnique({
+      execution = await this.prisma.execution.findFirst({
         where: { externalId: id },
       });
     }
@@ -207,17 +197,6 @@ export class ExecutionService {
 
       if (!userOrg) {
         throw new ForbiddenException('You do not have access to this organisation');
-      }
-    }
-
-    // Check if externalId is unique (if provided and different from current)
-    if (updateExecutionDto.externalId && updateExecutionDto.externalId !== execution.externalId) {
-      const existingExecution = await this.prisma.execution.findFirst({
-        where: { externalId: updateExecutionDto.externalId },
-      });
-
-      if (existingExecution) {
-        throw new ConflictException('An execution with this external ID already exists');
       }
     }
 
@@ -242,7 +221,7 @@ export class ExecutionService {
 
     // If not found by id, try externalId
     if (!execution) {
-      execution = await this.prisma.execution.findUnique({
+      execution = await this.prisma.execution.findFirst({
         where: { externalId: id },
       });
     }

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExecutionService } from './execution.service';
 import { PrismaService } from '../database/prisma.service';
-import { NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
+import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { EXECUTION_TYPE } from '@prisma/client';
 
 describe('ExecutionService', () => {
@@ -114,31 +114,6 @@ describe('ExecutionService', () => {
 
       await expect(service.create(createExecutionDto, 'user-1', false)).rejects.toThrow(
         NotFoundException,
-      );
-    });
-
-    it('should throw ConflictException if external ID already exists', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJM', isDeleted: false });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
-      mockPrismaService.agent.findUnique.mockResolvedValue({
-        id: '01HZXYZ1234567890ABCDEFGHJN',
-        organisationId: '01HZXYZ1234567890ABCDEFGHJM',
-        isDeleted: false
-      });
-      mockPrismaService.lead.findUnique.mockResolvedValue({
-        id: '01HZXYZ1234567890ABCDEFGHJO',
-        organisationId: '01HZXYZ1234567890ABCDEFGHJM',
-        isDeleted: false
-      });
-      mockPrismaService.call.findUnique.mockResolvedValue({
-        id: '01HZXYZ1234567890ABCDEFGHJP',
-        organisationId: '01HZXYZ1234567890ABCDEFGHJM',
-        isDeleted: false
-      });
-      mockPrismaService.execution.findFirst.mockResolvedValue(mockExecution);
-
-      await expect(service.create(createExecutionDto, 'user-1', false)).rejects.toThrow(
-        ConflictException,
       );
     });
 

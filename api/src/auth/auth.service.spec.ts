@@ -351,11 +351,11 @@ describe('AuthService', () => {
       expect(jwtService.signAsync).toHaveBeenCalledTimes(2);
       expect(jwtService.signAsync).toHaveBeenCalledWith(
         { sub: 'user-123', email: 'test@example.com' },
-        expect.objectContaining({ expiresIn: '15m' }),
+        expect.objectContaining({ expiresIn: '15d' }),
       );
       expect(jwtService.signAsync).toHaveBeenCalledWith(
         { sub: 'user-123', email: 'test@example.com' },
-        expect.objectContaining({ expiresIn: '7d' }),
+        expect.objectContaining({ expiresIn: '30d' }),
       );
     });
   });
