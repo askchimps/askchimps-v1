@@ -1,0 +1,414 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                String             @id @default(ulid())
+  email             String             @unique
+  password          String
+  firstName         String?            @map("first_name")
+  lastName          String?            @map("last_name")
+  isActive          Boolean            @default(true) @map("is_active")
+  isSuperAdmin      Boolean            @default(false) @map("is_super_admin")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  refreshToken      RefreshToken?
+  userOrganisations UserOrganisation[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(ulid())
+  token     String   @unique
+  userId    String   @unique @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model Organisation {
+  id                             String             @id @default(ulid())
+  name                           String
+  slug                           String             @unique
+  availableIndianChannels        Int                @default(0) @map("available_indian_channels")
+  availableInternationalChannels Int                @default(0) @map("available_international_channels")
+  chatCredits                    Float              @default(0) @map("chat_credits")
+  callCredits                    Float              @default(0) @map("call_credits")
+  isDeleted                      Boolean            @default(false) @map("is_deleted")
+  createdAt                      DateTime           @default(now()) @map("created_at")
+  updatedAt                      DateTime           @updatedAt @map("updated_at")
+  chatMessages                   ChatMessage[]
+  chats                          Chat[]
+  leads                          Lead[]
+  userOrganisations              UserOrganisation[]
+  agents                         Agent[]
+  callMessages                   CallMessage[]
+  calls                          Call[]
+  executions                     Execution[]
+
+  @@map("organisations")
+}
+
+model UserOrganisation {
+  id             String       @id @default(ulid())
+  userId         String       @map("user_id")
+  organisationId String       @map("organisation_id")
+  role           ROLE
+  isDeleted      Boolean      @default(false) @map("is_deleted")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organisationId])
+  @@map("user_organisations")
+}
+
+model Agent {
+  id               String                  @id @default(ulid())
+  name             String
+  type             AGENT_TYPE
+  organisationId   String                  @map("organisation_id")
+  slug             String                  @unique
+  isDeleted        Boolean                 @default(false) @map("is_deleted")
+  createdAt        DateTime                @default(now()) @map("created_at")
+  updatedAt        DateTime                @updatedAt @map("updated_at")
+  organisation     Organisation            @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  chats            Chat[]
+  calls            Call[]
+  leads            Lead[]
+  leadCallSchedule AgentLeadCallSchedule[]
+  executions       Execution[]
+
+  @@map("agents")
+}
+
+model Lead {
+  id             String                  @id @default(ulid())
+  organisationId String                  @map("organisation_id")
+  agentId        String                  @map("agent_id")
+  zohoId         String?                 @map("zoho_id")
+  ownerId        String?                 @map("owner_id")
+  firstName      String?                 @map("first_name")
+  lastName       String?                 @map("last_name")
+  email          String?
+  phone          String?
+  source         String?
+  status         String?
+  disposition    String?
+  reasonForCold  String?                 @map("reason_for_cold")
+  country        String?
+  state          String?
+  city           String?
+  isTransferred  Boolean                 @default(false) @map("is_transferred")
+  isDeleted      Boolean                 @default(false) @map("is_deleted")
+  createdAt      DateTime                @default(now()) @map("created_at")
+  updatedAt      DateTime                @updatedAt @map("updated_at")
+  chats          Chat[]
+  organisation   Organisation            @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  agent          Agent                   @relation(fields: [agentId], references: [id])
+  owner          LeadOwner?              @relation(fields: [ownerId], references: [id])
+  calls          Call[]
+  callSchedule   AgentLeadCallSchedule[]
+  executions     Execution[]
+
+  @@unique([phone, organisationId])
+  @@unique([email, organisationId])
+  @@map("leads")
+}
+
+model AgentLeadCallSchedule {
+  id        String   @id @default(ulid())
+  agentId   String   @map("agent_id")
+  leadId    String   @map("lead_id")
+  callTime  DateTime @map("call_time")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  lead  Lead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, leadId, callTime])
+  @@map("agent_lead_call_schedules")
+}
+
+model LeadOwner {
+  id        String   @id
+  firstName String?  @map("first_name")
+  lastName  String?  @map("last_name")
+  email     String?
+  phone     String?
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  leads     Lead[]
+
+  @@map("lead_owners")
+}
+
+model Chat {
+  id              String        @id @default(ulid())
+  organisationId  String        @map("organisation_id")
+  agentId         String        @map("agent_id")
+  leadId          String?       @map("lead_id")
+  name            String?
+  source          CHAT_SOURCE
+  sourceId        String        @unique @map("source_id")
+  status          CHAT_STATUS   @default(NEW)
+  shortSummary    String?       @map("short_summary")
+  detailedSummary String?       @map("detailed_summary")
+  isTransferred   Boolean       @default(false) @map("is_transferred")
+  isDeleted       Boolean       @default(false) @map("is_deleted")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  messages        ChatMessage[]
+  lead            Lead?         @relation(fields: [leadId], references: [id])
+  organisation    Organisation  @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  agent           Agent         @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  executions      Execution[]
+
+  @@map("chats")
+}
+
+model ChatMessage {
+  id             String              @id @default(ulid())
+  chatId         String              @map("chat_id")
+  organisationId String              @map("organisation_id")
+  role           String
+  content        String?
+  type           CHAT_MESSAGE_TYPE   @default(TEXT)
+  isDeleted      Boolean             @default(false) @map("is_deleted")
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+  chat           Chat                @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  organisation   Organisation        @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  attachments    MessageAttachment[]
+
+  @@map("chat_messages")
+}
+
+model Call {
+  id              String        @id @default(ulid())
+  organisationId  String        @map("organisation_id")
+  agentId         String        @map("agent_id")
+  leadId          String        @map("lead_id")
+  name            String?
+  endedReason     String?       @map("ended_reason")
+  externalId      String?       @unique @map("external_id")
+  duration        Float         @default(0)
+  status          CALL_STATUS   @default(ACTIVE)
+  sentiment       SENTIMENT?
+  recordingUrl    String?       @map("recording_url")
+  shortSummary    String?       @map("short_summary")
+  detailedSummary String?       @map("detailed_summary")
+  analysis        Json?
+  isDeleted       Boolean       @default(false) @map("is_deleted")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  messages        CallMessage[]
+  organisation    Organisation  @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  agent           Agent         @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  lead            Lead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  executions      Execution[]
+
+  @@map("calls")
+}
+
+model CallMessage {
+  id             String       @id @default(ulid())
+  callId         String       @map("call_id")
+  organisationId String       @map("organisation_id")
+  role           String
+  content        String
+  isDeleted      Boolean      @default(false) @map("is_deleted")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  call           Call         @relation(fields: [callId], references: [id], onDelete: Cascade)
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  @@map("call_messages")
+}
+
+model InstagramMessageCache {
+  id        String   @id @default(ulid())
+  messageId String   @unique @map("message_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("instagram_message_caches")
+}
+
+model MessageAttachment {
+  id          String      @id @default(ulid())
+  messageId   String      @map("message_id")
+  url         String
+  filename    String
+  filesize    Int
+  filetype    String
+  isDeleted   Boolean     @default(false) @map("is_deleted")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  chatMessage ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("message_attachments")
+}
+
+model Execution {
+  id             String         @id
+  type           EXECUTION_TYPE
+  organisationId String         @map("organisation_id")
+  agentId        String?        @map("agent_id")
+  leadId         String?        @map("lead_id")
+  callId         String?        @map("call_id")
+  chatId         String?        @map("chat_id")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  agent        Agent?       @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  lead         Lead?        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  call         Call?        @relation(fields: [callId], references: [id], onDelete: Cascade)
+  chat         Chat?        @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@map("executions")
+}
+
+model History {
+  id        String         @id @default(ulid())
+  // What changed
+  tableName String         @map("table_name")
+  recordId  String         @map("record_id")
+  fieldName String?        @map("field_name") // Specific field that changed (null for CREATE/DELETE)
+  action    HISTORY_ACTION
+
+  // Who/What triggered the change
+  trigger   HISTORY_TRIGGER
+  userId    String?         @map("user_id")
+  userEmail String?         @map("user_email")
+  userName  String?         @map("user_name")
+
+  // Context about the change
+  organisationId String? @map("organisation_id")
+  agentId        String? @map("agent_id")
+  leadId         String? @map("lead_id")
+
+  // Change details - single field values
+  oldValue Json? @map("old_value") // Old value of the field
+  newValue Json? @map("new_value") // New value of the field
+
+  // Additional metadata
+  reason      String? // Human-readable reason for the change
+  description String? // Detailed description of what happened
+  metadata    Json? // Additional context
+
+  // Request tracking
+  requestId   String? @map("request_id") // Unique request ID for tracing
+  sessionId   String? @map("session_id") // User session ID
+  ipAddress   String? @map("ip_address")
+  userAgent   String? @map("user_agent")
+  apiEndpoint String? @map("api_endpoint")
+  httpMethod  String? @map("http_method")
+
+  // Error tracking
+  isError      Boolean @default(false) @map("is_error")
+  errorMessage String? @map("error_message")
+  errorStack   String? @map("error_stack")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Indexes for efficient querying
+  @@index([tableName, recordId])
+  @@index([fieldName])
+  @@index([userId])
+  @@index([organisationId])
+  @@index([agentId])
+  @@index([leadId])
+  @@index([action])
+  @@index([trigger])
+  @@index([createdAt])
+  @@index([requestId])
+  @@index([tableName, createdAt])
+  @@index([recordId, createdAt])
+  @@index([tableName, recordId, fieldName])
+  @@map("history")
+}
+
+enum ROLE {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum AGENT_TYPE {
+  MARKETING
+  SALES
+}
+
+enum CHAT_SOURCE {
+  WHATSAPP
+  INSTAGRAM
+}
+
+enum CHAT_STATUS {
+  NEW
+  OPEN
+  PENDING
+  CLOSED
+}
+
+enum CHAT_MESSAGE_TYPE {
+  TEXT
+  IMAGE
+  VIDEO
+  AUDIO
+  FILE
+  GIF
+  DOCUMENT
+}
+
+enum CALL_STATUS {
+  ACTIVE
+  DISCONNECTED
+  RESCHEDULED
+  MISSED
+  COMPLETED
+}
+
+enum SENTIMENT {
+  HOT
+  WARM
+  COLD
+}
+
+enum EXECUTION_TYPE {
+  CALL_TRIGGER
+  CALL_END
+  CALL_ANALYSIS
+}
+
+enum HISTORY_ACTION {
+  CREATE
+  UPDATE
+  DELETE
+  RESTORE
+}
+
+enum HISTORY_TRIGGER {
+  USER_ACTION
+  SYSTEM_ACTION
+  API_CALL
+  SCHEDULER
+  WEBHOOK
+  INTEGRATION
+  MIGRATION
+  ADMIN_ACTION
+}
