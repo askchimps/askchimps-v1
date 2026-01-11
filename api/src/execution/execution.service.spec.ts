@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExecutionService } from './execution.service';
 import { PrismaService } from '../database/prisma.service';
-import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { EXECUTION_TYPE } from '@prisma/client';
 
 describe('ExecutionService', () => {
@@ -10,6 +10,7 @@ describe('ExecutionService', () => {
 
   const mockExecution = {
     id: '01HZXYZ1234567890ABCDEFGHJK',
+    externalId: 'ext_exec_123456',
     type: EXECUTION_TYPE.CALL_END,
     organisationId: '01HZXYZ1234567890ABCDEFGHJM',
     agentId: '01HZXYZ1234567890ABCDEFGHJN',
@@ -40,6 +41,7 @@ describe('ExecutionService', () => {
       create: jest.fn(),
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
     },
@@ -71,7 +73,7 @@ describe('ExecutionService', () => {
 
   describe('create', () => {
     const createExecutionDto = {
-      id: '01HZXYZ1234567890ABCDEFGHJK',
+      externalId: 'ext_exec_123456',
       type: EXECUTION_TYPE.CALL_END,
       organisationId: '01HZXYZ1234567890ABCDEFGHJM',
       agentId: '01HZXYZ1234567890ABCDEFGHJN',
@@ -97,7 +99,7 @@ describe('ExecutionService', () => {
         organisationId: '01HZXYZ1234567890ABCDEFGHJM',
         isDeleted: false
       });
-      mockPrismaService.execution.findUnique.mockResolvedValue(null);
+      mockPrismaService.execution.findFirst.mockResolvedValue(null);
       mockPrismaService.execution.create.mockResolvedValue(mockExecution);
 
       const result = await service.create(createExecutionDto, 'user-1', false);
@@ -115,7 +117,7 @@ describe('ExecutionService', () => {
       );
     });
 
-    it('should throw BadRequestException if execution ID already exists', async () => {
+    it('should throw ConflictException if external ID already exists', async () => {
       mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJM', isDeleted: false });
       mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
       mockPrismaService.agent.findUnique.mockResolvedValue({
@@ -133,10 +135,10 @@ describe('ExecutionService', () => {
         organisationId: '01HZXYZ1234567890ABCDEFGHJM',
         isDeleted: false
       });
-      mockPrismaService.execution.findUnique.mockResolvedValue(mockExecution);
+      mockPrismaService.execution.findFirst.mockResolvedValue(mockExecution);
 
       await expect(service.create(createExecutionDto, 'user-1', false)).rejects.toThrow(
-        BadRequestException,
+        ConflictException,
       );
     });
 

@@ -2,7 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
-  BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateExecutionDto } from './dto/create-execution.dto';
@@ -79,13 +79,13 @@ export class ExecutionService {
       }
     }
 
-    // Check if execution with this ID already exists
-    const existingExecution = await this.prisma.execution.findUnique({
-      where: { id: createExecutionDto.id },
+    // Check if externalId is unique
+    const existingExternalId = await this.prisma.execution.findFirst({
+      where: { externalId: createExecutionDto.externalId },
     });
 
-    if (existingExecution) {
-      throw new BadRequestException('Execution with this ID already exists');
+    if (existingExternalId) {
+      throw new ConflictException('An execution with this external ID already exists');
     }
 
     const execution = await this.prisma.execution.create({
@@ -138,9 +138,17 @@ export class ExecutionService {
     userId: string,
     isSuperAdmin: boolean,
   ): Promise<ExecutionEntity> {
-    const execution = await this.prisma.execution.findUnique({
+    // Try to find by id first, then by externalId
+    let execution = await this.prisma.execution.findUnique({
       where: { id },
     });
+
+    // If not found by id, try externalId
+    if (!execution) {
+      execution = await this.prisma.execution.findUnique({
+        where: { externalId: id },
+      });
+    }
 
     if (!execution || execution.organisationId !== organisationId) {
       throw new NotFoundException('Execution not found');
@@ -171,9 +179,17 @@ export class ExecutionService {
     userId: string,
     isSuperAdmin: boolean,
   ): Promise<ExecutionEntity> {
-    const execution = await this.prisma.execution.findUnique({
+    // Try to find by id first, then by externalId
+    let execution = await this.prisma.execution.findUnique({
       where: { id },
     });
+
+    // If not found by id, try externalId
+    if (!execution) {
+      execution = await this.prisma.execution.findUnique({
+        where: { externalId: id },
+      });
+    }
 
     if (!execution || execution.organisationId !== organisationId) {
       throw new NotFoundException('Execution not found');
@@ -194,8 +210,19 @@ export class ExecutionService {
       }
     }
 
+    // Check if externalId is unique (if provided and different from current)
+    if (updateExecutionDto.externalId && updateExecutionDto.externalId !== execution.externalId) {
+      const existingExecution = await this.prisma.execution.findFirst({
+        where: { externalId: updateExecutionDto.externalId },
+      });
+
+      if (existingExecution) {
+        throw new ConflictException('An execution with this external ID already exists');
+      }
+    }
+
     const updated = await this.prisma.execution.update({
-      where: { id },
+      where: { id: execution.id },
       data: updateExecutionDto,
     });
 
@@ -208,9 +235,17 @@ export class ExecutionService {
     userId: string,
     isSuperAdmin: boolean,
   ): Promise<ExecutionEntity> {
-    const execution = await this.prisma.execution.findUnique({
+    // Try to find by id first, then by externalId
+    let execution = await this.prisma.execution.findUnique({
       where: { id },
     });
+
+    // If not found by id, try externalId
+    if (!execution) {
+      execution = await this.prisma.execution.findUnique({
+        where: { externalId: id },
+      });
+    }
 
     if (!execution || execution.organisationId !== organisationId) {
       throw new NotFoundException('Execution not found');
@@ -233,7 +268,7 @@ export class ExecutionService {
 
     // Hard delete (executions don't have soft delete)
     const deleted = await this.prisma.execution.delete({
-      where: { id },
+      where: { id: execution.id },
     });
 
     return new ExecutionEntity(deleted);

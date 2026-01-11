@@ -9,6 +9,12 @@ export class ExecutionEntity {
   id: string;
 
   @ApiProperty({
+    description: 'External ID for the execution',
+    example: 'ext_exec_123456',
+  })
+  externalId: string;
+
+  @ApiProperty({
     description: 'Type of execution',
     enum: EXECUTION_TYPE,
     example: EXECUTION_TYPE.CALL_END,

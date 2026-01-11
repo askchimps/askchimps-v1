@@ -159,9 +159,17 @@ export class CallService {
     userId: string,
     isSuperAdmin: boolean,
   ): Promise<CallEntity> {
-    const call = await this.prisma.call.findUnique({
+    // Try to find by id first, then by externalId
+    let call = await this.prisma.call.findUnique({
       where: { id },
     });
+
+    // If not found by id, try externalId
+    if (!call) {
+      call = await this.prisma.call.findUnique({
+        where: { externalId: id },
+      });
+    }
 
     if (!call || call.isDeleted || call.organisationId !== organisationId) {
       throw new NotFoundException('Call not found');
@@ -192,9 +200,17 @@ export class CallService {
     userId: string,
     isSuperAdmin: boolean,
   ): Promise<CallEntity> {
-    const call = await this.prisma.call.findUnique({
+    // Try to find by id first, then by externalId
+    let call = await this.prisma.call.findUnique({
       where: { id },
     });
+
+    // If not found by id, try externalId
+    if (!call) {
+      call = await this.prisma.call.findUnique({
+        where: { externalId: id },
+      });
+    }
 
     if (!call || call.isDeleted || call.organisationId !== organisationId) {
       throw new NotFoundException('Call not found');
@@ -227,7 +243,7 @@ export class CallService {
     }
 
     const updated = await this.prisma.call.update({
-      where: { id },
+      where: { id: call.id },
       data: updateCallDto,
     });
 
@@ -240,9 +256,17 @@ export class CallService {
     userId: string,
     isSuperAdmin: boolean,
   ): Promise<CallEntity> {
-    const call = await this.prisma.call.findUnique({
+    // Try to find by id first, then by externalId
+    let call = await this.prisma.call.findUnique({
       where: { id },
     });
+
+    // If not found by id, try externalId
+    if (!call) {
+      call = await this.prisma.call.findUnique({
+        where: { externalId: id },
+      });
+    }
 
     if (!call || call.isDeleted || call.organisationId !== organisationId) {
       throw new NotFoundException('Call not found');
@@ -265,7 +289,7 @@ export class CallService {
 
     // Soft delete
     const deleted = await this.prisma.call.update({
-      where: { id },
+      where: { id: call.id },
       data: { isDeleted: true },
     });
 

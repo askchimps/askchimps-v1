@@ -5,12 +5,12 @@ import { EXECUTION_TYPE } from '@prisma/client';
 
 export class CreateExecutionDto {
   @ApiProperty({
-    description: 'Execution ID - must be provided by client',
-    example: '12321321',
+    description: 'External ID for the execution (unique identifier from external system)',
+    example: 'ext_exec_123456',
   })
   @IsString()
   @IsNotEmpty()
-  id: string;
+  externalId: string;
 
   @ApiProperty({
     description: 'Type of execution',

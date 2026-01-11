@@ -1,6 +1,7 @@
 import {
   Injectable,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateLeadOwnerDto } from './dto/create-lead-owner.dto';
@@ -12,6 +13,15 @@ export class LeadOwnerService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createLeadOwnerDto: CreateLeadOwnerDto): Promise<LeadOwnerEntity> {
+    // Check if lead owner with this ID already exists
+    const existingLeadOwner = await this.prisma.leadOwner.findUnique({
+      where: { id: createLeadOwnerDto.id },
+    });
+
+    if (existingLeadOwner) {
+      throw new ConflictException('Lead owner with this ID already exists');
+    }
+
     const leadOwner = await this.prisma.leadOwner.create({
       data: createLeadOwnerDto,
     });

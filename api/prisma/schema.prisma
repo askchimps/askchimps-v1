@@ -262,7 +262,8 @@ model MessageAttachment {
 }
 
 model Execution {
-  id             String         @id
+  id             String         @id @default(ulid())
+  externalId     String         @unique @map("external_id")
   type           EXECUTION_TYPE
   organisationId String         @map("organisation_id")
   agentId        String?        @map("agent_id")
