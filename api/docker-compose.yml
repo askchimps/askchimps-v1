@@ -37,13 +37,13 @@ services:
     container_name: askchimps-postgres
     restart: unless-stopped
     ports:
-      - "${POSTGRES_PORT:-5431}:5431"
+      - "${POSTGRES_PORT:-5431}:5432"
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - POSTGRES_DB=${POSTGRES_DB:-askchimps}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - askchimps_postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-askchimps}"]
       interval: 10s
@@ -58,5 +58,5 @@ services:
           memory: 128M
 
 volumes:
-  postgres_data:
+  askchimps_postgres_data:
 
