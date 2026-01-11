@@ -17,8 +17,7 @@ async function bootstrap() {
 
   // CORS
   app.enableCors({
-    origin: configService.get<string>('CORS_ORIGIN') || '*',
-    credentials: true,
+    origin: true
   });
 
   // Global validation pipe
