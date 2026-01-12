@@ -48,6 +48,7 @@ export class AgentLeadCallScheduleController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({ summary: 'Get all call schedules in organisation' })
   @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
+  @ApiQuery({ name: 'type', required: false, description: 'Filter by schedule type', enum: ['INITIAL', 'FOLLOW_UP', 'RESCHEDULE'] })
   @ApiQuery({ name: 'agentId', required: false, description: 'Filter by Agent ID' })
   @ApiQuery({ name: 'leadId', required: false, description: 'Filter by Lead ID' })
   @ApiQuery({ name: 'startDateTime', required: false, description: 'Filter by start date time (ISO 8601 format)' })
@@ -56,6 +57,7 @@ export class AgentLeadCallScheduleController {
   @ApiResponse({ status: 200, description: 'Schedules retrieved successfully' })
   findAll(
     @Param('organisationId') organisationId: string,
+    @Query('type') type?: string,
     @Query('agentId') agentId?: string,
     @Query('leadId') leadId?: string,
     @Query('startDateTime') startDateTime?: string,
@@ -68,6 +70,7 @@ export class AgentLeadCallScheduleController {
       organisationId,
       user!.sub,
       user!.isSuperAdmin,
+      type,
       agentId,
       leadId,
       startDateTime,

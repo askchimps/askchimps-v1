@@ -77,6 +77,7 @@ export class AgentLeadCallScheduleService {
 
     const schedule = await this.prisma.agentLeadCallSchedule.create({
       data: {
+        type: createDto.type,
         agentId: createDto.agentId,
         leadId: createDto.leadId,
         callTime: new Date(createDto.callTime),
@@ -90,6 +91,7 @@ export class AgentLeadCallScheduleService {
     organisationId: string,
     userId: string,
     isSuperAdmin: boolean,
+    type?: string,
     agentId?: string,
     leadId?: string,
     startDateTime?: string,
@@ -123,6 +125,10 @@ export class AgentLeadCallScheduleService {
     const where: any = {
       isDeleted: false,
     };
+
+    if (type) {
+      where.type = type;
+    }
 
     if (agentId) {
       // Verify agent belongs to organisation
@@ -252,6 +258,9 @@ export class AgentLeadCallScheduleService {
     }
 
     const data: any = {};
+    if (updateDto.type !== undefined) {
+      data.type = updateDto.type;
+    }
     if (updateDto.callTime) {
       data.callTime = new Date(updateDto.callTime);
     }

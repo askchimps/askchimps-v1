@@ -1,5 +1,8 @@
+import { SCHEDULE_TYPE } from '@prisma/client';
+
 export class AgentLeadCallScheduleEntity {
   id: string;
+  type: SCHEDULE_TYPE;
   agentId: string;
   leadId: string;
   callTime: Date;

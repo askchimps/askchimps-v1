@@ -125,13 +125,14 @@ model Lead {
 }
 
 model AgentLeadCallSchedule {
-  id        String   @id @default(ulid())
-  agentId   String   @map("agent_id")
-  leadId    String   @map("lead_id")
-  callTime  DateTime @map("call_time")
-  isDeleted Boolean  @default(false) @map("is_deleted")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id        String        @id @default(ulid())
+  type      SCHEDULE_TYPE @default(INITIAL)
+  agentId   String        @map("agent_id")
+  leadId    String        @map("lead_id")
+  callTime  DateTime      @map("call_time")
+  isDeleted Boolean       @default(false) @map("is_deleted")
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
 
   agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
   lead  Lead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
@@ -391,6 +392,12 @@ enum SENTIMENT {
   HOT
   WARM
   COLD
+}
+
+enum SCHEDULE_TYPE {
+  INITIAL
+  FOLLOW_UP
+  RESCHEDULE
 }
 
 enum EXECUTION_TYPE {

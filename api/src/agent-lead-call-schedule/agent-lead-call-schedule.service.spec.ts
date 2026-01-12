@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AgentLeadCallScheduleService } from './agent-lead-call-schedule.service';
 import { PrismaService } from '../database/prisma.service';
 import { NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { SCHEDULE_TYPE } from '@prisma/client';
 
 describe('AgentLeadCallScheduleService', () => {
   let service: AgentLeadCallScheduleService;
@@ -9,10 +10,11 @@ describe('AgentLeadCallScheduleService', () => {
 
   const mockSchedule = {
     id: '01HZXYZ1234567890ABCDEFGHJK',
+    type: SCHEDULE_TYPE.INITIAL,
     organisationId: '01HZXYZ1234567890ABCDEFGHJL',
     agentId: '01HZXYZ1234567890ABCDEFGHJM',
     leadId: '01HZXYZ1234567890ABCDEFGHJN',
-    scheduledAt: new Date(),
+    callTime: new Date(),
     isDeleted: false,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -86,9 +88,10 @@ describe('AgentLeadCallScheduleService', () => {
 
   describe('create', () => {
     const createScheduleDto = {
+      type: SCHEDULE_TYPE.INITIAL,
       agentId: '01HZXYZ1234567890ABCDEFGHJM',
       leadId: '01HZXYZ1234567890ABCDEFGHJN',
-      scheduledAt: new Date(),
+      callTime: new Date().toISOString(),
     };
 
     it('should create a schedule successfully', async () => {
@@ -164,7 +167,7 @@ describe('AgentLeadCallScheduleService', () => {
       const startDateTime = '2026-01-01T00:00:00Z';
       const endDateTime = '2026-01-31T23:59:59Z';
 
-      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, undefined, undefined, startDateTime, endDateTime);
+      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, undefined, undefined, undefined, startDateTime, endDateTime);
 
       expect(result).toHaveLength(1);
       expect(prisma.agentLeadCallSchedule.findMany).toHaveBeenCalledWith({
@@ -186,7 +189,7 @@ describe('AgentLeadCallScheduleService', () => {
 
       const limit = 10;
 
-      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, undefined, undefined, undefined, undefined, limit);
+      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, undefined, undefined, undefined, undefined, undefined, limit);
 
       expect(result).toHaveLength(1);
       expect(prisma.agentLeadCallSchedule.findMany).toHaveBeenCalledWith({
@@ -231,7 +234,8 @@ describe('AgentLeadCallScheduleService', () => {
 
   describe('update', () => {
     const updateScheduleDto = {
-      scheduledAt: new Date(),
+      type: SCHEDULE_TYPE.FOLLOW_UP,
+      callTime: new Date().toISOString(),
     };
 
     it('should update a schedule successfully', async () => {
