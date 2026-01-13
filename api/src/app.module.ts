@@ -19,6 +19,7 @@ import { CallMessageModule } from './call-message/call-message.module';
 import { AgentLeadCallScheduleModule } from './agent-lead-call-schedule/agent-lead-call-schedule.module';
 import { ExecutionModule } from './execution/execution.module';
 import { HistoryModule } from './history/history.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { HistoryModule } from './history/history.module';
     AgentLeadCallScheduleModule,
     ExecutionModule,
     HistoryModule,
+    HealthModule,
   ],
   providers: [
     {
