@@ -8,9 +8,11 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
+import { QueryChatDto } from './dto/query-chat.dto';
 import { CheckInstagramMessageDto } from './dto/check-instagram-message.dto';
 import { ChatEntity } from './entities/chat.entity';
 import { CHAT_STATUS } from '@prisma/client';
+import type { PaginatedResponse } from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class ChatService {
@@ -103,21 +105,54 @@ export class ChatService {
     return new ChatEntity(chat);
   }
 
-  async findAll(organisationId: string): Promise<ChatEntity[]> {
+  async findAll(organisationId: string, queryDto: QueryChatDto): Promise<PaginatedResponse<ChatEntity>> {
+    const where: any = {
+      organisationId,
+      isDeleted: false,
+    };
+
+    if (queryDto.leadId) {
+      where.leadId = queryDto.leadId;
+    }
+
+    if (queryDto.agentId) {
+      where.agentId = queryDto.agentId;
+    }
+
+    if (queryDto.status) {
+      where.status = queryDto.status;
+    }
+
+    if (queryDto.source) {
+      where.source = queryDto.source;
+    }
+
+    const limit = queryDto.limit || 50;
+    const offset = queryDto.offset || 0;
+    const sortOrder = queryDto.sortOrder || 'desc';
+
+    // Get total count
+    const total = await this.prisma.chat.count({ where });
+
+    // Get paginated records
     const chats = await this.prisma.chat.findMany({
-      where: {
-        organisationId,
-        isDeleted: false,
-      },
+      where,
       include: {
         lead: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: sortOrder,
       },
+      take: limit,
+      skip: offset,
     });
 
-    return chats.map((chat) => new ChatEntity(chat));
+    return {
+      data: chats.map((chat) => new ChatEntity(chat)),
+      total,
+      limit,
+      offset,
+    };
   }
 
   async findOne(organisationId: string, idOrSourceId: string): Promise<ChatEntity> {

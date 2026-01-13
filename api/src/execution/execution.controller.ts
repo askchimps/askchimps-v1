@@ -7,11 +7,13 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { ExecutionService } from './execution.service';
 import { CreateExecutionDto } from './dto/create-execution.dto';
 import { UpdateExecutionDto } from './dto/update-execution.dto';
+import { QueryExecutionDto } from './dto/query-execution.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../common/guards/rbac.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -46,14 +48,15 @@ export class ExecutionController {
   @Get()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get all executions for an organisation' })
+  @ApiOperation({ summary: 'Get all executions for an organisation with pagination' })
   @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
   @ApiResponse({ status: 200, description: 'Executions retrieved successfully' })
   findAll(
     @Param('organisationId') organisationId: string,
+    @Query() queryDto: QueryExecutionDto,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.executionService.findAll(organisationId, user.sub, user.isSuperAdmin);
+    return this.executionService.findAll(organisationId, user.sub, user.isSuperAdmin, queryDto);
   }
 
   @Get(':id')

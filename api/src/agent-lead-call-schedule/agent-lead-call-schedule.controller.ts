@@ -9,10 +9,11 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { AgentLeadCallScheduleService } from './agent-lead-call-schedule.service';
 import { CreateAgentLeadCallScheduleDto } from './dto/create-agent-lead-call-schedule.dto';
 import { UpdateAgentLeadCallScheduleDto } from './dto/update-agent-lead-call-schedule.dto';
+import { QueryAgentLeadCallScheduleDto } from './dto/query-agent-lead-call-schedule.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../common/guards/rbac.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -46,36 +47,19 @@ export class AgentLeadCallScheduleController {
   @Get()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get all call schedules in organisation' })
+  @ApiOperation({ summary: 'Get all call schedules in organisation with pagination' })
   @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
-  @ApiQuery({ name: 'type', required: false, description: 'Filter by schedule type', enum: ['INITIAL', 'FOLLOW_UP', 'RESCHEDULE'] })
-  @ApiQuery({ name: 'agentId', required: false, description: 'Filter by Agent ID' })
-  @ApiQuery({ name: 'leadId', required: false, description: 'Filter by Lead ID' })
-  @ApiQuery({ name: 'startDateTime', required: false, description: 'Filter by start date time (ISO 8601 format)' })
-  @ApiQuery({ name: 'endDateTime', required: false, description: 'Filter by end date time (ISO 8601 format)' })
-  @ApiQuery({ name: 'limit', required: false, description: 'Maximum number of schedules to return', type: Number })
   @ApiResponse({ status: 200, description: 'Schedules retrieved successfully' })
   findAll(
     @Param('organisationId') organisationId: string,
-    @Query('type') type?: string,
-    @Query('agentId') agentId?: string,
-    @Query('leadId') leadId?: string,
-    @Query('startDateTime') startDateTime?: string,
-    @Query('endDateTime') endDateTime?: string,
-    @Query('limit') limit?: string,
-    @CurrentUser() user?: UserPayload,
+    @Query() queryDto: QueryAgentLeadCallScheduleDto,
+    @CurrentUser() user: UserPayload,
   ) {
-    const limitNumber = limit ? parseInt(limit, 10) : undefined;
     return this.scheduleService.findAll(
       organisationId,
-      user!.sub,
-      user!.isSuperAdmin,
-      type,
-      agentId,
-      leadId,
-      startDateTime,
-      endDateTime,
-      limitNumber,
+      user.sub,
+      user.isSuperAdmin,
+      queryDto,
     );
   }
 

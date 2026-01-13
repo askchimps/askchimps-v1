@@ -7,11 +7,13 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { CallMessageService } from './call-message.service';
 import { CreateCallMessageDto, CreateBulkCallMessageDto } from './dto/create-call-message.dto';
 import { UpdateCallMessageDto } from './dto/update-call-message.dto';
+import { QueryCallMessageDto } from './dto/query-call-message.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../common/guards/rbac.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -72,16 +74,17 @@ export class CallMessageController {
   @Get()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get all messages in a call' })
+  @ApiOperation({ summary: 'Get all messages in a call with pagination' })
   @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
   @ApiParam({ name: 'callId', description: 'Call ID' })
   @ApiResponse({ status: 200, description: 'Call messages retrieved successfully' })
   findAll(
     @Param('organisationId') organisationId: string,
     @Param('callId') callId: string,
+    @Query() queryDto: QueryCallMessageDto,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.callMessageService.findAll(callId, organisationId, user.sub, user.isSuperAdmin);
+    return this.callMessageService.findAll(callId, organisationId, user.sub, user.isSuperAdmin, queryDto);
   }
 
   @Get(':id')

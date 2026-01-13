@@ -24,6 +24,7 @@ import {
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
+import { QueryChatDto } from './dto/query-chat.dto';
 import { CheckInstagramMessageDto } from './dto/check-instagram-message.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../common/guards/rbac.guard';
@@ -54,17 +55,14 @@ export class ChatController {
   @Get()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get all chats in organisation' })
+  @ApiOperation({ summary: 'Get all chats in organisation with pagination' })
   @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
-  @ApiQuery({ name: 'leadId', required: false, description: 'Filter by lead ID' })
+  @ApiResponse({ status: 200, description: 'Chats retrieved successfully' })
   findAll(
     @Param('organisationId') organisationId: string,
-    @Query('leadId') leadId?: string,
+    @Query() queryDto: QueryChatDto,
   ) {
-    if (leadId) {
-      return this.chatService.findByLead(organisationId, leadId);
-    }
-    return this.chatService.findAll(organisationId);
+    return this.chatService.findAll(organisationId, queryDto);
   }
 
   @Get(':id')

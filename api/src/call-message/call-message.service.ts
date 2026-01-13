@@ -6,7 +6,9 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { CreateCallMessageDto, CreateBulkCallMessageDto, CallMessageItemDto } from './dto/create-call-message.dto';
 import { UpdateCallMessageDto } from './dto/update-call-message.dto';
+import { QueryCallMessageDto } from './dto/query-call-message.dto';
 import { CallMessageEntity } from './entities/call-message.entity';
+import type { PaginatedResponse } from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class CallMessageService {
@@ -123,7 +125,8 @@ export class CallMessageService {
     organisationId: string,
     userId: string,
     isSuperAdmin: boolean,
-  ): Promise<CallMessageEntity[]> {
+    queryDto: QueryCallMessageDto,
+  ): Promise<PaginatedResponse<CallMessageEntity>> {
     // Verify call exists and belongs to organisation
     const call = await this.prisma.call.findUnique({
       where: { id: callId },
@@ -148,15 +151,40 @@ export class CallMessageService {
       }
     }
 
+    const where: any = {
+      callId,
+      isDeleted: false,
+    };
+
+    if (queryDto.role) {
+      where.role = queryDto.role;
+    }
+
+    if (queryDto.search) {
+      where.content = { contains: queryDto.search, mode: 'insensitive' };
+    }
+
+    const limit = queryDto.limit || 50;
+    const offset = queryDto.offset || 0;
+    const sortOrder = queryDto.sortOrder || 'asc';
+
+    // Get total count
+    const total = await this.prisma.callMessage.count({ where });
+
+    // Get paginated records
     const messages = await this.prisma.callMessage.findMany({
-      where: {
-        callId,
-        isDeleted: false,
-      },
-      orderBy: { createdAt: 'asc' },
+      where,
+      orderBy: { createdAt: sortOrder },
+      take: limit,
+      skip: offset,
     });
 
-    return messages.map((message) => new CallMessageEntity(message));
+    return {
+      data: messages.map((message) => new CallMessageEntity(message)),
+      total,
+      limit,
+      offset,
+    };
   }
 
   async findOne(

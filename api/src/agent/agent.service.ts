@@ -7,7 +7,9 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { CreateAgentDto } from './dto/create-agent.dto';
 import { UpdateAgentDto } from './dto/update-agent.dto';
+import { QueryAgentDto } from './dto/query-agent.dto';
 import { AgentEntity } from './entities/agent.entity';
+import type { PaginatedResponse } from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class AgentService {
@@ -62,7 +64,8 @@ export class AgentService {
     organisationId: string,
     userId: string,
     isSuperAdmin: boolean,
-  ): Promise<AgentEntity[]> {
+    queryDto: QueryAgentDto,
+  ): Promise<PaginatedResponse<AgentEntity>> {
     // Verify organisation exists
     const organisation = await this.prisma.organisation.findUnique({
       where: { id: organisationId },
@@ -87,15 +90,43 @@ export class AgentService {
       }
     }
 
+    const where: any = {
+      organisationId,
+      isDeleted: false,
+    };
+
+    if (queryDto.isActive !== undefined) {
+      where.isActive = queryDto.isActive;
+    }
+
+    if (queryDto.search) {
+      where.OR = [
+        { name: { contains: queryDto.search, mode: 'insensitive' } },
+        { slug: { contains: queryDto.search, mode: 'insensitive' } },
+      ];
+    }
+
+    const limit = queryDto.limit || 50;
+    const offset = queryDto.offset || 0;
+    const sortOrder = queryDto.sortOrder || 'desc';
+
+    // Get total count
+    const total = await this.prisma.agent.count({ where });
+
+    // Get paginated records
     const agents = await this.prisma.agent.findMany({
-      where: {
-        organisationId,
-        isDeleted: false,
-      },
-      orderBy: { createdAt: 'desc' },
+      where,
+      orderBy: { createdAt: sortOrder },
+      take: limit,
+      skip: offset,
     });
 
-    return agents.map((agent) => new AgentEntity(agent));
+    return {
+      data: agents.map((agent) => new AgentEntity(agent)),
+      total,
+      limit,
+      offset,
+    };
   }
 
   async findOne(

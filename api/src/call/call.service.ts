@@ -7,7 +7,9 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { CreateCallDto } from './dto/create-call.dto';
 import { UpdateCallDto } from './dto/update-call.dto';
+import { QueryCallDto } from './dto/query-call.dto';
 import { CallEntity } from './entities/call.entity';
+import type { PaginatedResponse } from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class CallService {
@@ -82,10 +84,8 @@ export class CallService {
     organisationId: string,
     userId: string,
     isSuperAdmin: boolean,
-    status?: string,
-    agentId?: string,
-    leadId?: string,
-  ): Promise<CallEntity[]> {
+    queryDto: QueryCallDto,
+  ): Promise<PaginatedResponse<CallEntity>> {
     // Verify organisation exists
     const organisation = await this.prisma.organisation.findUnique({
       where: { id: organisationId },
@@ -115,42 +115,57 @@ export class CallService {
       isDeleted: false,
     };
 
-    if (status) {
-      where.status = status;
+    if (queryDto.status) {
+      where.status = queryDto.status;
     }
 
-    if (agentId) {
+    if (queryDto.agentId) {
       // Verify agent belongs to organisation
       const agent = await this.prisma.agent.findUnique({
-        where: { id: agentId },
+        where: { id: queryDto.agentId },
       });
 
       if (!agent || agent.isDeleted || agent.organisationId !== organisationId) {
         throw new NotFoundException('Agent not found');
       }
 
-      where.agentId = agentId;
+      where.agentId = queryDto.agentId;
     }
 
-    if (leadId) {
+    if (queryDto.leadId) {
       // Verify lead belongs to organisation
       const lead = await this.prisma.lead.findUnique({
-        where: { id: leadId },
+        where: { id: queryDto.leadId },
       });
 
       if (!lead || lead.isDeleted || lead.organisationId !== organisationId) {
         throw new NotFoundException('Lead not found');
       }
 
-      where.leadId = leadId;
+      where.leadId = queryDto.leadId;
     }
 
+    const limit = queryDto.limit || 50;
+    const offset = queryDto.offset || 0;
+    const sortOrder = queryDto.sortOrder || 'desc';
+
+    // Get total count
+    const total = await this.prisma.call.count({ where });
+
+    // Get paginated records
     const calls = await this.prisma.call.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: sortOrder },
+      take: limit,
+      skip: offset,
     });
 
-    return calls.map((call) => new CallEntity(call));
+    return {
+      data: calls.map((call) => new CallEntity(call)),
+      total,
+      limit,
+      offset,
+    };
   }
 
   async findOne(

@@ -6,8 +6,10 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
+import { QueryChatMessageDto } from './dto/query-chat-message.dto';
 import { ChatMessageEntity } from './entities/chat-message.entity';
 import { CHAT_MESSAGE_TYPE } from '@prisma/client';
+import type { PaginatedResponse } from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class ChatMessageService {
@@ -61,7 +63,8 @@ export class ChatMessageService {
   async findAll(
     organisationId: string,
     chatIdOrSourceId: string,
-  ): Promise<ChatMessageEntity[]> {
+    queryDto: QueryChatMessageDto,
+  ): Promise<PaginatedResponse<ChatMessageEntity>> {
     // Verify chat exists and belongs to organisation (support both id and sourceId)
     const chat = await this.prisma.chat.findFirst({
       where: {
@@ -78,23 +81,52 @@ export class ChatMessageService {
       throw new NotFoundException('Chat not found');
     }
 
+    const where: any = {
+      chatId: chat.id,
+      organisationId,
+      isDeleted: false,
+    };
+
+    if (queryDto.type) {
+      where.type = queryDto.type;
+    }
+
+    if (queryDto.role) {
+      where.role = queryDto.role;
+    }
+
+    if (queryDto.search) {
+      where.content = { contains: queryDto.search, mode: 'insensitive' };
+    }
+
+    const limit = queryDto.limit || 50;
+    const offset = queryDto.offset || 0;
+    const sortOrder = queryDto.sortOrder || 'asc';
+
+    // Get total count
+    const total = await this.prisma.chatMessage.count({ where });
+
+    // Get paginated records
     const messages = await this.prisma.chatMessage.findMany({
-      where: {
-        chatId: chat.id,
-        organisationId,
-        isDeleted: false,
-      },
+      where,
       include: {
         attachments: {
           where: { isDeleted: false },
         },
       },
       orderBy: {
-        createdAt: 'asc',
+        createdAt: sortOrder,
       },
+      take: limit,
+      skip: offset,
     });
 
-    return messages.map((message) => new ChatMessageEntity(message));
+    return {
+      data: messages.map((message) => new ChatMessageEntity(message)),
+      total,
+      limit,
+      offset,
+    };
   }
 
   async findOne(

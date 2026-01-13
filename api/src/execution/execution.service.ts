@@ -6,7 +6,9 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { CreateExecutionDto } from './dto/create-execution.dto';
 import { UpdateExecutionDto } from './dto/update-execution.dto';
+import { QueryExecutionDto } from './dto/query-execution.dto';
 import { ExecutionEntity } from './entities/execution.entity';
+import type { PaginatedResponse } from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class ExecutionService {
@@ -89,7 +91,8 @@ export class ExecutionService {
     organisationId: string,
     userId: string,
     isSuperAdmin: boolean,
-  ): Promise<ExecutionEntity[]> {
+    queryDto: QueryExecutionDto,
+  ): Promise<PaginatedResponse<ExecutionEntity>> {
     // Verify organisation exists
     const organisation = await this.prisma.organisation.findUnique({
       where: { id: organisationId },
@@ -114,12 +117,41 @@ export class ExecutionService {
       }
     }
 
+    const where: any = { organisationId };
+
+    if (queryDto.agentId) {
+      where.agentId = queryDto.agentId;
+    }
+
+    if (queryDto.leadId) {
+      where.leadId = queryDto.leadId;
+    }
+
+    if (queryDto.type) {
+      where.type = queryDto.type;
+    }
+
+    const limit = queryDto.limit || 50;
+    const offset = queryDto.offset || 0;
+    const sortOrder = queryDto.sortOrder || 'desc';
+
+    // Get total count
+    const total = await this.prisma.execution.count({ where });
+
+    // Get paginated records
     const executions = await this.prisma.execution.findMany({
-      where: { organisationId },
-      orderBy: { createdAt: 'desc' },
+      where,
+      orderBy: { createdAt: sortOrder },
+      take: limit,
+      skip: offset,
     });
 
-    return executions.map((execution) => new ExecutionEntity(execution));
+    return {
+      data: executions.map((execution) => new ExecutionEntity(execution)),
+      total,
+      limit,
+      offset,
+    };
   }
 
   async findOne(
