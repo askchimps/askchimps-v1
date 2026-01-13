@@ -35,7 +35,6 @@ export interface PaginatedData<T> {
   total: number;
   limit: number;
   offset: number;
-  hasMore: boolean;
 }
 
 export interface PaginationParams {

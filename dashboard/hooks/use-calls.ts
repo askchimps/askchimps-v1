@@ -11,10 +11,16 @@ export function useCalls(organisationId: string, params?: CallsQueryParams) {
     enabled: !!organisationId,
   });
 
+  const data = query.data;
+  const offset = data?.offset ?? 0;
+  const limit = data?.limit ?? params?.limit ?? 20;
+  const total = data?.total ?? 0;
+  const hasMore = offset + limit < total;
+
   return {
-    data: query.data?.data ?? [],
-    total: query.data?.total ?? 0,
-    hasMore: query.data?.hasMore ?? false,
+    data: data?.data ?? [],
+    total,
+    hasMore,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
