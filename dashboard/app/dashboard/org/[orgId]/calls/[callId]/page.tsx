@@ -4,14 +4,15 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useCalls } from "@/hooks/use-calls";
 import { CallsList } from "@/components/calls/calls-list";
-import { Phone } from "lucide-react";
+import { CallMessages } from "@/components/calls/call-messages";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
-export default function CallsPage() {
+export default function CallDetailPage() {
   const params = useParams();
   const router = useRouter();
 
   const orgId = params.orgId as string;
+  const callId = params.callId as string;
 
   const [offset, setOffset] = useState(0);
   const [limit, setLimit] = useState(20);
@@ -33,8 +34,8 @@ export default function CallsPage() {
     setOffset(0);
   }, [orgId]);
 
-  const handleCallSelect = (callId: string) => {
-    router.push(`/dashboard/org/${orgId}/calls/${callId}`);
+  const handleCallSelect = (newCallId: string) => {
+    router.push(`/dashboard/org/${orgId}/calls/${newCallId}`);
   };
 
   return (
@@ -44,7 +45,7 @@ export default function CallsPage() {
         <CallsList
           calls={calls}
           total={total}
-          selectedCallId={null}
+          selectedCallId={callId}
           onCallSelect={handleCallSelect}
           offset={offset}
           limit={limit}
@@ -59,17 +60,9 @@ export default function CallsPage() {
         />
       </div>
 
-      {/* Right pane: Empty state */}
+      {/* Right pane: Call messages */}
       <div className="flex-1 min-w-0">
-        <div className="flex h-full flex-col items-center justify-center gap-4 rounded-lg border bg-card p-8">
-          <Phone className="h-16 w-16 text-muted-foreground/30" />
-          <div className="text-center">
-            <h3 className="font-semibold text-lg">Select a call</h3>
-            <p className="text-muted-foreground">
-              Choose a call from the list to view its conversation
-            </p>
-          </div>
-        </div>
+        <CallMessages organisationId={orgId} callId={callId} />
       </div>
     </div>
   );

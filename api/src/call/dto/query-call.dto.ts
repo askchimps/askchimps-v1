@@ -28,5 +28,13 @@ export class QueryCallDto extends PaginationQueryDto {
   @IsEnum(CALL_STATUS)
   @IsOptional()
   status?: CALL_STATUS;
+
+  @ApiPropertyOptional({
+    description: 'Search by lead name (first or last name)',
+    example: 'John',
+  })
+  @IsString()
+  @IsOptional()
+  search?: string;
 }
 
