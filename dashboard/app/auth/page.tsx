@@ -13,12 +13,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { authService } from "@/lib/api/auth";
+import { organisationApi } from "@/lib/api/organisation";
 import { useAuthStore } from "@/stores/auth-store";
+import { useOrganisationStore } from "@/stores/organisation-store";
 import { Eye, EyeOff, Loader2, Bot } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const { setOrganisations, setSelectedOrganisation } = useOrganisationStore();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,8 +44,22 @@ export default function LoginPage() {
         response.data.refreshToken
       );
 
-      // Navigate to dashboard
-      router.push("/dashboard");
+      // Fetch organisations and redirect to first org's dashboard
+      try {
+        const orgsResponse = await organisationApi.getAll();
+        if (orgsResponse.data.length > 0) {
+          setOrganisations(orgsResponse.data);
+          setSelectedOrganisation(orgsResponse.data[0]);
+          router.push(`/org/${orgsResponse.data[0].id}/dashboard`);
+        } else {
+          // No organisations, redirect to a default page
+          router.push("/dashboard");
+        }
+      } catch (orgError) {
+        console.error("Failed to fetch organisations:", orgError);
+        // Fallback to dashboard without org context
+        router.push("/dashboard");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
