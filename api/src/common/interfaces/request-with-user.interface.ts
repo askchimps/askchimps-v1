@@ -2,6 +2,7 @@ import { Request } from 'express';
 import { Role } from '../enums';
 
 export interface UserPayload {
+  id: string;
   sub: string;
   email: string;
   isSuperAdmin: boolean;
