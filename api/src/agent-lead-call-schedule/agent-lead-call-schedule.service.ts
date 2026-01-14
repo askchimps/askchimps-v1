@@ -7,9 +7,7 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { CreateAgentLeadCallScheduleDto } from './dto/create-agent-lead-call-schedule.dto';
 import { UpdateAgentLeadCallScheduleDto } from './dto/update-agent-lead-call-schedule.dto';
-import { QueryAgentLeadCallScheduleDto } from './dto/query-agent-lead-call-schedule.dto';
 import { AgentLeadCallScheduleEntity } from './entities/agent-lead-call-schedule.entity';
-import type { PaginatedResponse } from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class AgentLeadCallScheduleService {
@@ -93,8 +91,13 @@ export class AgentLeadCallScheduleService {
     organisationId: string,
     userId: string,
     isSuperAdmin: boolean,
-    queryDto: QueryAgentLeadCallScheduleDto,
-  ): Promise<PaginatedResponse<AgentLeadCallScheduleEntity>> {
+    type?: string,
+    agentId?: string,
+    leadId?: string,
+    startDateTime?: string,
+    endDateTime?: string,
+    limit?: number,
+  ): Promise<AgentLeadCallScheduleEntity[]> {
     // Verify organisation exists
     const organisation = await this.prisma.organisation.findUnique({
       where: { id: organisationId },
@@ -123,70 +126,56 @@ export class AgentLeadCallScheduleService {
       isDeleted: false,
     };
 
-    if (queryDto.type) {
-      where.type = queryDto.type;
+    if (type) {
+      where.type = type;
     }
 
-    if (queryDto.agentId) {
+    if (agentId) {
       // Verify agent belongs to organisation
       const agent = await this.prisma.agent.findUnique({
-        where: { id: queryDto.agentId },
+        where: { id: agentId },
       });
 
       if (!agent || agent.isDeleted || agent.organisationId !== organisationId) {
         throw new NotFoundException('Agent not found');
       }
 
-      where.agentId = queryDto.agentId;
+      where.agentId = agentId;
     }
 
-    if (queryDto.leadId) {
+    if (leadId) {
       // Verify lead belongs to organisation
       const lead = await this.prisma.lead.findUnique({
-        where: { id: queryDto.leadId },
+        where: { id: leadId },
       });
 
       if (!lead || lead.isDeleted || lead.organisationId !== organisationId) {
         throw new NotFoundException('Lead not found');
       }
 
-      where.leadId = queryDto.leadId;
+      where.leadId = leadId;
     }
 
     // Add date range filter for callTime
-    if (queryDto.startDateTime || queryDto.endDateTime) {
+    if (startDateTime || endDateTime) {
       where.callTime = {};
 
-      if (queryDto.startDateTime) {
-        where.callTime.gte = new Date(queryDto.startDateTime);
+      if (startDateTime) {
+        where.callTime.gte = new Date(startDateTime);
       }
 
-      if (queryDto.endDateTime) {
-        where.callTime.lte = new Date(queryDto.endDateTime);
+      if (endDateTime) {
+        where.callTime.lte = new Date(endDateTime);
       }
     }
 
-    const limit = queryDto.limit || 50;
-    const offset = queryDto.offset || 0;
-    const sortOrder = queryDto.sortOrder || 'asc';
-
-    // Get total count
-    const total = await this.prisma.agentLeadCallSchedule.count({ where });
-
-    // Get paginated records
     const schedules = await this.prisma.agentLeadCallSchedule.findMany({
       where,
-      orderBy: { callTime: sortOrder },
-      take: limit,
-      skip: offset,
+      orderBy: { callTime: 'asc' },
+      ...(limit !== undefined && { take: limit }),
     });
 
-    return {
-      data: schedules.map((schedule) => new AgentLeadCallScheduleEntity(schedule)),
-      total,
-      limit,
-      offset,
-    };
+    return schedules.map((schedule) => new AgentLeadCallScheduleEntity(schedule));
   }
 
   async findOne(

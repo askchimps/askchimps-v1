@@ -9,13 +9,11 @@ import {
   UseGuards,
   UseInterceptors,
   ClassSerializerInterceptor,
-  Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags, ApiParam } from '@nestjs/swagger';
 import { ChatMessageService } from './chat-message.service';
 import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
-import { QueryChatMessageDto } from './dto/query-chat-message.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../common/guards/rbac.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -46,16 +44,14 @@ export class ChatMessageController {
   @Get()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get all messages in chat with pagination' })
+  @ApiOperation({ summary: 'Get all messages in chat' })
   @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
   @ApiParam({ name: 'chatId', description: 'Chat ID or sourceId (e.g., whatsapp_919876543210_1234567890)' })
-  @ApiResponse({ status: 200, description: 'Chat messages retrieved successfully' })
   findAll(
     @Param('organisationId') organisationId: string,
     @Param('chatId') chatId: string,
-    @Query() queryDto: QueryChatMessageDto,
   ) {
-    return this.ChatMessageService.findAll(organisationId, chatId, queryDto);
+    return this.ChatMessageService.findAll(organisationId, chatId);
   }
 
   @Get(':id')

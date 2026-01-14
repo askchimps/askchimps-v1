@@ -13,7 +13,6 @@ import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiQuery }
 import { CallService } from './call.service';
 import { CreateCallDto } from './dto/create-call.dto';
 import { UpdateCallDto } from './dto/update-call.dto';
-import { QueryCallDto } from './dto/query-call.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../common/guards/rbac.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -48,15 +47,20 @@ export class CallController {
   @Get()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get all calls for organisation with pagination' })
+  @ApiOperation({ summary: 'Get all calls for organisation' })
   @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
+  @ApiQuery({ name: 'agentId', required: false, description: 'Filter by Agent ID' })
+  @ApiQuery({ name: 'leadId', required: false, description: 'Filter by Lead ID' })
+  @ApiQuery({ name: 'status', required: false, description: 'Filter by call status', enum: ['ACTIVE', 'DISCONNECTED', 'RESCHEDULED', 'MISSED', 'COMPLETED'] })
   @ApiResponse({ status: 200, description: 'Calls retrieved successfully' })
   findAll(
     @Param('organisationId') organisationId: string,
-    @Query() queryDto: QueryCallDto,
+    @Query('agentId') agentId: string,
+    @Query('leadId') leadId: string,
+    @Query('status') status: string,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.callService.findAll(organisationId, user.sub, user.isSuperAdmin, queryDto);
+    return this.callService.findAll(organisationId, user.sub, user.isSuperAdmin, status, agentId, leadId);
   }
 
   @Get(':id')

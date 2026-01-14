@@ -7,13 +7,11 @@ import {
   Param,
   Delete,
   UseGuards,
-  Query,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { AgentService } from './agent.service';
 import { CreateAgentDto } from './dto/create-agent.dto';
 import { UpdateAgentDto } from './dto/update-agent.dto';
-import { QueryAgentDto } from './dto/query-agent.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../common/guards/rbac.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -49,15 +47,14 @@ export class AgentController {
   @Get()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get all agents in organisation with pagination' })
+  @ApiOperation({ summary: 'Get all agents in organisation' })
   @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
   @ApiResponse({ status: 200, description: 'Agents retrieved successfully' })
   findAll(
     @Param('organisationId') organisationId: string,
-    @Query() queryDto: QueryAgentDto,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.agentService.findAll(organisationId, user.sub, user.isSuperAdmin, queryDto);
+    return this.agentService.findAll(organisationId, user.sub, user.isSuperAdmin);
   }
 
   @Get(':id')

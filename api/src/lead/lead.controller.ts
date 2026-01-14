@@ -7,13 +7,11 @@ import {
   Param,
   Delete,
   UseGuards,
-  Query,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { LeadService } from './lead.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
-import { QueryLeadDto } from './dto/query-lead.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../common/guards/rbac.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -116,15 +114,11 @@ export class LeadController {
   @Get()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get all leads for organisation with pagination' })
-  @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
-  @ApiResponse({ status: 200, description: 'Leads retrieved successfully' })
   findAll(
     @Param('organisationId') organisationId: string,
-    @Query() queryDto: QueryLeadDto,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.LeadService.findAll(organisationId, user.sub, user.isSuperAdmin, queryDto);
+    return this.LeadService.findAll(organisationId, user.sub, user.isSuperAdmin);
   }
 
   @Get(':id')
