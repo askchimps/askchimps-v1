@@ -13,15 +13,15 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    const token = useAuthStore.getState().token;
+    const accessToken = useAuthStore.getState().accessToken;
 
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       ...options.headers,
     };
 
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+    if (accessToken) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
     }
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {

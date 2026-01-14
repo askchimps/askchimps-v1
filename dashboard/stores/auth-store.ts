@@ -1,33 +1,54 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-interface User {
+export interface User {
   id: string;
   email: string;
-  name?: string;
+  firstName?: string;
+  lastName?: string;
+  isActive: boolean;
+  isSuperAdmin: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface AuthState {
   user: User | null;
-  token: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
-  setAuth: (user: User, token: string) => void;
+  setAuth: (user: User, accessToken: string, refreshToken: string) => void;
   clearAuth: () => void;
+  hydrated: boolean;
+  setHydrated: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      token: null,
+      accessToken: null,
+      refreshToken: null,
       isAuthenticated: false,
-      setAuth: (user, token) =>
-        set({ user, token, isAuthenticated: true }),
+      hydrated: false,
+      setAuth: (user, accessToken, refreshToken) =>
+        set({ user, accessToken, refreshToken, isAuthenticated: true }),
       clearAuth: () =>
-        set({ user: null, token: null, isAuthenticated: false }),
+        set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false }),
+      setHydrated: () => set({ hydrated: true }),
     }),
     {
       name: "auth-storage",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        user: state.user,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
+        isAuthenticated: state.isAuthenticated,
+      }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated();
+      },
     }
   )
 );
