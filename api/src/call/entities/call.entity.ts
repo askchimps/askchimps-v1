@@ -1,4 +1,5 @@
 import { CALL_STATUS, SENTIMENT } from '@prisma/client';
+import { CallMessageEntity } from '../../call-message/entities/call-message.entity';
 
 export class CallEntity {
   id: string;
@@ -18,6 +19,7 @@ export class CallEntity {
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
+  messages?: CallMessageEntity[];
 
   constructor(partial: Partial<CallEntity>) {
     Object.assign(this, partial);
