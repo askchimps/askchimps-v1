@@ -30,17 +30,3 @@ export interface ApiResponse<T> {
   timestamp: string;
 }
 
-export interface PaginatedData<T> {
-  data: T[];
-  total: number;
-  limit: number;
-  offset: number;
-  hasMore: boolean;
-}
-
-export interface PaginationParams {
-  limit?: number;
-  offset?: number;
-  sortOrder?: "asc" | "desc";
-}
-

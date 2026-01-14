@@ -145,17 +145,6 @@ export class CallService {
       where.leadId = queryDto.leadId;
     }
 
-    // Search by lead name
-    if (queryDto.search) {
-      const searchTerm = queryDto.search.trim();
-      where.lead = {
-        OR: [
-          { firstName: { contains: searchTerm, mode: 'insensitive' } },
-          { lastName: { contains: searchTerm, mode: 'insensitive' } },
-        ],
-      };
-    }
-
     const limit = queryDto.limit || 50;
     const offset = queryDto.offset || 0;
     const sortOrder = queryDto.sortOrder || 'desc';

@@ -2,19 +2,16 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getCalls, getCall, getCallMessages } from "@/lib/api/calls";
-import type { CallsQueryParams } from "@/lib/api/calls";
 
-export function useCalls(organisationId: string, params?: CallsQueryParams) {
+export function useCalls(organisationId: string) {
   const query = useQuery({
-    queryKey: ["calls", organisationId, params],
-    queryFn: () => getCalls(organisationId, params),
+    queryKey: ["calls", organisationId],
+    queryFn: () => getCalls(organisationId),
     enabled: !!organisationId,
   });
 
   return {
-    data: query.data?.data ?? [],
-    total: query.data?.total ?? 0,
-    hasMore: query.data?.hasMore ?? false,
+    calls: query.data ?? [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
@@ -45,8 +42,7 @@ export function useCallMessages(organisationId: string, callId: string | null) {
   });
 
   return {
-    messages: query.data?.data ?? [],
-    total: query.data?.total ?? 0,
+    messages: query.data ?? [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
