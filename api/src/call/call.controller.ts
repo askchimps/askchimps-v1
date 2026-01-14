@@ -30,10 +30,47 @@ export class CallController {
   @Post()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Create a new call' })
-  @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
-  @ApiResponse({ status: 201, description: 'Call created successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid input' })
+  @ApiOperation({
+    summary: 'Create a new call',
+    description: 'Create a new call record for tracking phone conversations with leads.',
+  })
+  @ApiParam({
+    name: 'organisationId',
+    description: 'Organisation ID (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Call created successfully',
+    schema: {
+      example: {
+        data: {
+          id: '01HZXYZ1234567890ABCDEFGHJK',
+          organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          agentId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          leadId: '01HZXYZ1234567890ABCDEFGHJK',
+          externalId: 'ext_call_12345',
+          name: 'Follow-up call with John Doe',
+          status: 'ACTIVE',
+          shortSummary: null,
+          detailedSummary: null,
+          endedReason: null,
+          recordingUrl: null,
+          duration: 0,
+          sentiment: null,
+          analysis: null,
+          isDeleted: false,
+          createdAt: '2024-01-15T10:30:00.000Z',
+          updatedAt: '2024-01-15T10:30:00.000Z',
+        },
+        statusCode: 201,
+        timestamp: '2024-01-15T10:30:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   create(
     @Param('organisationId') organisationId: string,
     @Body() createCallDto: CreateCallDto,
@@ -47,12 +84,66 @@ export class CallController {
   @Get()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get all calls for organisation' })
-  @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
-  @ApiQuery({ name: 'agentId', required: false, description: 'Filter by Agent ID' })
-  @ApiQuery({ name: 'leadId', required: false, description: 'Filter by Lead ID' })
-  @ApiQuery({ name: 'status', required: false, description: 'Filter by call status', enum: ['ACTIVE', 'DISCONNECTED', 'RESCHEDULED', 'MISSED', 'COMPLETED'] })
-  @ApiResponse({ status: 200, description: 'Calls retrieved successfully' })
+  @ApiOperation({
+    summary: 'Get all calls for organisation',
+    description: 'Retrieve all calls for the organisation with optional filters for agent, lead, and status.',
+  })
+  @ApiParam({
+    name: 'organisationId',
+    description: 'Organisation ID (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @ApiQuery({
+    name: 'agentId',
+    required: false,
+    description: 'Filter by Agent ID (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @ApiQuery({
+    name: 'leadId',
+    required: false,
+    description: 'Filter by Lead ID (ULID format)',
+    example: '01HZXYZ1234567890ABCDEFGHJK',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: 'Filter by call status',
+    enum: ['ACTIVE', 'FAILED', 'DISCONNECTED', 'RESCHEDULED', 'MISSED', 'COMPLETED'],
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Calls retrieved successfully',
+    schema: {
+      example: {
+        data: [
+          {
+            id: '01HZXYZ1234567890ABCDEFGHJK',
+            organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+            agentId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+            leadId: '01HZXYZ1234567890ABCDEFGHJK',
+            externalId: 'ext_call_12345',
+            name: 'Follow-up call with John Doe',
+            status: 'COMPLETED',
+            shortSummary: 'Discussed pricing and features',
+            detailedSummary: 'Customer was interested in the premium plan. Scheduled a demo for next week.',
+            endedReason: 'Customer ended call',
+            recordingUrl: 'https://storage.example.com/recordings/call-123.mp3',
+            duration: 120.5,
+            sentiment: 'WARM',
+            analysis: { keywords: ['pricing', 'features'], sentiment_score: 0.8 },
+            isDeleted: false,
+            createdAt: '2024-01-15T10:30:00.000Z',
+            updatedAt: '2024-01-15T10:35:00.000Z',
+          },
+        ],
+        statusCode: 200,
+        timestamp: '2024-01-15T10:30:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   findAll(
     @Param('organisationId') organisationId: string,
     @Query('agentId') agentId: string,

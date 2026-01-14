@@ -8,7 +8,7 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
 import { LeadService } from './lead.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
@@ -38,7 +38,6 @@ export class LeadController {
     description: 'Lead created successfully',
     schema: {
       example: {
-        success: true,
         data: {
           id: '01HZXYZ1234567890ABCDEFGHJK',
           organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
@@ -60,7 +59,9 @@ export class LeadController {
           isDeleted: false,
           createdAt: '2024-01-15T10:30:00.000Z',
           updatedAt: '2024-01-15T10:30:00.000Z'
-        }
+        },
+        statusCode: 201,
+        timestamp: '2024-01-15T10:30:00.000Z'
       }
     }
   })
@@ -114,6 +115,51 @@ export class LeadController {
   @Get()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
+  @ApiOperation({
+    summary: 'Get all leads in organisation',
+    description: 'Retrieve all leads for the specified organisation. Returns an array of lead objects.',
+  })
+  @ApiParam({
+    name: 'organisationId',
+    description: 'Organisation ID (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Leads retrieved successfully',
+    schema: {
+      example: {
+        data: [
+          {
+            id: '01HZXYZ1234567890ABCDEFGHJK',
+            organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+            agentId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+            zohoId: '5725767000000649013',
+            ownerId: 'zoho_5725767000000649013',
+            firstName: 'Priya',
+            lastName: 'Menon',
+            email: 'priya.menon@example.com',
+            phone: '+919123456789',
+            source: 'WhatsApp',
+            status: 'New',
+            disposition: 'Interested',
+            country: 'India',
+            state: 'Kerala',
+            city: 'Kochi',
+            reasonForCold: null,
+            isTransferred: false,
+            isDeleted: false,
+            createdAt: '2024-01-15T10:30:00.000Z',
+            updatedAt: '2024-01-15T10:30:00.000Z',
+          },
+        ],
+        statusCode: 200,
+        timestamp: '2024-01-15T10:30:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   findAll(
     @Param('organisationId') organisationId: string,
     @CurrentUser() user: UserPayload,
@@ -124,6 +170,55 @@ export class LeadController {
   @Get(':id')
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
+  @ApiOperation({
+    summary: 'Get a specific lead',
+    description: 'Retrieve detailed information about a specific lead by ID.',
+  })
+  @ApiParam({
+    name: 'organisationId',
+    description: 'Organisation ID (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Lead ID (ULID format)',
+    example: '01HZXYZ1234567890ABCDEFGHJK',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lead retrieved successfully',
+    schema: {
+      example: {
+        data: {
+          id: '01HZXYZ1234567890ABCDEFGHJK',
+          organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          agentId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          zohoId: '5725767000000649013',
+          ownerId: 'zoho_5725767000000649013',
+          firstName: 'Priya',
+          lastName: 'Menon',
+          email: 'priya.menon@example.com',
+          phone: '+919123456789',
+          source: 'WhatsApp',
+          status: 'New',
+          disposition: 'Interested',
+          country: 'India',
+          state: 'Kerala',
+          city: 'Kochi',
+          reasonForCold: null,
+          isTransferred: false,
+          isDeleted: false,
+          createdAt: '2024-01-15T10:30:00.000Z',
+          updatedAt: '2024-01-15T10:30:00.000Z',
+        },
+        statusCode: 200,
+        timestamp: '2024-01-15T10:30:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({ status: 404, description: 'Lead not found' })
   findOne(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,
@@ -144,7 +239,6 @@ export class LeadController {
     description: 'Lead updated successfully',
     schema: {
       example: {
-        success: true,
         data: {
           id: '01HZXYZ1234567890ABCDEFGHJK',
           organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
@@ -166,7 +260,9 @@ export class LeadController {
           isDeleted: false,
           createdAt: '2024-01-15T10:30:00.000Z',
           updatedAt: '2024-01-15T14:45:00.000Z'
-        }
+        },
+        statusCode: 200,
+        timestamp: '2024-01-15T14:45:00.000Z'
       }
     }
   })
@@ -234,6 +330,55 @@ export class LeadController {
   @Delete(':id')
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN)
+  @ApiOperation({
+    summary: 'Delete a lead',
+    description: 'Soft delete a lead by marking it as deleted. The lead will not be permanently removed from the database.',
+  })
+  @ApiParam({
+    name: 'organisationId',
+    description: 'Organisation ID (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Lead ID (ULID format)',
+    example: '01HZXYZ1234567890ABCDEFGHJK',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lead deleted successfully',
+    schema: {
+      example: {
+        data: {
+          id: '01HZXYZ1234567890ABCDEFGHJK',
+          organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          agentId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          zohoId: '5725767000000649013',
+          ownerId: 'zoho_5725767000000649013',
+          firstName: 'Priya',
+          lastName: 'Menon',
+          email: 'priya.menon@example.com',
+          phone: '+919123456789',
+          source: 'WhatsApp',
+          status: 'New',
+          disposition: 'Interested',
+          country: 'India',
+          state: 'Kerala',
+          city: 'Kochi',
+          reasonForCold: null,
+          isTransferred: false,
+          isDeleted: true,
+          createdAt: '2024-01-15T10:30:00.000Z',
+          updatedAt: '2024-01-15T15:00:00.000Z',
+        },
+        statusCode: 200,
+        timestamp: '2024-01-15T15:00:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({ status: 404, description: 'Lead not found' })
   remove(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,

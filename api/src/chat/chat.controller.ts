@@ -42,8 +42,44 @@ export class ChatController {
   @Post()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Create a new chat' })
-  @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
+  @ApiOperation({
+    summary: 'Create a new chat',
+    description: 'Create a new chat session for a lead on a specific platform (WhatsApp, Instagram, etc.)',
+  })
+  @ApiParam({
+    name: 'organisationId',
+    description: 'Organisation ID (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Chat created successfully',
+    schema: {
+      example: {
+        data: {
+          id: '01HZXYZ1234567890ABCDEFGHJK',
+          organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          agentId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          leadId: '01HZXYZ1234567890ABCDEFGHJK',
+          name: 'Product Inquiry - John Doe',
+          source: 'WHATSAPP',
+          sourceId: '+919876543210',
+          status: 'NEW',
+          shortSummary: null,
+          detailedSummary: null,
+          isTransferred: false,
+          isDeleted: false,
+          createdAt: '2024-01-15T10:30:00.000Z',
+          updatedAt: '2024-01-15T10:30:00.000Z',
+        },
+        statusCode: 201,
+        timestamp: '2024-01-15T10:30:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   create(
     @Param('organisationId') organisationId: string,
     @Body() createChatDto: CreateChatDto,
@@ -54,9 +90,51 @@ export class ChatController {
   @Get()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get all chats in organisation' })
-  @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
-  @ApiQuery({ name: 'leadId', required: false, description: 'Filter by lead ID' })
+  @ApiOperation({
+    summary: 'Get all chats in organisation',
+    description: 'Retrieve all chats for the organisation. Optionally filter by lead ID.',
+  })
+  @ApiParam({
+    name: 'organisationId',
+    description: 'Organisation ID (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @ApiQuery({
+    name: 'leadId',
+    required: false,
+    description: 'Filter chats by lead ID (ULID format)',
+    example: '01HZXYZ1234567890ABCDEFGHJK',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Chats retrieved successfully',
+    schema: {
+      example: {
+        data: [
+          {
+            id: '01HZXYZ1234567890ABCDEFGHJK',
+            organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+            agentId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+            leadId: '01HZXYZ1234567890ABCDEFGHJK',
+            name: 'Product Inquiry - John Doe',
+            source: 'WHATSAPP',
+            sourceId: '+919876543210',
+            status: 'NEW',
+            shortSummary: 'Customer inquiring about solar panels',
+            detailedSummary: 'Customer John Doe contacted via WhatsApp asking about solar panel installation.',
+            isTransferred: false,
+            isDeleted: false,
+            createdAt: '2024-01-15T10:30:00.000Z',
+            updatedAt: '2024-01-15T10:30:00.000Z',
+          },
+        ],
+        statusCode: 200,
+        timestamp: '2024-01-15T10:30:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   findAll(
     @Param('organisationId') organisationId: string,
     @Query('leadId') leadId?: string,
@@ -70,9 +148,60 @@ export class ChatController {
   @Get(':id')
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get chat by ID or sourceId with messages' })
-  @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
-  @ApiParam({ name: 'id', description: 'Chat ID or sourceId (e.g., whatsapp_919876543210_1234567890)' })
+  @ApiOperation({
+    summary: 'Get chat by ID or sourceId with messages',
+    description: 'Retrieve a specific chat with all its messages. Can use either the chat ID or sourceId.',
+  })
+  @ApiParam({
+    name: 'organisationId',
+    description: 'Organisation ID (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Chat ID (ULID) or sourceId (e.g., whatsapp_919876543210_1234567890)',
+    example: '01HZXYZ1234567890ABCDEFGHJK',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Chat retrieved successfully with messages',
+    schema: {
+      example: {
+        data: {
+          id: '01HZXYZ1234567890ABCDEFGHJK',
+          organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          agentId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          leadId: '01HZXYZ1234567890ABCDEFGHJK',
+          name: 'Product Inquiry - John Doe',
+          source: 'WHATSAPP',
+          sourceId: '+919876543210',
+          status: 'NEW',
+          shortSummary: 'Customer inquiring about solar panels',
+          detailedSummary: 'Customer John Doe contacted via WhatsApp asking about solar panel installation.',
+          isTransferred: false,
+          isDeleted: false,
+          createdAt: '2024-01-15T10:30:00.000Z',
+          updatedAt: '2024-01-15T10:30:00.000Z',
+          messages: [
+            {
+              id: '01HZXYZ1234567890ABCDEFGHJK',
+              chatId: '01HZXYZ1234567890ABCDEFGHJK',
+              type: 'TEXT',
+              role: 'USER',
+              content: 'Hi, I am interested in solar panels',
+              metadata: null,
+              createdAt: '2024-01-15T10:30:00.000Z',
+            },
+          ],
+        },
+        statusCode: 200,
+        timestamp: '2024-01-15T10:30:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({ status: 404, description: 'Chat not found' })
   findOne(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,

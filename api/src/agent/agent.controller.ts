@@ -29,11 +29,40 @@ export class AgentController {
   @Post()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN)
-  @ApiOperation({ summary: 'Create a new agent' })
-  @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
-  @ApiResponse({ status: 201, description: 'Agent created successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid input' })
-  @ApiResponse({ status: 409, description: 'Agent slug already exists' })
+  @ApiOperation({
+    summary: 'Create a new agent',
+    description: 'Create a new AI agent for the organisation. Agents can be of different types (MARKETING, SALES, SUPPORT).',
+  })
+  @ApiParam({
+    name: 'organisationId',
+    description: 'Organisation ID (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Agent created successfully',
+    schema: {
+      example: {
+        data: {
+          id: '01HZXYZ1234567890ABCDEFGHJK',
+          organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          name: 'Alex - Marketing Agent',
+          type: 'MARKETING',
+          slug: 'alex-marketing-agent',
+          isActive: true,
+          isDeleted: false,
+          createdAt: '2024-01-15T10:30:00.000Z',
+          updatedAt: '2024-01-15T10:30:00.000Z',
+        },
+        statusCode: 201,
+        timestamp: '2024-01-15T10:30:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({ status: 409, description: 'Agent with this slug already exists in the organisation' })
   create(
     @Param('organisationId') organisationId: string,
     @Body() createAgentDto: CreateAgentDto,
@@ -47,9 +76,40 @@ export class AgentController {
   @Get()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get all agents in organisation' })
-  @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
-  @ApiResponse({ status: 200, description: 'Agents retrieved successfully' })
+  @ApiOperation({
+    summary: 'Get all agents in organisation',
+    description: 'Retrieve all agents for the specified organisation.',
+  })
+  @ApiParam({
+    name: 'organisationId',
+    description: 'Organisation ID (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Agents retrieved successfully',
+    schema: {
+      example: {
+        data: [
+          {
+            id: '01HZXYZ1234567890ABCDEFGHJK',
+            organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+            name: 'Alex - Marketing Agent',
+            type: 'MARKETING',
+            slug: 'alex-marketing-agent',
+            isActive: true,
+            isDeleted: false,
+            createdAt: '2024-01-15T10:30:00.000Z',
+            updatedAt: '2024-01-15T10:30:00.000Z',
+          },
+        ],
+        statusCode: 200,
+        timestamp: '2024-01-15T10:30:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   findAll(
     @Param('organisationId') organisationId: string,
     @CurrentUser() user: UserPayload,
@@ -60,10 +120,43 @@ export class AgentController {
   @Get(':id')
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get agent by ID' })
-  @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
-  @ApiParam({ name: 'id', description: 'Agent ID' })
-  @ApiResponse({ status: 200, description: 'Agent retrieved successfully' })
+  @ApiOperation({
+    summary: 'Get agent by ID',
+    description: 'Retrieve detailed information about a specific agent.',
+  })
+  @ApiParam({
+    name: 'organisationId',
+    description: 'Organisation ID (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Agent ID (ULID format)',
+    example: '01HZXYZ1234567890ABCDEFGHJK',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Agent retrieved successfully',
+    schema: {
+      example: {
+        data: {
+          id: '01HZXYZ1234567890ABCDEFGHJK',
+          organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          name: 'Alex - Marketing Agent',
+          type: 'MARKETING',
+          slug: 'alex-marketing-agent',
+          isActive: true,
+          isDeleted: false,
+          createdAt: '2024-01-15T10:30:00.000Z',
+          updatedAt: '2024-01-15T10:30:00.000Z',
+        },
+        statusCode: 200,
+        timestamp: '2024-01-15T10:30:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Agent not found' })
   findOne(
     @Param('organisationId') organisationId: string,
