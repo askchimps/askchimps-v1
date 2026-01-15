@@ -212,6 +212,7 @@ export default function CallDetailPage() {
                     call={call}
                     isSelected={selectedCallId === call.id}
                     onClick={() => handleCallSelect(call.id)}
+                    orgId={selectedOrganisation?.id}
                   />
                 ))}
               </div>

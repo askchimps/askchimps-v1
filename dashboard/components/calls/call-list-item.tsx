@@ -1,12 +1,14 @@
 import { Call, CallStatus } from "@/lib/api/call";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Clock } from "lucide-react";
+import { Phone, Clock, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface CallListItemProps {
   call: Call;
   isSelected: boolean;
   onClick: () => void;
+  orgId?: string;
 }
 
 const statusConfig: Record<CallStatus, { label: string; className: string }> = {
@@ -40,7 +42,7 @@ function formatDate(dateString: string): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-export function CallListItem({ call, isSelected, onClick }: CallListItemProps) {
+export function CallListItem({ call, isSelected, onClick, orgId }: CallListItemProps) {
   const statusInfo = statusConfig[call.status];
 
   return (
@@ -59,6 +61,18 @@ export function CallListItem({ call, isSelected, onClick }: CallListItemProps) {
             <h3 className="font-medium text-sm truncate">
               {call.name || "Unknown"}
             </h3>
+            {orgId && call.leadId && (
+              <Link
+                href={`/org/${orgId}/leads/${call.leadId}`}
+                className="text-muted-foreground hover:text-primary transition-colors shrink-0"
+                title="View lead details"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </Link>
+            )}
           </div>
 
           {call.phoneNumber && (

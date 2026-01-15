@@ -68,6 +68,8 @@ export default function LeadsPage() {
 
   const leads = leadsData?.data.data || [];
   const total = leadsData?.data.total || 0;
+  const availableStatuses = leadsData?.data.statuses || [];
+  const availableDispositions = leadsData?.data.dispositions || [];
   const selectedLead = leadDetailData?.data;
 
   // Update URL when lead is selected (preserve pagination state)
@@ -111,6 +113,8 @@ export default function LeadsPage() {
             onStatusChange={setStatus}
             disposition={disposition}
             onDispositionChange={setDisposition}
+            availableStatuses={availableStatuses}
+            availableDispositions={availableDispositions}
           />
 
           {/* Lead List */}

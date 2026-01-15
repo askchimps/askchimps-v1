@@ -15,6 +15,8 @@ interface LeadFiltersProps {
   onStatusChange: (value: string) => void;
   disposition: string;
   onDispositionChange: (value: string) => void;
+  availableStatuses?: string[];
+  availableDispositions?: string[];
 }
 
 export function LeadFilters({
@@ -24,6 +26,8 @@ export function LeadFilters({
   onStatusChange,
   disposition,
   onDispositionChange,
+  availableStatuses = [],
+  availableDispositions = [],
 }: LeadFiltersProps) {
   return (
     <div className="p-4 border-b space-y-3">
@@ -48,11 +52,11 @@ export function LeadFilters({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="ALL">All Status</SelectItem>
-          <SelectItem value="New">New</SelectItem>
-          <SelectItem value="Contacted">Contacted</SelectItem>
-          <SelectItem value="Qualified">Qualified</SelectItem>
-          <SelectItem value="Converted">Converted</SelectItem>
-          <SelectItem value="Lost">Lost</SelectItem>
+          {availableStatuses.map((statusValue) => (
+            <SelectItem key={statusValue} value={statusValue}>
+              {statusValue}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
@@ -66,11 +70,11 @@ export function LeadFilters({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="ALL">All Disposition</SelectItem>
-          <SelectItem value="Interested">Interested</SelectItem>
-          <SelectItem value="Not Interested">Not Interested</SelectItem>
-          <SelectItem value="Callback">Callback</SelectItem>
-          <SelectItem value="No Answer">No Answer</SelectItem>
-          <SelectItem value="Wrong Number">Wrong Number</SelectItem>
+          {availableDispositions.map((dispositionValue) => (
+            <SelectItem key={dispositionValue} value={dispositionValue}>
+              {dispositionValue}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>

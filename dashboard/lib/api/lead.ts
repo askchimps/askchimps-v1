@@ -37,6 +37,8 @@ export interface PaginatedLeadsResponse {
     total: number;
     limit: number;
     offset: number;
+    statuses: string[];
+    dispositions: string[];
   };
   statusCode: number;
   timestamp: string;

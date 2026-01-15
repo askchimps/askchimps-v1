@@ -86,6 +86,8 @@ export default function LeadDetailPage() {
 
   const leads = leadsData?.data.data || [];
   const total = leadsData?.data.total || 0;
+  const availableStatuses = leadsData?.data.statuses || [];
+  const availableDispositions = leadsData?.data.dispositions || [];
   const selectedLead = leadDetailData?.data;
 
   // Scroll to the selected lead on page load (if it's in the list)
@@ -181,6 +183,8 @@ export default function LeadDetailPage() {
               setDisposition(value);
               setOffset(0);
             }}
+            availableStatuses={availableStatuses}
+            availableDispositions={availableDispositions}
           />
 
           {/* Lead List */}
