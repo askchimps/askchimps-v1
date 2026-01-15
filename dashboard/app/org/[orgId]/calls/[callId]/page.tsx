@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useOrganisationStore } from "@/stores/organisation-store";
 import { callApi, CallStatus } from "@/lib/api/call";
@@ -19,13 +19,27 @@ import { Phone } from "lucide-react";
 export default function CallDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const { selectedOrganisation } = useOrganisationStore();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<CallStatus | "ALL">("ALL");
   const [limit, setLimit] = useState(20);
   const [offset, setOffset] = useState(0);
+  const initialCallId = params.callId as string;
+  const [selectedCallId, setSelectedCallId] = useState(initialCallId);
 
-  const callId = params.callId as string;
+  // Initialize state from URL parameters
+  useEffect(() => {
+    const offsetParam = searchParams.get("offset");
+    const limitParam = searchParams.get("limit");
+    const searchParam = searchParams.get("search");
+    const statusParam = searchParams.get("status");
+
+    if (offsetParam) setOffset(parseInt(offsetParam, 10));
+    if (limitParam) setLimit(parseInt(limitParam, 10));
+    if (searchParam) setSearch(searchParam);
+    if (statusParam) setStatus(statusParam as CallStatus);
+  }, [searchParams]);
 
   // Fetch calls list
   const {
@@ -58,10 +72,10 @@ export default function CallDetailPage() {
     data: callDetailData,
     isLoading: isLoadingDetail,
   } = useQuery({
-    queryKey: ["call", selectedOrganisation?.id, callId],
+    queryKey: ["call", selectedOrganisation?.id, selectedCallId],
     queryFn: () =>
-      callApi.getById(selectedOrganisation!.id, callId, true),
-    enabled: !!selectedOrganisation && !!callId,
+      callApi.getById(selectedOrganisation!.id, selectedCallId, true),
+    enabled: !!selectedOrganisation && !!selectedCallId,
     staleTime: 60000, // 1 minute
   });
 
@@ -69,12 +83,66 @@ export default function CallDetailPage() {
   const total = callsData?.data.total || 0;
   const selectedCall = callDetailData?.data;
 
-  // Update URL when call is selected
-  const handleCallSelect = (newCallId: string) => {
-    const orgId = selectedOrganisation?.id;
-    if (orgId) {
-      router.push(`/org/${orgId}/calls/${newCallId}`);
+  // Check if the selected call is in the current page
+  const isCallInCurrentPage = calls.some((call) => call.id === selectedCallId);
+
+  // Scroll to the selected call on page load (if it's in the list)
+  useEffect(() => {
+    if (isCallInCurrentPage && selectedCallId && !isLoadingCalls) {
+      // Small delay to ensure the DOM is updated
+      setTimeout(() => {
+        const callElement = document.querySelector(`[data-call-id="${selectedCallId}"]`);
+        if (callElement) {
+          callElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }, 100);
     }
+  // Only run on initial load, not on every selection change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoadingCalls]);
+
+  // Helper to build URL with current state
+  const buildUrl = (newCallId?: string, newOffset?: number, newLimit?: number) => {
+    const orgId = selectedOrganisation?.id;
+    if (!orgId) return "";
+
+    const params = new URLSearchParams();
+    const currentOffset = newOffset !== undefined ? newOffset : offset;
+    const currentLimit = newLimit !== undefined ? newLimit : limit;
+
+    if (currentOffset > 0) params.set("offset", currentOffset.toString());
+    if (currentLimit !== 20) params.set("limit", currentLimit.toString());
+    if (search) params.set("search", search);
+    if (status !== "ALL") params.set("status", status);
+
+    const queryString = params.toString();
+    const targetCallId = newCallId || selectedCallId;
+    return `/org/${orgId}/calls/${targetCallId}${queryString ? `?${queryString}` : ""}`;
+  };
+
+  // Update URL when call is selected (without full navigation)
+  const handleCallSelect = (newCallId: string) => {
+    // Update local state immediately (no re-render jump)
+    setSelectedCallId(newCallId);
+
+    // Update URL without triggering navigation
+    const url = buildUrl(newCallId);
+    if (url) {
+      window.history.replaceState(null, '', url);
+    }
+  };
+
+  // Update URL when pagination changes
+  const handleLimitChange = (newLimit: number) => {
+    setLimit(newLimit);
+    const url = buildUrl(undefined, 0, newLimit);
+    if (url) router.replace(url, { scroll: false });
+  };
+
+  const handleOffsetChange = (newOffset: number) => {
+    setOffset(newOffset);
+    const url = buildUrl(undefined, newOffset);
+    if (url) router.replace(url, { scroll: false });
   };
 
   return (
@@ -142,7 +210,7 @@ export default function CallDetailPage() {
                   <CallListItem
                     key={call.id}
                     call={call}
-                    isSelected={callId === call.id}
+                    isSelected={selectedCallId === call.id}
                     onClick={() => handleCallSelect(call.id)}
                   />
                 ))}
@@ -156,15 +224,15 @@ export default function CallDetailPage() {
               total={total}
               limit={limit}
               offset={offset}
-              onLimitChange={setLimit}
-              onOffsetChange={setOffset}
+              onLimitChange={handleLimitChange}
+              onOffsetChange={handleOffsetChange}
             />
           )}
         </div>
 
         {/* Right Panel - Call Detail */}
         <div className="flex-1 bg-muted/30">
-          {!callId ? (
+          {!selectedCallId ? (
             <CallEmptyState
               message="Select a call to view details"
               description="Choose a call from the list on the left"

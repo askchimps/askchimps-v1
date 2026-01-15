@@ -10,12 +10,12 @@ interface CallListItemProps {
 }
 
 const statusConfig: Record<CallStatus, { label: string; className: string }> = {
-  [CallStatus.ACTIVE]: { label: "Active", className: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300" },
-  [CallStatus.COMPLETED]: { label: "Completed", className: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300" },
-  [CallStatus.FAILED]: { label: "Failed", className: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300" },
-  [CallStatus.DISCONNECTED]: { label: "Disconnected", className: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
-  [CallStatus.RESCHEDULED]: { label: "Rescheduled", className: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300" },
-  [CallStatus.MISSED]: { label: "Missed", className: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300" },
+  [CallStatus.ACTIVE]: { label: "Active", className: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-950" },
+  [CallStatus.COMPLETED]: { label: "Completed", className: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-950" },
+  [CallStatus.FAILED]: { label: "Failed", className: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950" },
+  [CallStatus.DISCONNECTED]: { label: "Disconnected", className: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800" },
+  [CallStatus.RESCHEDULED]: { label: "Rescheduled", className: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-950" },
+  [CallStatus.MISSED]: { label: "Missed", className: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-950" },
 };
 
 function formatDuration(seconds: number): string {
@@ -45,6 +45,7 @@ export function CallListItem({ call, isSelected, onClick }: CallListItemProps) {
 
   return (
     <div
+      data-call-id={call.id}
       onClick={onClick}
       className={cn(
         "p-4 border-b cursor-pointer transition-colors",

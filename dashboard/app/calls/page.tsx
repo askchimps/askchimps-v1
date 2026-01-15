@@ -67,12 +67,19 @@ export default function CallsPage() {
   const total = callsData?.data.total || 0;
   const selectedCall = callDetailData?.data;
 
-  // Update URL when call is selected
+  // Update URL when call is selected (preserve pagination state)
   const handleCallSelect = (callId: string) => {
     setSelectedCallId(callId);
     const orgId = selectedOrganisation?.id;
     if (orgId) {
-      router.push(`/org/${orgId}/calls/${callId}`);
+      const params = new URLSearchParams();
+      if (offset > 0) params.set("offset", offset.toString());
+      if (limit !== 20) params.set("limit", limit.toString());
+      if (search) params.set("search", search);
+      if (status !== "ALL") params.set("status", status);
+
+      const queryString = params.toString();
+      router.replace(`/org/${orgId}/calls/${callId}${queryString ? `?${queryString}` : ""}`, { scroll: false });
     }
   };
 

@@ -33,6 +33,7 @@ export interface Call {
   leadId: string;
   name: string | null;
   phoneNumber: string | null;
+  agentName: string | null;
   endedReason: string | null;
   externalId: string | null;
   duration: number;
@@ -81,7 +82,7 @@ export const callApi = {
     params?: CallQueryParams
   ): Promise<PaginatedCallsResponse> => {
     const queryParams = new URLSearchParams();
-    
+
     if (params?.agentId) queryParams.append("agentId", params.agentId);
     if (params?.leadId) queryParams.append("leadId", params.leadId);
     if (params?.status) queryParams.append("status", params.status);
@@ -91,8 +92,10 @@ export const callApi = {
     if (params?.search) queryParams.append("search", params.search);
 
     const queryString = queryParams.toString();
-    const endpoint = `/v1/organisation/${organisationId}/call${queryString ? `?${queryString}` : ""}`;
-    
+    const endpoint = `/v1/organisation/${organisationId}/call${
+      queryString ? `?${queryString}` : ""
+    }`;
+
     return apiClient.get<PaginatedCallsResponse>(endpoint);
   },
 
@@ -103,11 +106,12 @@ export const callApi = {
   ): Promise<CallResponse> => {
     const queryParams = new URLSearchParams();
     if (includeMessages) queryParams.append("includeMessages", "true");
-    
+
     const queryString = queryParams.toString();
-    const endpoint = `/v1/organisation/${organisationId}/call/${callId}${queryString ? `?${queryString}` : ""}`;
-    
+    const endpoint = `/v1/organisation/${organisationId}/call/${callId}${
+      queryString ? `?${queryString}` : ""
+    }`;
+
     return apiClient.get<CallResponse>(endpoint);
   },
 };
-

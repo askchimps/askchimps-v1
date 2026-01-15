@@ -22,12 +22,33 @@ interface CallDetailProps {
 }
 
 const statusConfig: Record<CallStatus, { label: string; className: string }> = {
-  [CallStatus.ACTIVE]: { label: "Active", className: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300" },
-  [CallStatus.COMPLETED]: { label: "Completed", className: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300" },
-  [CallStatus.FAILED]: { label: "Failed", className: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300" },
-  [CallStatus.DISCONNECTED]: { label: "Disconnected", className: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
-  [CallStatus.RESCHEDULED]: { label: "Rescheduled", className: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300" },
-  [CallStatus.MISSED]: { label: "Missed", className: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300" },
+  [CallStatus.ACTIVE]: {
+    label: "Active",
+    className: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  },
+  [CallStatus.COMPLETED]: {
+    label: "Completed",
+    className:
+      "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
+  },
+  [CallStatus.FAILED]: {
+    label: "Failed",
+    className: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
+  },
+  [CallStatus.DISCONNECTED]: {
+    label: "Disconnected",
+    className: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  },
+  [CallStatus.RESCHEDULED]: {
+    label: "Rescheduled",
+    className:
+      "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+  },
+  [CallStatus.MISSED]: {
+    label: "Missed",
+    className:
+      "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300",
+  },
 };
 
 function formatDuration(seconds: number): string {
@@ -70,10 +91,14 @@ export function CallDetail({ call, orgId }: CallDetailProps) {
               {call.name || "Unknown"}
             </h2>
             {call.phoneNumber && (
-              <p className="text-sm text-muted-foreground mb-2">{call.phoneNumber}</p>
+              <p className="text-sm text-muted-foreground mb-2">
+                {call.phoneNumber}
+              </p>
             )}
             <div className="flex items-center gap-2">
-              <Badge className={cn("border-0", statusInfo.className)}>{statusInfo.label}</Badge>
+              <Badge className={cn("border-0", statusInfo.className)}>
+                {statusInfo.label}
+              </Badge>
             </div>
           </div>
           <Button
@@ -106,6 +131,12 @@ export function CallDetail({ call, orgId }: CallDetailProps) {
             <Calendar className="h-4 w-4" />
             <span>{formatDateTime(call.createdAt)}</span>
           </div>
+          {call.agentName && (
+            <div className="flex items-center gap-2 text-muted-foreground col-span-2">
+              <Phone className="h-4 w-4" />
+              <span>Agent: {call.agentName}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -188,12 +219,17 @@ export function CallDetail({ call, orgId }: CallDetailProps) {
                             : "bg-card border"
                         )}
                       >
-                        <p className="whitespace-pre-wrap text-foreground">{message.content}</p>
+                        <p className="whitespace-pre-wrap text-foreground">
+                          {message.content}
+                        </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(message.createdAt).toLocaleTimeString("en-US", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          {new Date(message.createdAt).toLocaleTimeString(
+                            "en-US",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
                         </p>
                       </div>
                     </div>
