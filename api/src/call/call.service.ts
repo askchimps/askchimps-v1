@@ -184,16 +184,33 @@ export class CallService {
     // Get total count
     const total = await this.prisma.call.count({ where });
 
-    // Get paginated records
+    // Get paginated records with lead and agent data
     const calls = await this.prisma.call.findMany({
       where,
+      include: {
+        lead: {
+          select: {
+            phone: true,
+          },
+        },
+        agent: {
+          select: {
+            name: true,
+          },
+        },
+      },
       orderBy: { createdAt: sortOrder },
       take: limit,
       skip: offset,
     });
 
     return {
-      data: calls.map((call) => new CallEntity(call)),
+      data: calls.map((call) => {
+        const callEntity = new CallEntity(call);
+        callEntity.phoneNumber = call.lead?.phone || null;
+        callEntity.agentName = call.agent?.name || null;
+        return callEntity;
+      }),
       total,
       limit,
       offset,
@@ -207,31 +224,38 @@ export class CallService {
     isSuperAdmin: boolean,
     includeMessages: boolean = false,
   ): Promise<CallEntity> {
+    // Build include object
+    const includeObj: any = {
+      lead: {
+        select: {
+          phone: true,
+        },
+      },
+      agent: {
+        select: {
+          name: true,
+        },
+      },
+    };
+
+    if (includeMessages) {
+      includeObj.messages = {
+        where: { isDeleted: false },
+        orderBy: { createdAt: 'asc' },
+      };
+    }
+
     // Try to find by id first, then by externalId
     let call = await this.prisma.call.findUnique({
       where: { id },
-      include: includeMessages
-        ? {
-            messages: {
-              where: { isDeleted: false },
-              orderBy: { createdAt: 'asc' },
-            },
-          }
-        : undefined,
+      include: includeObj,
     });
 
     // If not found by id, try externalId
     if (!call) {
       call = await this.prisma.call.findUnique({
         where: { externalId: id },
-        include: includeMessages
-          ? {
-              messages: {
-                where: { isDeleted: false },
-                orderBy: { createdAt: 'asc' },
-              },
-            }
-          : undefined,
+        include: includeObj,
       });
     }
 
@@ -257,6 +281,10 @@ export class CallService {
     }
 
     const callEntity = new CallEntity(call);
+
+    // Add lead phone number and agent name
+    callEntity.phoneNumber = (call as any).lead?.phone || null;
+    callEntity.agentName = (call as any).agent?.name || null;
 
     // Map messages to CallMessageEntity if included
     if (includeMessages && 'messages' in call) {

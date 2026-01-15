@@ -7,6 +7,8 @@ export class CallEntity {
   agentId: string;
   leadId: string;
   name: string | null;
+  phoneNumber: string | null;
+  agentName: string | null;
   endedReason: string | null;
   externalId: string | null;
   duration: number;
@@ -25,4 +27,3 @@ export class CallEntity {
     Object.assign(this, partial);
   }
 }
-
