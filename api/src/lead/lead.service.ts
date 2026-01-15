@@ -41,7 +41,9 @@ export class LeadService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -50,7 +52,11 @@ export class LeadService {
       where: { id: createLeadDto.agentId },
     });
 
-    if (!agent || agent.isDeleted || agent.organisationId !== createLeadDto.organisationId) {
+    if (
+      !agent ||
+      agent.isDeleted ||
+      agent.organisationId !== createLeadDto.organisationId
+    ) {
       throw new NotFoundException('Agent not found');
     }
 
@@ -80,10 +86,14 @@ export class LeadService {
 
       if (existingLead) {
         if (existingLead.email === createLeadDto.email) {
-          throw new ConflictException('A lead with this email already exists in this organisation');
+          throw new ConflictException(
+            'A lead with this email already exists in this organisation',
+          );
         }
         if (existingLead.phone === createLeadDto.phone) {
-          throw new ConflictException('A lead with this phone number already exists in this organisation');
+          throw new ConflictException(
+            'A lead with this phone number already exists in this organisation',
+          );
         }
       }
     }
@@ -100,7 +110,12 @@ export class LeadService {
     userId: string,
     isSuperAdmin: boolean,
     queryDto: QueryLeadDto,
-  ): Promise<PaginatedResponse<LeadEntity>> {
+  ): Promise<
+    PaginatedResponse<LeadEntity> & {
+      statuses: string[];
+      dispositions: string[];
+    }
+  > {
     // Check user has access to organisation
     if (!isSuperAdmin) {
       const userOrg = await this.prisma.userOrganisation.findFirst({
@@ -112,7 +127,9 @@ export class LeadService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -171,11 +188,38 @@ export class LeadService {
       skip: offset,
     });
 
+    // Get unique statuses and dispositions for the organisation
+    const uniqueStatuses = await this.prisma.lead.findMany({
+      where: {
+        organisationId,
+        isDeleted: false,
+        status: { not: null },
+      },
+      select: { status: true },
+      distinct: ['status'],
+    });
+
+    const uniqueDispositions = await this.prisma.lead.findMany({
+      where: {
+        organisationId,
+        isDeleted: false,
+        disposition: { not: null },
+      },
+      select: { disposition: true },
+      distinct: ['disposition'],
+    });
+
     return {
       data: leads.map((lead) => new LeadEntity(lead)),
       total,
       limit,
       offset,
+      statuses: uniqueStatuses
+        .map((s) => s.status)
+        .filter((s): s is string => s !== null),
+      dispositions: uniqueDispositions
+        .map((d) => d.disposition)
+        .filter((d): d is string => d !== null),
     };
   }
 
@@ -214,7 +258,9 @@ export class LeadService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -251,8 +297,13 @@ export class LeadService {
         },
       });
 
-      if (!userOrg || (userOrg.role !== Role.OWNER && userOrg.role !== Role.ADMIN)) {
-        throw new ForbiddenException('Insufficient permissions to update leads');
+      if (
+        !userOrg ||
+        (userOrg.role !== Role.OWNER && userOrg.role !== Role.ADMIN)
+      ) {
+        throw new ForbiddenException(
+          'Insufficient permissions to update leads',
+        );
       }
     }
 
@@ -283,10 +334,14 @@ export class LeadService {
 
       if (existingLead) {
         if (existingLead.email === updateLeadDto.email) {
-          throw new ConflictException('A lead with this email already exists in this organisation');
+          throw new ConflictException(
+            'A lead with this email already exists in this organisation',
+          );
         }
         if (existingLead.phone === updateLeadDto.phone) {
-          throw new ConflictException('A lead with this phone number already exists in this organisation');
+          throw new ConflictException(
+            'A lead with this phone number already exists in this organisation',
+          );
         }
       }
     }
@@ -328,8 +383,13 @@ export class LeadService {
         },
       });
 
-      if (!userOrg || (userOrg.role !== Role.OWNER && userOrg.role !== Role.ADMIN)) {
-        throw new ForbiddenException('Insufficient permissions to delete leads');
+      if (
+        !userOrg ||
+        (userOrg.role !== Role.OWNER && userOrg.role !== Role.ADMIN)
+      ) {
+        throw new ForbiddenException(
+          'Insufficient permissions to delete leads',
+        );
       }
     }
 
@@ -342,4 +402,3 @@ export class LeadService {
     return new LeadEntity(deleted);
   }
 }
-
