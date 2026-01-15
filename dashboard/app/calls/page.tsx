@@ -1,40 +1,194 @@
 "use client";
 
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useOrganisationStore } from "@/stores/organisation-store";
+import { callApi, CallStatus } from "@/lib/api/call";
+import { CallFilters } from "@/components/calls/call-filters";
+import { CallListItem } from "@/components/calls/call-list-item";
+import { CallPagination } from "@/components/calls/call-pagination";
+import { CallDetail } from "@/components/calls/call-detail";
+import { CallEmptyState } from "@/components/calls/call-empty-state";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
 import { Phone } from "lucide-react";
 
 export default function CallsPage() {
+  const router = useRouter();
+  const { selectedOrganisation } = useOrganisationStore();
+  const [selectedCallId, setSelectedCallId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<CallStatus | "ALL">("ALL");
+  const [limit, setLimit] = useState(20);
+  const [offset, setOffset] = useState(0);
+
+  // Fetch calls list
+  const {
+    data: callsData,
+    isLoading: isLoadingCalls,
+    error: callsError,
+  } = useQuery({
+    queryKey: [
+      "calls",
+      selectedOrganisation?.id,
+      search,
+      status,
+      limit,
+      offset,
+    ],
+    queryFn: () =>
+      callApi.getAll(selectedOrganisation!.id, {
+        search: search || undefined,
+        status: status !== "ALL" ? status : undefined,
+        sortOrder: "desc",
+        limit,
+        offset,
+      }),
+    enabled: !!selectedOrganisation,
+    staleTime: 30000, // 30 seconds
+  });
+
+  // Fetch selected call details with messages
+  const {
+    data: callDetailData,
+    isLoading: isLoadingDetail,
+  } = useQuery({
+    queryKey: ["call", selectedOrganisation?.id, selectedCallId],
+    queryFn: () =>
+      callApi.getById(selectedOrganisation!.id, selectedCallId!, true),
+    enabled: !!selectedOrganisation && !!selectedCallId,
+    staleTime: 60000, // 1 minute
+  });
+
+  const calls = callsData?.data.data || [];
+  const total = callsData?.data.total || 0;
+  const selectedCall = callDetailData?.data;
+
+  // Update URL when call is selected
+  const handleCallSelect = (callId: string) => {
+    setSelectedCallId(callId);
+    const orgId = selectedOrganisation?.id;
+    if (orgId) {
+      router.push(`/org/${orgId}/calls/${callId}`);
+    }
+  };
+
   return (
     <DashboardLayout>
-      <div className="p-6 lg:p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Calls</h1>
-          <p className="text-muted-foreground mt-2">
-            View and manage call history
-          </p>
+      <div className="h-[calc(100vh-4rem)] flex">
+        {/* Left Panel - Call List */}
+        <div className="w-96 border-r flex flex-col bg-card">
+          {/* Header */}
+          <div className="p-4 border-b">
+            <div className="flex items-center gap-2 mb-1">
+              <Phone className="h-5 w-5 text-primary" />
+              <h1 className="text-xl font-bold">Calls</h1>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {total} total call{total !== 1 ? "s" : ""}
+            </p>
+          </div>
+
+          {/* Filters */}
+          <CallFilters
+            search={search}
+            onSearchChange={(value) => {
+              setSearch(value);
+              setOffset(0);
+            }}
+            status={status}
+            onStatusChange={(value) => {
+              setStatus(value as CallStatus | "ALL");
+              setOffset(0);
+            }}
+          />
+
+          {/* Call List */}
+          <ScrollArea className="flex-1">
+            {isLoadingCalls ? (
+              <div className="p-4 space-y-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                ))}
+              </div>
+            ) : callsError ? (
+              <div className="p-4">
+                <Card className="p-4 bg-destructive/10 border-destructive/20">
+                  <p className="text-sm text-destructive">
+                    Failed to load calls. Please try again.
+                  </p>
+                </Card>
+              </div>
+            ) : calls.length === 0 ? (
+              <CallEmptyState
+                message="No calls found"
+                description={
+                  search || status !== "ALL"
+                    ? "Try adjusting your filters"
+                    : "Calls will appear here once they are created"
+                }
+              />
+            ) : (
+              <div>
+                {calls.map((call) => (
+                  <CallListItem
+                    key={call.id}
+                    call={call}
+                    isSelected={selectedCallId === call.id}
+                    onClick={() => handleCallSelect(call.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+
+          {/* Pagination */}
+          {!isLoadingCalls && calls.length > 0 && (
+            <CallPagination
+              total={total}
+              limit={limit}
+              offset={offset}
+              onLimitChange={setLimit}
+              onOffsetChange={setOffset}
+            />
+          )}
         </div>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Phone className="h-5 w-5 text-primary" />
+        {/* Right Panel - Call Detail */}
+        <div className="flex-1 bg-muted/30">
+          {!selectedCallId ? (
+            <CallEmptyState
+              message="Select a call to view details"
+              description="Choose a call from the list on the left"
+            />
+          ) : isLoadingDetail ? (
+            <div className="h-full p-6 space-y-6">
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-1/2" />
+                <Skeleton className="h-4 w-1/4" />
               </div>
-              <div>
-                <CardTitle>Coming Soon</CardTitle>
-                <CardDescription>Call management features will be available here</CardDescription>
-              </div>
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-48 w-full" />
             </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              This feature is under development and will be available soon.
-            </p>
-          </CardContent>
-        </Card>
+          ) : selectedCall ? (
+            <CallDetail call={selectedCall} orgId={selectedOrganisation?.id} />
+          ) : (
+            <CallEmptyState
+              message="Call not found"
+              description="The selected call could not be loaded"
+            />
+          )}
+        </div>
       </div>
     </DashboardLayout>
   );
 }
+
 

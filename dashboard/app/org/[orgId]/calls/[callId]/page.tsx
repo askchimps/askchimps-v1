@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useOrganisationStore } from "@/stores/organisation-store";
 import { callApi, CallStatus } from "@/lib/api/call";
@@ -16,14 +16,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { Phone } from "lucide-react";
 
-export default function CallsPage() {
+export default function CallDetailPage() {
   const router = useRouter();
+  const params = useParams();
   const { selectedOrganisation } = useOrganisationStore();
-  const [selectedCallId, setSelectedCallId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<CallStatus | "ALL">("ALL");
   const [limit, setLimit] = useState(20);
   const [offset, setOffset] = useState(0);
+
+  const callId = params.callId as string;
 
   // Fetch calls list
   const {
@@ -56,10 +58,10 @@ export default function CallsPage() {
     data: callDetailData,
     isLoading: isLoadingDetail,
   } = useQuery({
-    queryKey: ["call", selectedOrganisation?.id, selectedCallId],
+    queryKey: ["call", selectedOrganisation?.id, callId],
     queryFn: () =>
-      callApi.getById(selectedOrganisation!.id, selectedCallId!, true),
-    enabled: !!selectedOrganisation && !!selectedCallId,
+      callApi.getById(selectedOrganisation!.id, callId, true),
+    enabled: !!selectedOrganisation && !!callId,
     staleTime: 60000, // 1 minute
   });
 
@@ -68,11 +70,10 @@ export default function CallsPage() {
   const selectedCall = callDetailData?.data;
 
   // Update URL when call is selected
-  const handleCallSelect = (callId: string) => {
-    setSelectedCallId(callId);
+  const handleCallSelect = (newCallId: string) => {
     const orgId = selectedOrganisation?.id;
     if (orgId) {
-      router.push(`/org/${orgId}/calls/${callId}`);
+      router.push(`/org/${orgId}/calls/${newCallId}`);
     }
   };
 
@@ -141,7 +142,7 @@ export default function CallsPage() {
                   <CallListItem
                     key={call.id}
                     call={call}
-                    isSelected={selectedCallId === call.id}
+                    isSelected={callId === call.id}
                     onClick={() => handleCallSelect(call.id)}
                   />
                 ))}
@@ -163,7 +164,7 @@ export default function CallsPage() {
 
         {/* Right Panel - Call Detail */}
         <div className="flex-1 bg-muted/30">
-          {!selectedCallId ? (
+          {!callId ? (
             <CallEmptyState
               message="Select a call to view details"
               description="Choose a call from the list on the left"
@@ -190,4 +191,5 @@ export default function CallsPage() {
     </DashboardLayout>
   );
 }
+
 
