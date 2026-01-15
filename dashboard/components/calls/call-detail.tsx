@@ -96,7 +96,7 @@ export function CallDetail({ call, orgId }: CallDetailProps) {
               </p>
             )}
             <div className="flex items-center gap-2">
-              <Badge className={cn("border-0", statusInfo.className)}>
+              <Badge className={cn("border-0 pointer-events-none", statusInfo.className)}>
                 {statusInfo.label}
               </Badge>
             </div>
