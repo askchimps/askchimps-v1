@@ -24,7 +24,7 @@ export class LeadEntity {
     firstName: string | null;
     lastName: string | null;
     email: string | null;
-  };
+  } | null;
 
   constructor(partial: Partial<LeadEntity>) {
     Object.assign(this, partial);
