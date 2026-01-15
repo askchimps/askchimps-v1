@@ -98,7 +98,7 @@ export class CallController {
   @ApiOperation({
     summary: 'Get all calls for organisation with pagination',
     description:
-      'Retrieve paginated calls for the organisation with optional filters for agent, lead, and status.',
+      'Retrieve paginated calls for the organisation with optional filters for agent, lead, status, and search by name or phone number.',
   })
   @ApiParam({
     name: 'organisationId',

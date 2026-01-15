@@ -30,6 +30,14 @@ export class QueryCallDto {
   status?: CALL_STATUS;
 
   @ApiPropertyOptional({
+    description: 'Search by name or phone number',
+    example: 'John Doe',
+  })
+  @IsString()
+  @IsOptional()
+  search?: string;
+
+  @ApiPropertyOptional({
     description: 'Number of records to return',
     example: 50,
     minimum: 1,
@@ -65,4 +73,3 @@ export class QueryCallDto {
   @IsOptional()
   sortOrder?: 'asc' | 'desc';
 }
-

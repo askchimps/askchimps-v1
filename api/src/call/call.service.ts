@@ -164,6 +164,19 @@ export class CallService {
       where.leadId = queryDto.leadId;
     }
 
+    if (queryDto.search) {
+      // Search by name or phone number
+      // Since phone is in the Lead model, we need to search across both Call.name and Lead.phone
+      where.OR = [
+        { name: { contains: queryDto.search, mode: 'insensitive' } },
+        {
+          lead: {
+            phone: { contains: queryDto.search, mode: 'insensitive' },
+          },
+        },
+      ];
+    }
+
     const limit = queryDto.limit || 50;
     const offset = queryDto.offset || 0;
     const sortOrder = queryDto.sortOrder || 'desc';
@@ -249,7 +262,9 @@ export class CallService {
     if (includeMessages && 'messages' in call) {
       const messages = (call as any).messages;
       if (Array.isArray(messages)) {
-        callEntity.messages = messages.map((msg: any) => new CallMessageEntity(msg));
+        callEntity.messages = messages.map(
+          (msg: any) => new CallMessageEntity(msg),
+        );
       }
     }
 
