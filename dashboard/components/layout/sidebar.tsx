@@ -8,6 +8,7 @@ import {
     Users,
     Bot,
     Phone,
+    MessageSquare,
     Building2,
     Settings,
     ChevronLeft,
@@ -22,6 +23,7 @@ const navigation = [
     { name: "Agents", href: "agents", icon: Bot },
     { name: "Leads", href: "leads", icon: Users },
     { name: "Calls", href: "calls", icon: Phone },
+    { name: "Chats", href: "chats", icon: MessageSquare },
     { name: "Settings", href: "settings", icon: Settings },
 ];
 
