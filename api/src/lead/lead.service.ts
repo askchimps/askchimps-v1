@@ -7,8 +7,10 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
+import { QueryLeadDto } from './dto/query-lead.dto';
 import { LeadEntity } from './entities/lead.entity';
 import { Role } from '../common/enums';
+import type { PaginatedResponse } from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class LeadService {
@@ -138,7 +140,13 @@ export class LeadService {
     organisationId: string,
     userId: string,
     isSuperAdmin: boolean,
-  ): Promise<LeadEntity[]> {
+    queryDto: QueryLeadDto,
+  ): Promise<
+    PaginatedResponse<LeadEntity> & {
+      statuses: string[];
+      dispositions: string[];
+    }
+  > {
     // Check user has access to organisation
     if (!isSuperAdmin) {
       const userOrg = await this.prisma.userOrganisation.findFirst({
@@ -156,11 +164,46 @@ export class LeadService {
       }
     }
 
+    const where: any = {
+      organisationId,
+      isDeleted: false,
+    };
+
+    if (queryDto.agentId) {
+      where.agentId = queryDto.agentId;
+    }
+
+    if (queryDto.status) {
+      where.status = queryDto.status;
+    }
+
+    if (queryDto.disposition) {
+      where.disposition = queryDto.disposition;
+    }
+
+    if (queryDto.source) {
+      where.source = queryDto.source;
+    }
+
+    if (queryDto.search) {
+      where.OR = [
+        { firstName: { contains: queryDto.search, mode: 'insensitive' } },
+        { lastName: { contains: queryDto.search, mode: 'insensitive' } },
+        { email: { contains: queryDto.search, mode: 'insensitive' } },
+        { phone: { contains: queryDto.search, mode: 'insensitive' } },
+      ];
+    }
+
+    const limit = queryDto.limit || 50;
+    const offset = queryDto.offset || 0;
+    const sortOrder = queryDto.sortOrder || 'desc';
+
+    // Get total count
+    const total = await this.prisma.lead.count({ where });
+
+    // Get paginated records
     const leads = await this.prisma.lead.findMany({
-      where: {
-        organisationId,
-        isDeleted: false,
-      },
+      where,
       include: {
         owner: {
           select: {
@@ -171,10 +214,44 @@ export class LeadService {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: sortOrder },
+      take: limit,
+      skip: offset,
     });
 
-    return leads.map((lead) => new LeadEntity(lead));
+    // Get unique statuses and dispositions for the organisation
+    const uniqueStatuses = await this.prisma.lead.findMany({
+      where: {
+        organisationId,
+        isDeleted: false,
+        status: { not: null },
+      },
+      select: { status: true },
+      distinct: ['status'],
+    });
+
+    const uniqueDispositions = await this.prisma.lead.findMany({
+      where: {
+        organisationId,
+        isDeleted: false,
+        disposition: { not: null },
+      },
+      select: { disposition: true },
+      distinct: ['disposition'],
+    });
+
+    return {
+      data: leads.map((lead) => new LeadEntity(lead)),
+      total,
+      limit,
+      offset,
+      statuses: uniqueStatuses
+        .map((s) => s.status)
+        .filter((s): s is string => s !== null),
+      dispositions: uniqueDispositions
+        .map((d) => d.disposition)
+        .filter((d): d is string => d !== null),
+    };
   }
 
   async findOne(

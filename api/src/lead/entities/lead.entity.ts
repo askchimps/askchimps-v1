@@ -1,6 +1,7 @@
 export class LeadEntity {
   id: string;
   organisationId: string;
+  agentId: string;
   zohoId: string | null;
   ownerId: string | null;
   firstName: string | null;
@@ -18,6 +19,12 @@ export class LeadEntity {
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
+  owner?: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string | null;
+  } | null;
 
   constructor(partial: Partial<LeadEntity>) {
     Object.assign(this, partial);

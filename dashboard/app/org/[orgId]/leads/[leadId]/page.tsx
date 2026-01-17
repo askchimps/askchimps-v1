@@ -5,28 +5,29 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useOrganisationStore } from "@/stores/organisation-store";
-import { callApi, CallStatus } from "@/lib/api/call";
-import { CallFilters } from "@/components/calls/call-filters";
-import { CallListItem } from "@/components/calls/call-list-item";
-import { CallPagination } from "@/components/calls/call-pagination";
-import { CallDetail } from "@/components/calls/call-detail";
-import { CallEmptyState } from "@/components/calls/call-empty-state";
+import { leadApi } from "@/lib/api/lead";
+import { LeadFilters } from "@/components/leads/lead-filters";
+import { LeadListItem } from "@/components/leads/lead-list-item";
+import { LeadPagination } from "@/components/leads/lead-pagination";
+import { LeadDetail } from "@/components/leads/lead-detail";
+import { LeadEmptyState } from "@/components/leads/lead-empty-state";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
-import { Phone } from "lucide-react";
+import { Users } from "lucide-react";
 
-export default function CallDetailPage() {
+export default function LeadDetailPage() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
   const { selectedOrganisation } = useOrganisationStore();
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<CallStatus | "ALL">("ALL");
+  const [status, setStatus] = useState<string>("ALL");
+  const [disposition, setDisposition] = useState<string>("ALL");
   const [limit, setLimit] = useState(20);
   const [offset, setOffset] = useState(0);
-  const initialCallId = params.callId as string;
-  const [selectedCallId, setSelectedCallId] = useState(initialCallId);
+  const initialLeadId = params.leadId as string;
+  const [selectedLeadId, setSelectedLeadId] = useState(initialLeadId);
 
   // Initialize state from URL parameters
   useEffect(() => {
@@ -34,31 +35,35 @@ export default function CallDetailPage() {
     const limitParam = searchParams.get("limit");
     const searchParam = searchParams.get("search");
     const statusParam = searchParams.get("status");
+    const dispositionParam = searchParams.get("disposition");
 
     if (offsetParam) setOffset(parseInt(offsetParam, 10));
     if (limitParam) setLimit(parseInt(limitParam, 10));
     if (searchParam) setSearch(searchParam);
-    if (statusParam) setStatus(statusParam as CallStatus);
+    if (statusParam) setStatus(statusParam);
+    if (dispositionParam) setDisposition(dispositionParam);
   }, [searchParams]);
 
-  // Fetch calls list
+  // Fetch leads list
   const {
-    data: callsData,
-    isLoading: isLoadingCalls,
-    error: callsError,
+    data: leadsData,
+    isLoading: isLoadingLeads,
+    error: leadsError,
   } = useQuery({
     queryKey: [
-      "calls",
+      "leads",
       selectedOrganisation?.id,
       search,
       status,
+      disposition,
       limit,
       offset,
     ],
     queryFn: () =>
-      callApi.getAll(selectedOrganisation!.id, {
+      leadApi.getAll(selectedOrganisation!.id, {
         search: search || undefined,
         status: status !== "ALL" ? status : undefined,
+        disposition: disposition !== "ALL" ? disposition : undefined,
         sortOrder: "desc",
         limit,
         offset,
@@ -67,42 +72,41 @@ export default function CallDetailPage() {
     staleTime: 30000, // 30 seconds
   });
 
-  // Fetch selected call details with messages
+  // Fetch selected lead details
   const {
-    data: callDetailData,
+    data: leadDetailData,
     isLoading: isLoadingDetail,
   } = useQuery({
-    queryKey: ["call", selectedOrganisation?.id, selectedCallId],
+    queryKey: ["lead", selectedOrganisation?.id, selectedLeadId],
     queryFn: () =>
-      callApi.getById(selectedOrganisation!.id, selectedCallId, true),
-    enabled: !!selectedOrganisation && !!selectedCallId,
+      leadApi.getById(selectedOrganisation!.id, selectedLeadId),
+    enabled: !!selectedOrganisation && !!selectedLeadId,
     staleTime: 60000, // 1 minute
   });
 
-  const calls = callsData?.data.data || [];
-  const total = callsData?.data.total || 0;
-  const selectedCall = callDetailData?.data;
+  const leads = leadsData?.data.data || [];
+  const total = leadsData?.data.total || 0;
+  const availableStatuses = leadsData?.data.statuses || [];
+  const availableDispositions = leadsData?.data.dispositions || [];
+  const selectedLead = leadDetailData?.data;
 
-  // Check if the selected call is in the current page
-  const isCallInCurrentPage = calls.some((call) => call.id === selectedCallId);
-
-  // Scroll to the selected call on page load (if it's in the list)
+  // Scroll to the selected lead on page load (if it's in the list)
   useEffect(() => {
-    if (isCallInCurrentPage && selectedCallId && !isLoadingCalls) {
+    if (selectedLeadId && !isLoadingLeads) {
       // Small delay to ensure the DOM is updated
       setTimeout(() => {
-        const callElement = document.querySelector(`[data-call-id="${selectedCallId}"]`);
-        if (callElement) {
-          callElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const leadElement = document.querySelector(`[data-lead-id="${selectedLeadId}"]`);
+        if (leadElement) {
+          leadElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       }, 100);
     }
   // Only run on initial load, not on every selection change
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoadingCalls]);
+  }, [isLoadingLeads]);
 
   // Helper to build URL with current state
-  const buildUrl = (newCallId?: string, newOffset?: number, newLimit?: number) => {
+  const buildUrl = (newLeadId?: string, newOffset?: number, newLimit?: number) => {
     const orgId = selectedOrganisation?.id;
     if (!orgId) return "";
 
@@ -114,19 +118,20 @@ export default function CallDetailPage() {
     if (currentLimit !== 20) params.set("limit", currentLimit.toString());
     if (search) params.set("search", search);
     if (status !== "ALL") params.set("status", status);
+    if (disposition !== "ALL") params.set("disposition", disposition);
 
     const queryString = params.toString();
-    const targetCallId = newCallId || selectedCallId;
-    return `/org/${orgId}/calls/${targetCallId}${queryString ? `?${queryString}` : ""}`;
+    const targetLeadId = newLeadId || selectedLeadId;
+    return `/org/${orgId}/leads/${targetLeadId}${queryString ? `?${queryString}` : ""}`;
   };
 
-  // Update URL when call is selected (without full navigation)
-  const handleCallSelect = (newCallId: string) => {
+  // Update URL when lead is selected (without full navigation)
+  const handleLeadSelect = (newLeadId: string) => {
     // Update local state immediately (no re-render jump)
-    setSelectedCallId(newCallId);
-
+    setSelectedLeadId(newLeadId);
+    
     // Update URL without triggering navigation
-    const url = buildUrl(newCallId);
+    const url = buildUrl(newLeadId);
     if (url) {
       window.history.replaceState(null, '', url);
     }
@@ -136,33 +141,33 @@ export default function CallDetailPage() {
   const handleLimitChange = (newLimit: number) => {
     setLimit(newLimit);
     const url = buildUrl(undefined, 0, newLimit);
-    if (url) router.replace(url, { scroll: false });
+    if (url) router.replace(url);
   };
 
   const handleOffsetChange = (newOffset: number) => {
     setOffset(newOffset);
     const url = buildUrl(undefined, newOffset);
-    if (url) router.replace(url, { scroll: false });
+    if (url) router.replace(url);
   };
 
   return (
     <DashboardLayout>
       <div className="h-[calc(100vh-4rem)] flex">
-        {/* Left Panel - Call List */}
+        {/* Left Panel - Lead List */}
         <div className="w-96 border-r flex flex-col bg-card">
           {/* Header */}
           <div className="p-4 border-b">
             <div className="flex items-center gap-2 mb-1">
-              <Phone className="h-5 w-5 text-primary" />
-              <h1 className="text-xl font-bold">Calls</h1>
+              <Users className="h-5 w-5 text-primary" />
+              <h1 className="text-xl font-bold">Leads</h1>
             </div>
             <p className="text-sm text-muted-foreground">
-              {total} total call{total !== 1 ? "s" : ""}
+              {total} total lead{total !== 1 ? "s" : ""}
             </p>
           </div>
 
           {/* Filters */}
-          <CallFilters
+          <LeadFilters
             search={search}
             onSearchChange={(value) => {
               setSearch(value);
@@ -170,14 +175,21 @@ export default function CallDetailPage() {
             }}
             status={status}
             onStatusChange={(value) => {
-              setStatus(value as CallStatus | "ALL");
+              setStatus(value);
               setOffset(0);
             }}
+            disposition={disposition}
+            onDispositionChange={(value) => {
+              setDisposition(value);
+              setOffset(0);
+            }}
+            availableStatuses={availableStatuses}
+            availableDispositions={availableDispositions}
           />
 
-          {/* Call List */}
+          {/* Lead List */}
           <ScrollArea className="flex-1">
-            {isLoadingCalls ? (
+            {isLoadingLeads ? (
               <div className="p-4 space-y-4">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <div key={i} className="space-y-2">
@@ -187,32 +199,27 @@ export default function CallDetailPage() {
                   </div>
                 ))}
               </div>
-            ) : callsError ? (
+            ) : leadsError ? (
               <div className="p-4">
                 <Card className="p-4 bg-destructive/10 border-destructive/20">
                   <p className="text-sm text-destructive">
-                    Failed to load calls. Please try again.
+                    Failed to load leads. Please try again.
                   </p>
                 </Card>
               </div>
-            ) : calls.length === 0 ? (
-              <CallEmptyState
-                message="No calls found"
-                description={
-                  search || status !== "ALL"
-                    ? "Try adjusting your filters"
-                    : "Calls will appear here once they are created"
-                }
+            ) : leads.length === 0 ? (
+              <LeadEmptyState
+                message="No leads found"
+                description="Try adjusting your filters or search query"
               />
             ) : (
               <div>
-                {calls.map((call) => (
-                  <CallListItem
-                    key={call.id}
-                    call={call}
-                    isSelected={selectedCallId === call.id}
-                    onClick={() => handleCallSelect(call.id)}
-                    orgId={selectedOrganisation?.id}
+                {leads.map((lead) => (
+                  <LeadListItem
+                    key={lead.id}
+                    lead={lead}
+                    isSelected={selectedLeadId === lead.id}
+                    onClick={() => handleLeadSelect(lead.id)}
                   />
                 ))}
               </div>
@@ -220,8 +227,8 @@ export default function CallDetailPage() {
           </ScrollArea>
 
           {/* Pagination */}
-          {!isLoadingCalls && calls.length > 0 && (
-            <CallPagination
+          {!isLoadingLeads && leads.length > 0 && (
+            <LeadPagination
               total={total}
               limit={limit}
               offset={offset}
@@ -231,12 +238,12 @@ export default function CallDetailPage() {
           )}
         </div>
 
-        {/* Right Panel - Call Detail */}
+        {/* Right Panel - Lead Detail */}
         <div className="flex-1 bg-muted/30">
-          {!selectedCallId ? (
-            <CallEmptyState
-              message="Select a call to view details"
-              description="Choose a call from the list on the left"
+          {!selectedLeadId ? (
+            <LeadEmptyState
+              message="Select a lead to view details"
+              description="Choose a lead from the list on the left"
             />
           ) : isLoadingDetail ? (
             <div className="h-full p-6 space-y-6">
@@ -244,15 +251,18 @@ export default function CallDetailPage() {
                 <Skeleton className="h-8 w-1/2" />
                 <Skeleton className="h-4 w-1/4" />
               </div>
-              <Skeleton className="h-32 w-full" />
-              <Skeleton className="h-48 w-full" />
+              <div className="space-y-4">
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-32 w-full" />
+              </div>
             </div>
-          ) : selectedCall ? (
-            <CallDetail call={selectedCall} orgId={selectedOrganisation?.id} />
+          ) : selectedLead ? (
+            <LeadDetail lead={selectedLead} />
           ) : (
-            <CallEmptyState
-              message="Call not found"
-              description="The selected call could not be loaded"
+            <LeadEmptyState
+              message="Lead not found"
+              description="The selected lead could not be loaded"
             />
           )}
         </div>
@@ -260,5 +270,4 @@ export default function CallDetailPage() {
     </DashboardLayout>
   );
 }
-
 

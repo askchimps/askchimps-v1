@@ -49,7 +49,6 @@ describe('CallService', () => {
       findUnique: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),
-      findFirst: jest.fn(),
     },
     userOrganisation: {
       findFirst: jest.fn(),
@@ -216,47 +215,30 @@ describe('CallService', () => {
 
   describe('findAll', () => {
     it('should return all calls for organisation', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({
-        id: '01HZXYZ1234567890ABCDEFGHJL',
-        isDeleted: false,
-      });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
-        userId: 'user-1',
-      });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
       mockPrismaService.call.count.mockResolvedValue(1);
-      mockPrismaService.call.findMany.mockResolvedValue([mockCall]);
+      mockPrismaService.call.findMany.mockResolvedValue([{ ...mockCall, lead: { phone: '+1234567890' }, agent: { name: 'Test Agent' } }]);
 
-      const result = await service.findAll(
-        '01HZXYZ1234567890ABCDEFGHJL',
-        'user-1',
-        false,
-        {},
-      );
+      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, {});
 
       expect(result.data).toHaveLength(1);
       expect(result.data[0].id).toBe('01HZXYZ1234567890ABCDEFGHJK');
+      expect(result.total).toBe(1);
+      expect(result.limit).toBe(50);
+      expect(result.offset).toBe(0);
     });
 
     it('should filter calls by status', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({
-        id: '01HZXYZ1234567890ABCDEFGHJL',
-        isDeleted: false,
-      });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
-        userId: 'user-1',
-      });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
       mockPrismaService.call.count.mockResolvedValue(1);
-      mockPrismaService.call.findMany.mockResolvedValue([mockCall]);
+      mockPrismaService.call.findMany.mockResolvedValue([{ ...mockCall, lead: { phone: '+1234567890' }, agent: { name: 'Test Agent' } }]);
 
-      const result = await service.findAll(
-        '01HZXYZ1234567890ABCDEFGHJL',
-        'user-1',
-        false,
-        { status: CALL_STATUS.COMPLETED },
-      );
+      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, { status: 'COMPLETED' });
 
       expect(result.data).toHaveLength(1);
-      expect(prisma.call.findMany).toHaveBeenCalledWith({
+      expect(prisma.call.count).toHaveBeenCalledWith({
         where: {
           organisationId: '01HZXYZ1234567890ABCDEFGHJL',
           isDeleted: false,
@@ -274,78 +256,71 @@ describe('CallService', () => {
             },
           },
         },
-        orderBy: { createdAt: 'desc' },
-        skip: 0,
-        take: 50,
       });
     });
 
     it('should filter calls by agentId', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({
-        id: '01HZXYZ1234567890ABCDEFGHJL',
-        isDeleted: false,
-      });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
-        userId: 'user-1',
-      });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.agent.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJM', organisationId: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
       mockPrismaService.call.count.mockResolvedValue(1);
-      mockPrismaService.call.findMany.mockResolvedValue([mockCall]);
+      mockPrismaService.call.findMany.mockResolvedValue([{ ...mockCall, lead: { phone: '+1234567890' }, agent: { name: 'Test Agent' } }]);
 
-      const result = await service.findAll(
-        '01HZXYZ1234567890ABCDEFGHJL',
-        'user-1',
-        false,
-        { agentId: '01HZXYZ1234567890ABCDEFGHJM' },
-      );
+      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, { agentId: '01HZXYZ1234567890ABCDEFGHJM' });
 
       expect(result.data).toHaveLength(1);
+      expect(prisma.call.count).toHaveBeenCalledWith({
+        where: {
+          organisationId: '01HZXYZ1234567890ABCDEFGHJL',
+          isDeleted: false,
+          agentId: '01HZXYZ1234567890ABCDEFGHJM',
+        },
+      });
     });
 
     it('should filter calls by leadId', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({
-        id: '01HZXYZ1234567890ABCDEFGHJL',
-        isDeleted: false,
-      });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
-        userId: 'user-1',
-      });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.lead.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJN', organisationId: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
       mockPrismaService.call.count.mockResolvedValue(1);
-      mockPrismaService.call.findMany.mockResolvedValue([mockCall]);
+      mockPrismaService.call.findMany.mockResolvedValue([{ ...mockCall, lead: { phone: '+1234567890' }, agent: { name: 'Test Agent' } }]);
 
-      const result = await service.findAll(
-        '01HZXYZ1234567890ABCDEFGHJL',
-        'user-1',
-        false,
-        { leadId: '01HZXYZ1234567890ABCDEFGHJN' },
-      );
+      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, { leadId: '01HZXYZ1234567890ABCDEFGHJN' });
 
       expect(result.data).toHaveLength(1);
+      expect(prisma.call.count).toHaveBeenCalledWith({
+        where: {
+          organisationId: '01HZXYZ1234567890ABCDEFGHJL',
+          isDeleted: false,
+          leadId: '01HZXYZ1234567890ABCDEFGHJN',
+        },
+      });
     });
 
     it('should filter calls by multiple criteria', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({
-        id: '01HZXYZ1234567890ABCDEFGHJL',
-        isDeleted: false,
-      });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
-        userId: 'user-1',
-      });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.agent.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJM', organisationId: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
+      mockPrismaService.lead.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJN', organisationId: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
       mockPrismaService.call.count.mockResolvedValue(1);
-      mockPrismaService.call.findMany.mockResolvedValue([mockCall]);
+      mockPrismaService.call.findMany.mockResolvedValue([{ ...mockCall, lead: { phone: '+1234567890' }, agent: { name: 'Test Agent' } }]);
 
-      const result = await service.findAll(
-        '01HZXYZ1234567890ABCDEFGHJL',
-        'user-1',
-        false,
-        {
-          status: CALL_STATUS.COMPLETED,
+      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, {
+        status: 'COMPLETED',
+        agentId: '01HZXYZ1234567890ABCDEFGHJM',
+        leadId: '01HZXYZ1234567890ABCDEFGHJN'
+      });
+
+      expect(result.data).toHaveLength(1);
+      expect(prisma.call.count).toHaveBeenCalledWith({
+        where: {
+          organisationId: '01HZXYZ1234567890ABCDEFGHJL',
+          isDeleted: false,
+          status: 'COMPLETED',
           agentId: '01HZXYZ1234567890ABCDEFGHJM',
           leadId: '01HZXYZ1234567890ABCDEFGHJN',
         },
-      );
-
-      expect(result.data).toHaveLength(1);
-      expect(result.data).toHaveLength(1);
+      });
     });
 
     it('should throw ForbiddenException if user has no access', async () => {

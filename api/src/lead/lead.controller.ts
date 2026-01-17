@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -19,6 +20,7 @@ import {
 import { LeadService } from './lead.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
+import { QueryLeadDto } from './dto/query-lead.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../common/guards/rbac.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -125,8 +127,7 @@ export class LeadController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Get all leads in organisation',
-    description:
-      'Retrieve all leads for the specified organisation. Returns an array of lead objects.',
+    description: 'Retrieve paginated leads for the specified organisation with optional filters.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -138,30 +139,41 @@ export class LeadController {
     description: 'Leads retrieved successfully',
     schema: {
       example: {
-        data: [
-          {
-            id: '01HZXYZ1234567890ABCDEFGHJK',
-            organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
-            agentId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
-            zohoId: '5725767000000649013',
-            ownerId: 'zoho_5725767000000649013',
-            firstName: 'Priya',
-            lastName: 'Menon',
-            email: 'priya.menon@example.com',
-            phone: '+919123456789',
-            source: 'WhatsApp',
-            status: 'New',
-            disposition: 'Interested',
-            country: 'India',
-            state: 'Kerala',
-            city: 'Kochi',
-            reasonForCold: null,
-            isTransferred: false,
-            isDeleted: false,
-            createdAt: '2024-01-15T10:30:00.000Z',
-            updatedAt: '2024-01-15T10:30:00.000Z',
-          },
-        ],
+        data: {
+          data: [
+            {
+              id: '01HZXYZ1234567890ABCDEFGHJK',
+              organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+              agentId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+              zohoId: '5725767000000649013',
+              ownerId: 'zoho_5725767000000649013',
+              firstName: 'Priya',
+              lastName: 'Menon',
+              email: 'priya.menon@example.com',
+              phone: '+919123456789',
+              source: 'WhatsApp',
+              status: 'New',
+              disposition: 'Interested',
+              country: 'India',
+              state: 'Kerala',
+              city: 'Kochi',
+              reasonForCold: null,
+              isTransferred: false,
+              isDeleted: false,
+              createdAt: '2024-01-15T10:30:00.000Z',
+              updatedAt: '2024-01-15T10:30:00.000Z',
+              owner: {
+                id: 'zoho_5725767000000649013',
+                firstName: 'John',
+                lastName: 'Doe',
+                email: 'john.doe@example.com',
+              },
+            },
+          ],
+          total: 100,
+          limit: 20,
+          offset: 0,
+        },
         statusCode: 200,
         timestamp: '2024-01-15T10:30:00.000Z',
       },
@@ -174,13 +186,10 @@ export class LeadController {
   })
   findAll(
     @Param('organisationId') organisationId: string,
+    @Query() queryDto: QueryLeadDto,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.LeadService.findAll(
-      organisationId,
-      user.sub,
-      user.isSuperAdmin,
-    );
+    return this.LeadService.findAll(organisationId, user.sub, user.isSuperAdmin, queryDto);
   }
 
   @Get(':id')

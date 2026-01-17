@@ -1,21 +1,23 @@
 import { Call, CallStatus } from "@/lib/api/call";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Clock } from "lucide-react";
+import { Phone, Clock, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface CallListItemProps {
   call: Call;
   isSelected: boolean;
   onClick: () => void;
+  orgId?: string;
 }
 
 const statusConfig: Record<CallStatus, { label: string; className: string }> = {
-  [CallStatus.ACTIVE]: { label: "Active", className: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-950" },
-  [CallStatus.COMPLETED]: { label: "Completed", className: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-950" },
-  [CallStatus.FAILED]: { label: "Failed", className: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950" },
-  [CallStatus.DISCONNECTED]: { label: "Disconnected", className: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800" },
-  [CallStatus.RESCHEDULED]: { label: "Rescheduled", className: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-950" },
-  [CallStatus.MISSED]: { label: "Missed", className: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-950" },
+  [CallStatus.ACTIVE]: { label: "Active", className: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300" },
+  [CallStatus.COMPLETED]: { label: "Completed", className: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300" },
+  [CallStatus.FAILED]: { label: "Failed", className: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300" },
+  [CallStatus.DISCONNECTED]: { label: "Disconnected", className: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
+  [CallStatus.RESCHEDULED]: { label: "Rescheduled", className: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300" },
+  [CallStatus.MISSED]: { label: "Missed", className: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300" },
 };
 
 function formatDuration(seconds: number): string {
@@ -40,7 +42,7 @@ function formatDate(dateString: string): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-export function CallListItem({ call, isSelected, onClick }: CallListItemProps) {
+export function CallListItem({ call, isSelected, onClick, orgId }: CallListItemProps) {
   const statusInfo = statusConfig[call.status];
 
   return (
@@ -59,6 +61,18 @@ export function CallListItem({ call, isSelected, onClick }: CallListItemProps) {
             <h3 className="font-medium text-sm truncate">
               {call.name || "Unknown"}
             </h3>
+            {orgId && call.leadId && (
+              <Link
+                href={`/org/${orgId}/leads/${call.leadId}`}
+                className="text-muted-foreground hover:text-primary transition-colors shrink-0"
+                title="View lead details"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </Link>
+            )}
           </div>
 
           {call.phoneNumber && (
@@ -68,7 +82,7 @@ export function CallListItem({ call, isSelected, onClick }: CallListItemProps) {
           )}
 
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge className={cn("text-xs border-0", statusInfo.className)}>
+            <Badge className={cn("text-xs border-0 pointer-events-none", statusInfo.className)}>
               {statusInfo.label}
             </Badge>
 

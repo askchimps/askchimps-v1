@@ -12,9 +12,11 @@ import {
   Bot,
   Copy,
   Check,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import Link from "next/link";
 
 interface CallDetailProps {
   call: Call;
@@ -87,16 +89,29 @@ export function CallDetail({ call, orgId }: CallDetailProps) {
       <div className="p-6 border-b">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex-1">
-            <h2 className="text-2xl font-bold mb-2">
-              {call.name || "Unknown"}
-            </h2>
+            <div className="flex items-center gap-2 mb-2">
+              <h2 className="text-2xl font-bold">
+                {call.name || "Unknown"}
+              </h2>
+              {orgId && call.leadId && (
+                <Link
+                  href={`/org/${orgId}/leads/${call.leadId}`}
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                  title="View lead details"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="h-5 w-5" />
+                </Link>
+              )}
+            </div>
             {call.phoneNumber && (
               <p className="text-sm text-muted-foreground mb-2">
                 {call.phoneNumber}
               </p>
             )}
             <div className="flex items-center gap-2">
-              <Badge className={cn("border-0", statusInfo.className)}>
+              <Badge className={cn("border-0 pointer-events-none", statusInfo.className)}>
                 {statusInfo.label}
               </Badge>
             </div>
