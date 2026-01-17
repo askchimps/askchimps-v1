@@ -214,30 +214,53 @@ export function ChatDetail({ chat, orgId }: ChatDetailProps) {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="space-y-3">
+                                <div className="space-y-4">
                                     {chat.messages.map((message) => (
                                         <div
                                             key={message.id}
                                             className={cn(
-                                                "rounded-lg border p-3",
-                                                message.role === "USER"
-                                                    ? "bg-blue-50 dark:bg-blue-950/20"
-                                                    : "bg-gray-50 dark:bg-gray-900/20",
+                                                "flex gap-3",
+                                                message.role === "user" &&
+                                                    "flex-row-reverse",
                                             )}
                                         >
-                                            <div className="mb-1 flex items-center justify-between">
-                                                <span className="text-xs font-medium">
-                                                    {message.role}
-                                                </span>
-                                                <span className="text-muted-foreground text-xs">
-                                                    {formatDateTime(
-                                                        message.createdAt,
-                                                    )}
-                                                </span>
+                                            <div
+                                                className={cn(
+                                                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+                                                    message.role === "user"
+                                                        ? "bg-muted"
+                                                        : "bg-card border",
+                                                )}
+                                            >
+                                                {message.role === "user" ? (
+                                                    <User className="text-muted-foreground h-4 w-4" />
+                                                ) : (
+                                                    <Bot className="text-muted-foreground h-4 w-4" />
+                                                )}
                                             </div>
-                                            <p className="text-sm">
-                                                {message.content}
-                                            </p>
+                                            <div
+                                                className={cn(
+                                                    "flex-1 rounded-lg p-3 text-sm",
+                                                    message.role === "user"
+                                                        ? "bg-muted"
+                                                        : "bg-card border",
+                                                )}
+                                            >
+                                                <p className="text-foreground whitespace-pre-wrap">
+                                                    {message.content}
+                                                </p>
+                                                <p className="text-muted-foreground mt-1 text-xs">
+                                                    {new Date(
+                                                        message.createdAt,
+                                                    ).toLocaleTimeString(
+                                                        "en-US",
+                                                        {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                        },
+                                                    )}
+                                                </p>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

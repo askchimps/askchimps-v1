@@ -40,6 +40,22 @@ async function main() {
     );
     console.log('⏱️  This may take a few moments...\n');
 
+    // Clean up existing data
+    console.log(
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    );
+    console.log('🧹 Cleaning up existing data...');
+    await prisma.chatMessage.deleteMany({});
+    await prisma.chat.deleteMany({});
+    await prisma.lead.deleteMany({});
+    await prisma.chatFollowUpMessages.deleteMany({});
+    await prisma.tag.deleteMany({});
+    await prisma.agent.deleteMany({});
+    await prisma.userOrganisation.deleteMany({});
+    await prisma.organisation.deleteMany({});
+    await prisma.user.deleteMany({});
+    console.log('✅ Cleanup completed\n');
+
     // Hash passwords
     const superAdminhashedPassword = await bcrypt.hash('SuperAdmin@123', 10);
     const sunrooofOwnerhashedPassword = await bcrypt.hash(
@@ -466,6 +482,476 @@ async function main() {
     console.log('   ✓ Priya - Sales Agent (Magppie) [SALES]');
     console.log('✅ 4 AI agents created successfully\n');
 
+    // Create Leads
+    console.log(
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    );
+    console.log('👥 Creating leads...');
+
+    // Sunrooof leads
+    const sunrooofLead1 = await prisma.lead.create({
+        data: {
+            organisationId: sunrooof.id,
+            agentId: alexMarketingSunrooofAgent.id,
+            firstName: 'Amit',
+            lastName: 'Patel',
+            phone: '+919876543210',
+            email: 'amit.patel@example.com',
+            city: 'Mumbai',
+            state: 'Maharashtra',
+            country: 'India',
+        },
+    });
+
+    const sunrooofLead2 = await prisma.lead.create({
+        data: {
+            organisationId: sunrooof.id,
+            agentId: dipikaSalesSunrooofAgent.id,
+            firstName: 'Sneha',
+            lastName: 'Reddy',
+            phone: '+919876543211',
+            email: 'sneha.reddy@example.com',
+            city: 'Bangalore',
+            state: 'Karnataka',
+            country: 'India',
+        },
+    });
+
+    const sunrooofLead3 = await prisma.lead.create({
+        data: {
+            organisationId: sunrooof.id,
+            agentId: alexMarketingSunrooofAgent.id,
+            firstName: 'Rahul',
+            lastName: 'Sharma',
+            phone: '+919876543212',
+            email: 'rahul.sharma@example.com',
+            city: 'Delhi',
+            state: 'Delhi',
+            country: 'India',
+        },
+    });
+
+    const sunrooofLead4 = await prisma.lead.create({
+        data: {
+            organisationId: sunrooof.id,
+            agentId: dipikaSalesSunrooofAgent.id,
+            firstName: 'Priya',
+            lastName: 'Nair',
+            phone: '+919876543213',
+            email: 'priya.nair@example.com',
+            city: 'Chennai',
+            state: 'Tamil Nadu',
+            country: 'India',
+        },
+    });
+
+    const sunrooofLead5 = await prisma.lead.create({
+        data: {
+            organisationId: sunrooof.id,
+            agentId: alexMarketingSunrooofAgent.id,
+            firstName: 'Vikram',
+            lastName: 'Singh',
+            phone: '+919876543214',
+            city: 'Pune',
+            state: 'Maharashtra',
+            country: 'India',
+        },
+    });
+
+    // Magppie leads
+    const magppieLead1 = await prisma.lead.create({
+        data: {
+            organisationId: magppie.id,
+            agentId: alexMarketingMagppieAgent.id,
+            firstName: 'Ananya',
+            lastName: 'Gupta',
+            phone: '+919876543215',
+            email: 'ananya.gupta@example.com',
+            city: 'Hyderabad',
+            state: 'Telangana',
+            country: 'India',
+        },
+    });
+
+    const magppieLead2 = await prisma.lead.create({
+        data: {
+            organisationId: magppie.id,
+            agentId: priyaSalesMagppieAgent.id,
+            firstName: 'Rohan',
+            lastName: 'Mehta',
+            phone: '+919876543216',
+            email: 'rohan.mehta@example.com',
+            city: 'Ahmedabad',
+            state: 'Gujarat',
+            country: 'India',
+        },
+    });
+
+    const magppieLead3 = await prisma.lead.create({
+        data: {
+            organisationId: magppie.id,
+            agentId: alexMarketingMagppieAgent.id,
+            firstName: 'Kavya',
+            lastName: 'Iyer',
+            phone: '+919876543217',
+            email: 'kavya.iyer@example.com',
+            city: 'Kochi',
+            state: 'Kerala',
+            country: 'India',
+        },
+    });
+
+    const magppieLead4 = await prisma.lead.create({
+        data: {
+            organisationId: magppie.id,
+            agentId: priyaSalesMagppieAgent.id,
+            firstName: 'Arjun',
+            lastName: 'Desai',
+            phone: '+919876543218',
+            city: 'Surat',
+            state: 'Gujarat',
+            country: 'India',
+        },
+    });
+
+    console.log('   ✓ Sunrooof: 5 leads created');
+    console.log('   ✓ Magppie: 4 leads created');
+    console.log('✅ 9 leads created successfully\n');
+
+    // Create Chats
+    console.log(
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    );
+    console.log('💬 Creating chats...');
+
+    // Sunrooof chats
+    const sunrooofChat1 = await prisma.chat.create({
+        data: {
+            organisationId: sunrooof.id,
+            agentId: alexMarketingSunrooofAgent.id,
+            leadId: sunrooofLead1.id,
+            name: 'Solar Panel Inquiry - Amit Patel',
+            source: CHAT_SOURCE.WHATSAPP,
+            sourceId: 'wa_' + sunrooofLead1.phone,
+            status: CHAT_STATUS.OPEN,
+            shortSummary:
+                'Customer inquiring about solar panel installation for residential property in Mumbai.',
+            detailedSummary:
+                'Amit Patel contacted us via WhatsApp to inquire about solar panel installation for his 3BHK apartment in Mumbai. He is interested in reducing electricity bills and wants to know about government subsidies, installation timeline, and maintenance costs. He mentioned his monthly electricity bill is around ₹8,000 and he wants to achieve 70-80% savings.',
+        },
+    });
+
+    const sunrooofChat2 = await prisma.chat.create({
+        data: {
+            organisationId: sunrooof.id,
+            agentId: dipikaSalesSunrooofAgent.id,
+            leadId: sunrooofLead2.id,
+            name: 'Follow-up: Installation Schedule - Sneha Reddy',
+            source: CHAT_SOURCE.WHATSAPP,
+            sourceId: 'wa_' + sunrooofLead2.phone,
+            status: CHAT_STATUS.PENDING,
+            shortSummary:
+                'Customer waiting for installation schedule confirmation.',
+            detailedSummary:
+                'Sneha Reddy has already paid the advance and is waiting for the installation team to confirm the exact date. She prefers weekends for installation and wants to ensure minimal disruption to her daily routine. The technical team has completed the site survey and approved the installation plan.',
+        },
+    });
+
+    const sunrooofChat3 = await prisma.chat.create({
+        data: {
+            organisationId: sunrooof.id,
+            agentId: alexMarketingSunrooofAgent.id,
+            leadId: sunrooofLead3.id,
+            name: 'Commercial Solar Solution - Rahul Sharma',
+            source: CHAT_SOURCE.INSTAGRAM,
+            sourceId: 'ig_rahul_sharma_delhi',
+            status: CHAT_STATUS.NEW,
+            shortSummary:
+                'Business owner interested in commercial solar installation.',
+            detailedSummary:
+                'Rahul Sharma owns a small manufacturing unit in Delhi and wants to install solar panels to reduce operational costs. He is looking for a 50kW system and wants to understand ROI, financing options, and tax benefits. He mentioned that his current monthly electricity expense is around ₹2.5 lakhs.',
+        },
+    });
+
+    const sunrooofChat4 = await prisma.chat.create({
+        data: {
+            organisationId: sunrooof.id,
+            agentId: dipikaSalesSunrooofAgent.id,
+            leadId: sunrooofLead4.id,
+            name: 'Post-Installation Support - Priya Nair',
+            source: CHAT_SOURCE.WHATSAPP,
+            sourceId: 'wa_' + sunrooofLead4.phone,
+            status: CHAT_STATUS.CLOSED,
+            shortSummary: 'Customer requesting post-installation support.',
+            detailedSummary:
+                'Priya Nair had solar panels installed 2 months ago and is very satisfied with the performance. She reached out to understand how to monitor the system performance and had a question about cleaning the panels. Our support team provided her with the mobile app details and scheduled a free maintenance check.',
+        },
+    });
+
+    // Magppie chats
+    const magppieChat1 = await prisma.chat.create({
+        data: {
+            organisationId: magppie.id,
+            agentId: alexMarketingMagppieAgent.id,
+            leadId: magppieLead1.id,
+            name: 'Website Design Inquiry - Ananya Gupta',
+            source: CHAT_SOURCE.INSTAGRAM,
+            sourceId: 'ig_ananya_gupta_hyd',
+            status: CHAT_STATUS.OPEN,
+            shortSummary: 'Customer interested in website design for startup.',
+            detailedSummary:
+                'Ananya Gupta is launching a new e-commerce startup in Hyderabad and needs a modern, responsive website. She wants to see our portfolio, understand the timeline (preferably within 6 weeks), and get a detailed quote. She mentioned her budget is around ₹1.5-2 lakhs and she needs SEO optimization included.',
+        },
+    });
+
+    const magppieChat2 = await prisma.chat.create({
+        data: {
+            organisationId: magppie.id,
+            agentId: priyaSalesMagppieAgent.id,
+            leadId: magppieLead2.id,
+            name: 'Branding Package - Rohan Mehta',
+            source: CHAT_SOURCE.WHATSAPP,
+            sourceId: 'wa_' + magppieLead2.phone,
+            status: CHAT_STATUS.PENDING,
+            shortSummary: 'Customer reviewing branding package proposal.',
+            detailedSummary:
+                'Rohan Mehta runs a boutique hotel in Ahmedabad and wants a complete branding package including logo design, business cards, brochures, and social media templates. We sent him a detailed proposal with 3 design concepts. He is reviewing it with his partners and will get back to us by end of this week.',
+        },
+    });
+
+    const magppieChat3 = await prisma.chat.create({
+        data: {
+            organisationId: magppie.id,
+            agentId: alexMarketingMagppieAgent.id,
+            leadId: magppieLead3.id,
+            name: 'Social Media Management - Kavya Iyer',
+            source: CHAT_SOURCE.INSTAGRAM,
+            sourceId: 'ig_kavya_iyer_kochi',
+            status: CHAT_STATUS.NEW,
+            shortSummary:
+                'Customer inquiring about social media management services.',
+            detailedSummary:
+                'Kavya Iyer owns a boutique clothing store in Kochi and wants to improve her social media presence. She is looking for monthly social media management services including content creation, posting schedule, and engagement management for Instagram and Facebook. She wants to see case studies and pricing options.',
+        },
+    });
+
+    console.log('   ✓ Sunrooof: 4 chats created');
+    console.log('   ✓ Magppie: 3 chats created');
+    console.log('✅ 7 chats created successfully\n');
+
+    // Create Chat Messages
+    console.log(
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    );
+    console.log('💭 Creating chat messages...');
+
+    // Messages for sunrooofChat1 (Solar Panel Inquiry)
+    await prisma.chatMessage.create({
+        data: {
+            chatId: sunrooofChat1.id,
+            organisationId: sunrooof.id,
+            role: 'user',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'Hi, I am interested in installing solar panels for my apartment in Mumbai. Can you help me?',
+        },
+    });
+
+    await prisma.chatMessage.create({
+        data: {
+            chatId: sunrooofChat1.id,
+            organisationId: sunrooof.id,
+            role: 'assistant',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'Hello Amit! Thank you for reaching out to Sunrooof. I would be happy to help you with solar panel installation. To provide you with the best solution, could you please share: 1) Your apartment size (in sq ft), 2) Your average monthly electricity bill, and 3) Your preferred installation timeline?',
+        },
+    });
+
+    await prisma.chatMessage.create({
+        data: {
+            chatId: sunrooofChat1.id,
+            organisationId: sunrooof.id,
+            role: 'user',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'My apartment is around 1200 sq ft, 3BHK. Monthly bill is around ₹8,000. I want to install as soon as possible.',
+        },
+    });
+
+    await prisma.chatMessage.create({
+        data: {
+            chatId: sunrooofChat1.id,
+            organisationId: sunrooof.id,
+            role: 'assistant',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'Perfect! For a 1200 sq ft apartment with ₹8,000 monthly bill, I recommend a 3-4 kW solar system. This can reduce your electricity bill by 70-80%. The installation typically takes 2-3 days. You are also eligible for government subsidies up to 40%. Would you like me to schedule a free site survey?',
+        },
+    });
+
+    // Messages for sunrooofChat2 (Installation Schedule)
+    await prisma.chatMessage.create({
+        data: {
+            chatId: sunrooofChat2.id,
+            organisationId: sunrooof.id,
+            role: 'user',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'Hi, I paid the advance last week. When will the installation team come?',
+        },
+    });
+
+    await prisma.chatMessage.create({
+        data: {
+            chatId: sunrooofChat2.id,
+            organisationId: sunrooof.id,
+            role: 'assistant',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'Hello Sneha! Thank you for your payment. Our technical team has completed the site survey and approved your installation plan. We can schedule the installation for this weekend (Saturday or Sunday). Which day works better for you?',
+        },
+    });
+
+    await prisma.chatMessage.create({
+        data: {
+            chatId: sunrooofChat2.id,
+            organisationId: sunrooof.id,
+            role: 'user',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content: 'Sunday would be perfect. What time will the team arrive?',
+        },
+    });
+
+    // Messages for sunrooofChat3 (Commercial Solar)
+    await prisma.chatMessage.create({
+        data: {
+            chatId: sunrooofChat3.id,
+            organisationId: sunrooof.id,
+            role: 'user',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'I saw your Instagram post about commercial solar solutions. I need a 50kW system for my manufacturing unit.',
+        },
+    });
+
+    await prisma.chatMessage.create({
+        data: {
+            chatId: sunrooofChat3.id,
+            organisationId: sunrooof.id,
+            role: 'assistant',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'Hello Rahul! Great to hear from you. A 50kW commercial solar system is an excellent investment. For your manufacturing unit, we can provide: 1) Complete turnkey solution, 2) ROI within 3-4 years, 3) Accelerated depreciation benefits, 4) Net metering facility. Could you share your current monthly electricity expense and available rooftop area?',
+        },
+    });
+
+    // Messages for sunrooofChat4 (Post-Installation Support)
+    await prisma.chatMessage.create({
+        data: {
+            chatId: sunrooofChat4.id,
+            organisationId: sunrooof.id,
+            role: 'user',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'Hi, I got the solar panels installed 2 months ago. How do I check the performance? Also, do I need to clean the panels?',
+        },
+    });
+
+    await prisma.chatMessage.create({
+        data: {
+            chatId: sunrooofChat4.id,
+            organisationId: sunrooof.id,
+            role: 'assistant',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'Hello Priya! Great to hear from you. You can monitor your system performance through our Sunrooof mobile app (download link: sunrooof.com/app). For panel cleaning, we recommend cleaning once every 2-3 months. I have scheduled a free maintenance check for you next week. Our technician will clean the panels and check the system performance.',
+        },
+    });
+
+    await prisma.chatMessage.create({
+        data: {
+            chatId: sunrooofChat4.id,
+            organisationId: sunrooof.id,
+            role: 'user',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content: 'Perfect! Thank you so much for the excellent support.',
+        },
+    });
+
+    // Messages for magppieChat1 (Website Design)
+    await prisma.chatMessage.create({
+        data: {
+            chatId: magppieChat1.id,
+            organisationId: magppie.id,
+            role: 'user',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'Hi, I am launching an e-commerce startup and need a website. Can you share your portfolio and pricing?',
+        },
+    });
+
+    await prisma.chatMessage.create({
+        data: {
+            chatId: magppieChat1.id,
+            organisationId: magppie.id,
+            role: 'assistant',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'Hello Ananya! Congratulations on your new startup! We would love to help you build a stunning e-commerce website. You can view our portfolio at magppie.com/portfolio. For e-commerce websites, our packages start from ₹1.5 lakhs and include: responsive design, payment gateway integration, product catalog, SEO optimization, and 6 months support. Timeline is typically 6-8 weeks. Would you like to schedule a call to discuss your requirements?',
+        },
+    });
+
+    // Messages for magppieChat2 (Branding Package)
+    await prisma.chatMessage.create({
+        data: {
+            chatId: magppieChat2.id,
+            organisationId: magppie.id,
+            role: 'user',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'Hi, I received your branding proposal. The designs look great! I am discussing with my partners and will confirm by Friday.',
+        },
+    });
+
+    await prisma.chatMessage.create({
+        data: {
+            chatId: magppieChat2.id,
+            organisationId: magppie.id,
+            role: 'assistant',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'Thank you so much, Rohan! We are glad you liked the design concepts. Take your time to discuss with your partners. If you have any questions or need any modifications, feel free to reach out. Looking forward to working with you!',
+        },
+    });
+
+    // Messages for magppieChat3 (Social Media Management)
+    await prisma.chatMessage.create({
+        data: {
+            chatId: magppieChat3.id,
+            organisationId: magppie.id,
+            role: 'user',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'I need help with social media for my boutique store. Can you manage Instagram and Facebook?',
+        },
+    });
+
+    await prisma.chatMessage.create({
+        data: {
+            chatId: magppieChat3.id,
+            organisationId: magppie.id,
+            role: 'assistant',
+            type: CHAT_MESSAGE_TYPE.TEXT,
+            content:
+                'Hello Kavya! Absolutely! We offer comprehensive social media management services for Instagram and Facebook. Our packages include: content creation (posts, stories, reels), posting schedule (3-5 posts per week), engagement management, and monthly analytics reports. Pricing starts from ₹15,000/month. Would you like to see some case studies from our fashion and retail clients?',
+        },
+    });
+
+    console.log('   ✓ Sunrooof chats: 11 messages created');
+    console.log('   ✓ Magppie chats: 6 messages created');
+    console.log('✅ 17 chat messages created successfully\n');
+
     console.log(
         '═══════════════════════════════════════════════════════════════',
     );
@@ -482,6 +968,11 @@ async function main() {
     console.log(`   🏢 Organisations: 3 (AskChimps, Sunrooof, Magppie)`);
     console.log(`   🤖 AI Agents: 4 (2 Marketing, 2 Sales)`);
     console.log(`   🔗 User-Organisation Relationships: 9`);
+    console.log(`   👥 Leads: 9 (5 Sunrooof, 4 Magppie)`);
+    console.log(`   💬 Chats: 7 (4 Sunrooof, 3 Magppie)`);
+    console.log(`   💭 Chat Messages: 17 (11 Sunrooof, 6 Magppie)`);
+    console.log(`   🏷️  Tags: 5`);
+    console.log(`   📝 Follow-up Message Templates: 4`);
 
     console.log('🔐 LOGIN CREDENTIALS:');
     console.log(
