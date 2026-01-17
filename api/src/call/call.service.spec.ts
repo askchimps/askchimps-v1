@@ -3,11 +3,11 @@ import { CallService } from './call.service';
 import { PrismaService } from '../database/prisma.service';
 import {
   NotFoundException,
-  BadRequestException,
   ForbiddenException,
   ConflictException,
 } from '@nestjs/common';
 import { CALL_STATUS, SENTIMENT } from '@prisma/client';
+import { CallStatus } from './dto/create-call.dto';
 
 describe('CallService', () => {
   let service: CallService;
@@ -242,19 +242,7 @@ describe('CallService', () => {
         where: {
           organisationId: '01HZXYZ1234567890ABCDEFGHJL',
           isDeleted: false,
-          status: CALL_STATUS.COMPLETED,
-        },
-        include: {
-          agent: {
-            select: {
-              name: true,
-            },
-          },
-          lead: {
-            select: {
-              phone: true,
-            },
-          },
+          status: 'COMPLETED',
         },
       });
     });
@@ -374,7 +362,7 @@ describe('CallService', () => {
   describe('update', () => {
     const updateCallDto = {
       name: 'Updated Call',
-      status: CALL_STATUS.COMPLETED,
+      status: CallStatus.COMPLETED,
     };
 
     it('should update a call successfully', async () => {
