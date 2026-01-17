@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "SCHEDULE_TYPE" AS ENUM ('INITIAL', 'FOLLOW_UP', 'RESCHEDULE');
+
+-- AlterTable
+ALTER TABLE "agent_lead_call_schedules" ADD COLUMN     "type" "SCHEDULE_TYPE" NOT NULL DEFAULT 'INITIAL';
