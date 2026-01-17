@@ -270,6 +270,98 @@ async function main() {
   console.log('   ✓ Magppie Sales → Magppie (ADMIN)');
   console.log('✅ 9 user-organisation relationships created successfully\n');
 
+  // Create Tags
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('🏷️  Creating tags...');
+
+  // Sunrooof tags
+  const sunrooofHighPriorityTag = await prisma.tag.create({
+    data: {
+      name: 'High Priority',
+      slug: 'high-priority',
+      organisationId: sunrooof.id,
+    },
+  });
+
+  const sunrooofVIPTag = await prisma.tag.create({
+    data: {
+      name: 'VIP Customer',
+      slug: 'vip-customer',
+      organisationId: sunrooof.id,
+    },
+  });
+
+  const sunrooofFollowUpTag = await prisma.tag.create({
+    data: {
+      name: 'Needs Follow-up',
+      slug: 'needs-follow-up',
+      organisationId: sunrooof.id,
+    },
+  });
+
+  // Magppie tags
+  const magppieHotLeadTag = await prisma.tag.create({
+    data: {
+      name: 'Hot Lead',
+      slug: 'hot-lead',
+      organisationId: magppie.id,
+    },
+  });
+
+  const magppieQuoteRequestedTag = await prisma.tag.create({
+    data: {
+      name: 'Quote Requested',
+      slug: 'quote-requested',
+      organisationId: magppie.id,
+    },
+  });
+
+  console.log('   ✓ Sunrooof: High Priority, VIP Customer, Needs Follow-up');
+  console.log('   ✓ Magppie: Hot Lead, Quote Requested');
+  console.log('✅ 5 tags created successfully\n');
+
+  // Create Chat Follow-Up Messages
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('💬 Creating chat follow-up message templates...');
+
+  // Sunrooof follow-up messages
+  const sunrooofPaymentReminder = await prisma.chatFollowUpMessages.create({
+    data: {
+      slug: 'payment-reminder',
+      organisationId: sunrooof.id,
+      content: 'Hi! Just following up on your payment. Please let us know if you need any assistance with the solar panel installation payment.',
+    },
+  });
+
+  const sunrooofInstallationUpdate = await prisma.chatFollowUpMessages.create({
+    data: {
+      slug: 'installation-update',
+      organisationId: sunrooof.id,
+      content: 'Hello! We wanted to update you on your solar panel installation schedule. Our team will reach out soon with the exact date.',
+    },
+  });
+
+  // Magppie follow-up messages
+  const magppieQuoteFollowUp = await prisma.chatFollowUpMessages.create({
+    data: {
+      slug: 'quote-follow-up',
+      organisationId: magppie.id,
+      content: 'Hi! We sent you a quote for our design services. Have you had a chance to review it? Let us know if you have any questions!',
+    },
+  });
+
+  const magppieProjectUpdate = await prisma.chatFollowUpMessages.create({
+    data: {
+      slug: 'project-update',
+      organisationId: magppie.id,
+      content: 'Hello! Just checking in on your design project. Our team is ready to start whenever you are!',
+    },
+  });
+
+  console.log('   ✓ Sunrooof: Payment Reminder, Installation Update');
+  console.log('   ✓ Magppie: Quote Follow-up, Project Update');
+  console.log('✅ 4 follow-up message templates created successfully\n');
+
   // Create Agents
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('🤖 Creating AI agents...');
@@ -356,6 +448,16 @@ async function main() {
   console.log('   🎨 Magppie:');
   console.log('      • Alex - Marketing Agent (alex-marketing-magppie-ai-assistant) [MARKETING]');
   console.log('      • Priya - Sales Agent (priya-sales-magppie-ai-assistant) [SALES]\n');
+
+  console.log('🏷️  TAGS:');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('   ☀️  Sunrooof: High Priority, VIP Customer, Needs Follow-up');
+  console.log('   🎨 Magppie: Hot Lead, Quote Requested\n');
+
+  console.log('💬 FOLLOW-UP MESSAGE TEMPLATES:');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('   ☀️  Sunrooof: Payment Reminder, Installation Update');
+  console.log('   🎨 Magppie: Quote Follow-up, Project Update\n');
 
   console.log('═══════════════════════════════════════════════════════════════');
   console.log('✨ Ready to develop and test all features!');

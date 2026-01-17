@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsDateString, IsEnum, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsDateString,
+  IsEnum,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsULID } from '../../common/validators/is-ulid.validator';
 import { SCHEDULE_TYPE } from '@prisma/client';
@@ -40,4 +46,3 @@ export class CreateAgentLeadCallScheduleDto {
   @IsNotEmpty()
   callTime: string;
 }
-

@@ -7,7 +7,15 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiQuery, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiQuery,
+  ApiBody,
+} from '@nestjs/swagger';
 import { HistoryService } from './history.service';
 import { CreateHistoryDto } from './dto/create-history.dto';
 import { BulkCreateHistoryDto } from './dto/bulk-create-history.dto';
@@ -31,7 +39,8 @@ export class HistoryController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({
     summary: 'Create a history record (Admin only)',
-    description: 'Create a single audit history record. This endpoint is typically used by system integrations to log changes. Only OWNER and ADMIN roles can create history records manually.',
+    description:
+      'Create a single audit history record. This endpoint is typically used by system integrations to log changes. Only OWNER and ADMIN roles can create history records manually.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -55,7 +64,8 @@ export class HistoryController {
           oldValue: 'Old Company Name',
           newValue: 'New Company Name',
           reason: 'Company rebranding',
-          description: 'Organisation name was updated from "Old Company Name" to "New Company Name"',
+          description:
+            'Organisation name was updated from "Old Company Name" to "New Company Name"',
           requestId: 'req_123456789',
           ipAddress: '192.168.1.1',
           apiEndpoint: '/v1/organisation/01ARZ3NDEKTSV4RRFFQ69G5FAV',
@@ -104,7 +114,10 @@ export class HistoryController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Only OWNER and ADMIN can create history records' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Only OWNER and ADMIN can create history records',
+  })
   create(
     @Param('organisationId') organisationId: string,
     @Body() createHistoryDto: CreateHistoryDto,
@@ -120,7 +133,8 @@ export class HistoryController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({
     summary: 'Bulk create multiple history records (Admin only)',
-    description: 'Create multiple audit history records in a single transaction. Useful for importing historical data or batch logging changes.',
+    description:
+      'Create multiple audit history records in a single transaction. Useful for importing historical data or batch logging changes.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -196,7 +210,10 @@ export class HistoryController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Only OWNER and ADMIN can create history records' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Only OWNER and ADMIN can create history records',
+  })
   bulkCreate(
     @Param('organisationId') organisationId: string,
     @Body() bulkCreateHistoryDto: BulkCreateHistoryDto,
@@ -214,7 +231,8 @@ export class HistoryController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Query history records with filters',
-    description: 'Retrieve audit history records with advanced filtering options. Supports filtering by table, record, field, action, trigger, user, date range, and more. Results are paginated and sorted by creation time.',
+    description:
+      'Retrieve audit history records with advanced filtering options. Supports filtering by table, record, field, action, trigger, user, date range, and more. Results are paginated and sorted by creation time.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -256,7 +274,10 @@ export class HistoryController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   findAll(
     @Param('organisationId') organisationId: string,
     @Query() queryDto: QueryHistoryDto,
@@ -272,7 +293,8 @@ export class HistoryController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Get history for a specific record',
-    description: 'Retrieve the complete audit history for a specific record. Shows all changes made to the record over time.',
+    description:
+      'Retrieve the complete audit history for a specific record. Shows all changes made to the record over time.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -325,14 +347,21 @@ export class HistoryController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   findByRecord(
     @Param('organisationId') organisationId: string,
     @Param('tableName') tableName: string,
     @Param('recordId') recordId: string,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.historyService.findByRecord(tableName, recordId, user.sub, user.isSuperAdmin);
+    return this.historyService.findByRecord(
+      tableName,
+      recordId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 }
-

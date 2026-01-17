@@ -23,4 +23,3 @@ export class LeadEntity {
     Object.assign(this, partial);
   }
 }
-

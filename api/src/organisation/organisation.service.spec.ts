@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrganisationService } from './organisation.service';
 import { PrismaService } from '../database/prisma.service';
-import { ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  ConflictException,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Role } from '../common/enums';
 
 describe('OrganisationService', () => {
@@ -57,11 +61,13 @@ describe('OrganisationService', () => {
 
       const result = await service.create(createDto, userId);
 
-      expect(result).toEqual(expect.objectContaining({
-        id: mockOrganisation.id,
-        name: mockOrganisation.name,
-        slug: mockOrganisation.slug,
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: mockOrganisation.id,
+          name: mockOrganisation.name,
+          slug: mockOrganisation.slug,
+        }),
+      );
       expect(mockPrismaService.organisation.create).toHaveBeenCalledWith({
         data: {
           name: createDto.name,
@@ -80,10 +86,16 @@ describe('OrganisationService', () => {
       const createDto = { name: 'Test Org', slug: 'test-org' };
       const userId = 'user-123';
 
-      mockPrismaService.organisation.findUnique.mockResolvedValue(mockOrganisation);
+      mockPrismaService.organisation.findUnique.mockResolvedValue(
+        mockOrganisation,
+      );
 
-      await expect(service.create(createDto, userId)).rejects.toThrow(ConflictException);
-      await expect(service.create(createDto, userId)).rejects.toThrow('Organisation slug already exists');
+      await expect(service.create(createDto, userId)).rejects.toThrow(
+        ConflictException,
+      );
+      await expect(service.create(createDto, userId)).rejects.toThrow(
+        'Organisation slug already exists',
+      );
     });
   });
 
@@ -92,7 +104,9 @@ describe('OrganisationService', () => {
       const userId = 'user-123';
       const isSuperAdmin = true;
 
-      mockPrismaService.organisation.findMany.mockResolvedValue([mockOrganisation]);
+      mockPrismaService.organisation.findMany.mockResolvedValue([
+        mockOrganisation,
+      ]);
 
       const result = await service.findAll(userId, isSuperAdmin);
 
@@ -107,7 +121,9 @@ describe('OrganisationService', () => {
       const userId = 'user-123';
       const isSuperAdmin = false;
 
-      mockPrismaService.organisation.findMany.mockResolvedValue([mockOrganisation]);
+      mockPrismaService.organisation.findMany.mockResolvedValue([
+        mockOrganisation,
+      ]);
 
       const result = await service.findAll(userId, isSuperAdmin);
 
@@ -150,7 +166,9 @@ describe('OrganisationService', () => {
 
       mockPrismaService.organisation.findUnique.mockResolvedValue(null);
 
-      await expect(service.findOne(orgId, userId, isSuperAdmin)).rejects.toThrow(NotFoundException);
+      await expect(
+        service.findOne(orgId, userId, isSuperAdmin),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw ForbiddenException if user has no access', async () => {
@@ -163,7 +181,9 @@ describe('OrganisationService', () => {
         userOrganisations: [],
       });
 
-      await expect(service.findOne(orgId, userId, isSuperAdmin)).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.findOne(orgId, userId, isSuperAdmin),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 
@@ -183,7 +203,12 @@ describe('OrganisationService', () => {
         name: 'Updated Org',
       });
 
-      const result = await service.update(orgId, updateDto, userId, isSuperAdmin);
+      const result = await service.update(
+        orgId,
+        updateDto,
+        userId,
+        isSuperAdmin,
+      );
 
       expect(result.name).toBe('Updated Org');
     });
@@ -199,7 +224,9 @@ describe('OrganisationService', () => {
         userOrganisations: [{ userId, role: Role.MEMBER, isDeleted: false }],
       });
 
-      await expect(service.update(orgId, updateDto, userId, isSuperAdmin)).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.update(orgId, updateDto, userId, isSuperAdmin),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 
@@ -233,8 +260,9 @@ describe('OrganisationService', () => {
         userOrganisations: [{ userId, role: Role.ADMIN, isDeleted: false }],
       });
 
-      await expect(service.remove(orgId, userId, isSuperAdmin)).rejects.toThrow(ForbiddenException);
+      await expect(service.remove(orgId, userId, isSuperAdmin)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 });
-

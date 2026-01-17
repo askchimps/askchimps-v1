@@ -28,10 +28,7 @@ export class ChatService {
       where: {
         organisationId,
         isDeleted: false,
-        OR: [
-          { id: identifier },
-          { sourceId: identifier },
-        ],
+        OR: [{ id: identifier }, { sourceId: identifier }],
       },
     });
   }
@@ -69,7 +66,9 @@ export class ChatService {
       });
 
       if (!lead) {
-        throw new BadRequestException('Lead not found or does not belong to this organisation');
+        throw new BadRequestException(
+          'Lead not found or does not belong to this organisation',
+        );
       }
     }
 
@@ -89,14 +88,41 @@ export class ChatService {
       );
     }
 
+    // Verify tags exist and belong to organisation if provided
+    if (createChatDto.tagIds && createChatDto.tagIds.length > 0) {
+      const tags = await this.prisma.tag.findMany({
+        where: {
+          id: { in: createChatDto.tagIds },
+          organisationId,
+          isDeleted: false,
+        },
+      });
+
+      if (tags.length !== createChatDto.tagIds.length) {
+        throw new NotFoundException(
+          'One or more tags not found or do not belong to this organisation',
+        );
+      }
+    }
+
+    const { tagIds, ...chatData } = createChatDto;
+
     const chat = await this.prisma.chat.create({
       data: {
-        ...createChatDto,
+        ...chatData,
         organisationId,
-        status: createChatDto.status || CHAT_STATUS.NEW,
+        status: chatData.status || CHAT_STATUS.NEW,
+        ...(tagIds && tagIds.length > 0
+          ? {
+              tags: {
+                connect: tagIds.map((id) => ({ id })),
+              },
+            }
+          : {}),
       },
       include: {
         lead: true,
+        tags: true,
       },
     });
 
@@ -120,15 +146,15 @@ export class ChatService {
     return chats.map((chat) => new ChatEntity(chat));
   }
 
-  async findOne(organisationId: string, idOrSourceId: string): Promise<ChatEntity> {
+  async findOne(
+    organisationId: string,
+    idOrSourceId: string,
+  ): Promise<ChatEntity> {
     const chat = await this.prisma.chat.findFirst({
       where: {
         organisationId,
         isDeleted: false,
-        OR: [
-          { id: idOrSourceId },
-          { sourceId: idOrSourceId },
-        ],
+        OR: [{ id: idOrSourceId }, { sourceId: idOrSourceId }],
       },
       include: {
         lead: true,
@@ -161,10 +187,7 @@ export class ChatService {
       where: {
         organisationId,
         isDeleted: false,
-        OR: [
-          { id: idOrSourceId },
-          { sourceId: idOrSourceId },
-        ],
+        OR: [{ id: idOrSourceId }, { sourceId: idOrSourceId }],
       },
     });
 
@@ -183,15 +206,46 @@ export class ChatService {
       });
 
       if (!lead) {
-        throw new BadRequestException('Lead not found or does not belong to this organisation');
+        throw new BadRequestException(
+          'Lead not found or does not belong to this organisation',
+        );
       }
     }
 
+    // Verify tags exist and belong to organisation if provided
+    if (updateChatDto.tagIds && updateChatDto.tagIds.length > 0) {
+      const tags = await this.prisma.tag.findMany({
+        where: {
+          id: { in: updateChatDto.tagIds },
+          organisationId,
+          isDeleted: false,
+        },
+      });
+
+      if (tags.length !== updateChatDto.tagIds.length) {
+        throw new NotFoundException(
+          'One or more tags not found or do not belong to this organisation',
+        );
+      }
+    }
+
+    const { tagIds, ...chatData } = updateChatDto;
+
     const chat = await this.prisma.chat.update({
       where: { id: existingChat.id },
-      data: updateChatDto,
+      data: {
+        ...chatData,
+        ...(tagIds !== undefined
+          ? {
+              tags: {
+                set: tagIds.map((id) => ({ id })),
+              },
+            }
+          : {}),
+      },
       include: {
         lead: true,
+        tags: true,
       },
     });
 
@@ -204,10 +258,7 @@ export class ChatService {
       where: {
         organisationId,
         isDeleted: false,
-        OR: [
-          { id: idOrSourceId },
-          { sourceId: idOrSourceId },
-        ],
+        OR: [{ id: idOrSourceId }, { sourceId: idOrSourceId }],
       },
     });
 
@@ -222,7 +273,10 @@ export class ChatService {
     });
   }
 
-  async findByLead(organisationId: string, leadId: string): Promise<ChatEntity[]> {
+  async findByLead(
+    organisationId: string,
+    leadId: string,
+  ): Promise<ChatEntity[]> {
     const chats = await this.prisma.chat.findMany({
       where: {
         organisationId,
@@ -269,10 +323,7 @@ export class ChatService {
       where: {
         organisationId,
         isDeleted: false,
-        OR: [
-          { id: idOrSourceId },
-          { sourceId: idOrSourceId },
-        ],
+        OR: [{ id: idOrSourceId }, { sourceId: idOrSourceId }],
       },
     });
 
@@ -322,4 +373,3 @@ export class ChatService {
     };
   }
 }
-

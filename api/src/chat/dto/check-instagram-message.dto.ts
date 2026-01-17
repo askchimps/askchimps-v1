@@ -10,4 +10,3 @@ export class CheckInstagramMessageDto {
   @IsNotEmpty()
   messageId: string;
 }
-

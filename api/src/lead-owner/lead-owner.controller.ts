@@ -8,7 +8,14 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiBody,
+} from '@nestjs/swagger';
 import { LeadOwnerService } from './lead-owner.service';
 import { CreateLeadOwnerDto } from './dto/create-lead-owner.dto';
 import { UpdateLeadOwnerDto } from './dto/update-lead-owner.dto';
@@ -24,7 +31,8 @@ export class LeadOwnerController {
   @Post()
   @ApiOperation({
     summary: 'Create a lead owner',
-    description: 'Create a new lead owner record. Lead owners are typically imported from CRM systems like Zoho, Salesforce, or HubSpot. The ID is manually provided and should match the external system ID.',
+    description:
+      'Create a new lead owner record. Lead owners are typically imported from CRM systems like Zoho, Salesforce, or HubSpot. The ID is manually provided and should match the external system ID.',
   })
   @ApiBody({
     type: CreateLeadOwnerDto,
@@ -68,7 +76,10 @@ export class LeadOwnerController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid input data or lead owner ID already exists' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid input data or lead owner ID already exists',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   create(@Body() createLeadOwnerDto: CreateLeadOwnerDto) {
     return this.LeadOwnerService.create(createLeadOwnerDto);
@@ -77,7 +88,8 @@ export class LeadOwnerController {
   @Get()
   @ApiOperation({
     summary: 'Get all lead owners',
-    description: 'Retrieve all lead owner records. Useful for populating dropdowns or displaying lead owner information.',
+    description:
+      'Retrieve all lead owner records. Useful for populating dropdowns or displaying lead owner information.',
   })
   @ApiResponse({
     status: 200,
@@ -117,7 +129,8 @@ export class LeadOwnerController {
   @Get(':id')
   @ApiOperation({
     summary: 'Get lead owner by ID',
-    description: 'Retrieve a specific lead owner by their ID (typically from external CRM system).',
+    description:
+      'Retrieve a specific lead owner by their ID (typically from external CRM system).',
   })
   @ApiParam({
     name: 'id',
@@ -152,7 +165,8 @@ export class LeadOwnerController {
   @Patch(':id')
   @ApiOperation({
     summary: 'Update lead owner',
-    description: 'Update lead owner information. Typically used when syncing updates from external CRM systems.',
+    description:
+      'Update lead owner information. Typically used when syncing updates from external CRM systems.',
   })
   @ApiParam({
     name: 'id',
@@ -200,14 +214,18 @@ export class LeadOwnerController {
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Lead owner not found' })
-  update(@Param('id') id: string, @Body() updateLeadOwnerDto: UpdateLeadOwnerDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateLeadOwnerDto: UpdateLeadOwnerDto,
+  ) {
     return this.LeadOwnerService.update(id, updateLeadOwnerDto);
   }
 
   @Delete(':id')
   @ApiOperation({
     summary: 'Delete lead owner',
-    description: 'Delete a lead owner record. Note: This will fail if there are leads associated with this owner.',
+    description:
+      'Delete a lead owner record. Note: This will fail if there are leads associated with this owner.',
   })
   @ApiParam({
     name: 'id',
@@ -235,9 +253,11 @@ export class LeadOwnerController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Lead owner not found' })
-  @ApiResponse({ status: 409, description: 'Cannot delete lead owner with associated leads' })
+  @ApiResponse({
+    status: 409,
+    description: 'Cannot delete lead owner with associated leads',
+  })
   remove(@Param('id') id: string) {
     return this.LeadOwnerService.remove(id);
   }
 }
-

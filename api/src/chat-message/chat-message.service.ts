@@ -23,10 +23,7 @@ export class ChatMessageService {
       where: {
         organisationId,
         isDeleted: false,
-        OR: [
-          { id: chatIdOrSourceId },
-          { sourceId: chatIdOrSourceId },
-        ],
+        OR: [{ id: chatIdOrSourceId }, { sourceId: chatIdOrSourceId }],
       },
     });
 
@@ -67,10 +64,7 @@ export class ChatMessageService {
       where: {
         organisationId,
         isDeleted: false,
-        OR: [
-          { id: chatIdOrSourceId },
-          { sourceId: chatIdOrSourceId },
-        ],
+        OR: [{ id: chatIdOrSourceId }, { sourceId: chatIdOrSourceId }],
       },
     });
 
@@ -107,10 +101,7 @@ export class ChatMessageService {
       where: {
         organisationId,
         isDeleted: false,
-        OR: [
-          { id: chatIdOrSourceId },
-          { sourceId: chatIdOrSourceId },
-        ],
+        OR: [{ id: chatIdOrSourceId }, { sourceId: chatIdOrSourceId }],
       },
     });
 
@@ -150,10 +141,7 @@ export class ChatMessageService {
       where: {
         organisationId,
         isDeleted: false,
-        OR: [
-          { id: chatIdOrSourceId },
-          { sourceId: chatIdOrSourceId },
-        ],
+        OR: [{ id: chatIdOrSourceId }, { sourceId: chatIdOrSourceId }],
       },
     });
 
@@ -201,10 +189,7 @@ export class ChatMessageService {
       where: {
         organisationId,
         isDeleted: false,
-        OR: [
-          { id: chatIdOrSourceId },
-          { sourceId: chatIdOrSourceId },
-        ],
+        OR: [{ id: chatIdOrSourceId }, { sourceId: chatIdOrSourceId }],
       },
     });
 
@@ -239,4 +224,3 @@ export class ChatMessageService {
     ]);
   }
 }
-

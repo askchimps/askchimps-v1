@@ -9,7 +9,15 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiQuery, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiQuery,
+  ApiBody,
+} from '@nestjs/swagger';
 import { AgentLeadCallScheduleService } from './agent-lead-call-schedule.service';
 import { CreateAgentLeadCallScheduleDto } from './dto/create-agent-lead-call-schedule.dto';
 import { UpdateAgentLeadCallScheduleDto } from './dto/update-agent-lead-call-schedule.dto';
@@ -22,7 +30,10 @@ import type { UserPayload } from '../common/interfaces/request-with-user.interfa
 
 @ApiTags('Agent Lead Call Schedule')
 @ApiBearerAuth('JWT-auth')
-@Controller({ path: 'organisation/:organisationId/agent-lead-call-schedule', version: '1' })
+@Controller({
+  path: 'organisation/:organisationId/agent-lead-call-schedule',
+  version: '1',
+})
 @UseGuards(JwtAuthGuard)
 export class AgentLeadCallScheduleController {
   constructor(private readonly scheduleService: AgentLeadCallScheduleService) {}
@@ -32,7 +43,8 @@ export class AgentLeadCallScheduleController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Create a new call schedule',
-    description: 'Schedule a call between an agent and a lead. Supports INITIAL calls, FOLLOW_UP calls, and RESCHEDULE. Prevents duplicate schedules for the same agent-lead pair.',
+    description:
+      'Schedule a call between an agent and a lead. Supports INITIAL calls, FOLLOW_UP calls, and RESCHEDULE. Prevents duplicate schedules for the same agent-lead pair.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -91,15 +103,26 @@ export class AgentLeadCallScheduleController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Agent or lead not found' })
-  @ApiResponse({ status: 409, description: 'Schedule already exists for this agent-lead pair' })
+  @ApiResponse({
+    status: 409,
+    description: 'Schedule already exists for this agent-lead pair',
+  })
   create(
     @Param('organisationId') organisationId: string,
     @Body() createDto: CreateAgentLeadCallScheduleDto,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.scheduleService.create(createDto, organisationId, user.sub, user.isSuperAdmin);
+    return this.scheduleService.create(
+      createDto,
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 
   @Get()
@@ -107,7 +130,8 @@ export class AgentLeadCallScheduleController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Get all call schedules in organisation',
-    description: 'Retrieve call schedules with advanced filtering. Supports filtering by type, agent, lead, date range, and limiting results. Useful for building calendar views and schedule management interfaces.',
+    description:
+      'Retrieve call schedules with advanced filtering. Supports filtering by type, agent, lead, date range, and limiting results. Useful for building calendar views and schedule management interfaces.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -185,7 +209,10 @@ export class AgentLeadCallScheduleController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   findAll(
     @Param('organisationId') organisationId: string,
     @Query('type') type?: string,
@@ -248,14 +275,22 @@ export class AgentLeadCallScheduleController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Schedule not found' })
   findOne(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.scheduleService.findOne(id, organisationId, user.sub, user.isSuperAdmin);
+    return this.scheduleService.findOne(
+      id,
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 
   @Patch(':id')
@@ -263,7 +298,8 @@ export class AgentLeadCallScheduleController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Update call schedule',
-    description: 'Update a call schedule. Typically used to reschedule calls or change the schedule type.',
+    description:
+      'Update a call schedule. Typically used to reschedule calls or change the schedule type.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -314,7 +350,10 @@ export class AgentLeadCallScheduleController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Schedule not found' })
   update(
     @Param('organisationId') organisationId: string,
@@ -336,7 +375,8 @@ export class AgentLeadCallScheduleController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({
     summary: 'Delete call schedule (soft delete)',
-    description: 'Soft delete a call schedule. The schedule is marked as deleted but not removed from the database. Only OWNER and ADMIN roles can delete schedules.',
+    description:
+      'Soft delete a call schedule. The schedule is marked as deleted but not removed from the database. Only OWNER and ADMIN roles can delete schedules.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -369,14 +409,21 @@ export class AgentLeadCallScheduleController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Only OWNER and ADMIN can delete schedules' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Only OWNER and ADMIN can delete schedules',
+  })
   @ApiResponse({ status: 404, description: 'Schedule not found' })
   remove(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.scheduleService.remove(id, organisationId, user.sub, user.isSuperAdmin);
+    return this.scheduleService.remove(
+      id,
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 }
-

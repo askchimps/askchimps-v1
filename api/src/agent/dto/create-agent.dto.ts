@@ -42,4 +42,3 @@ export class CreateAgentDto {
   @MaxLength(200)
   slug: string;
 }
-

@@ -1,9 +1,16 @@
-import { IsString, IsOptional, IsEmail, MaxLength, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEmail,
+  MaxLength,
+  IsNotEmpty,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateLeadOwnerDto {
   @ApiProperty({
-    description: 'Unique identifier for the lead owner (manually provided string)',
+    description:
+      'Unique identifier for the lead owner (manually provided string)',
     example: 'zoho_5725767000000649013',
   })
   @IsString()
@@ -48,4 +55,3 @@ export class CreateLeadOwnerDto {
   @MaxLength(20)
   phone?: string;
 }
-

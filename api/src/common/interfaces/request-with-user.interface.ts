@@ -16,4 +16,3 @@ export interface OrganisationContext {
   organisationId: string;
   role: Role;
 }
-

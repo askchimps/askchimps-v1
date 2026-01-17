@@ -1,4 +1,12 @@
-import { IsString, IsOptional, IsEnum, IsDateString, IsInt, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsDateString,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { HISTORY_ACTION, HISTORY_TRIGGER } from '@prisma/client';
 import { Type } from 'class-transformer';
@@ -154,4 +162,3 @@ export class QueryHistoryDto {
   @IsOptional()
   sortOrder?: 'asc' | 'desc';
 }
-

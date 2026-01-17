@@ -86,8 +86,39 @@ export class CallService {
       }
     }
 
+    // Verify tags exist and belong to organisation if provided
+    if (createCallDto.tagIds && createCallDto.tagIds.length > 0) {
+      const tags = await this.prisma.tag.findMany({
+        where: {
+          id: { in: createCallDto.tagIds },
+          organisationId: createCallDto.organisationId,
+          isDeleted: false,
+        },
+      });
+
+      if (tags.length !== createCallDto.tagIds.length) {
+        throw new NotFoundException(
+          'One or more tags not found or do not belong to this organisation',
+        );
+      }
+    }
+
+    const { tagIds, ...callData } = createCallDto;
+
     const call = await this.prisma.call.create({
-      data: createCallDto,
+      data: {
+        ...callData,
+        ...(tagIds && tagIds.length > 0
+          ? {
+              tags: {
+                connect: tagIds.map((id) => ({ id })),
+              },
+            }
+          : {}),
+      },
+      include: {
+        tags: true,
+      },
     });
 
     return new CallEntity(call);
@@ -355,9 +386,40 @@ export class CallService {
       }
     }
 
+    // Verify tags exist and belong to organisation if provided
+    if (updateCallDto.tagIds && updateCallDto.tagIds.length > 0) {
+      const tags = await this.prisma.tag.findMany({
+        where: {
+          id: { in: updateCallDto.tagIds },
+          organisationId,
+          isDeleted: false,
+        },
+      });
+
+      if (tags.length !== updateCallDto.tagIds.length) {
+        throw new NotFoundException(
+          'One or more tags not found or do not belong to this organisation',
+        );
+      }
+    }
+
+    const { tagIds, ...callData } = updateCallDto;
+
     const updated = await this.prisma.call.update({
       where: { id: call.id },
-      data: updateCallDto,
+      data: {
+        ...callData,
+        ...(tagIds !== undefined
+          ? {
+              tags: {
+                set: tagIds.map((id) => ({ id })),
+              },
+            }
+          : {}),
+      },
+      include: {
+        tags: true,
+      },
     });
 
     return new CallEntity(updated);

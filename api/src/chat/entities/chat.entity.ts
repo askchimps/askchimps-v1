@@ -28,4 +28,3 @@ export class ChatEntity {
     Object.assign(this, partial);
   }
 }
-

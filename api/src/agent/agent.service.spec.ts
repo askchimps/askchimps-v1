@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AgentService } from './agent.service';
 import { PrismaService } from '../database/prisma.service';
-import { NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
+import {
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 
 describe('AgentService', () => {
   let service: AgentService;
@@ -60,13 +64,26 @@ describe('AgentService', () => {
     };
 
     it('should create an agent successfully', async () => {
-      const createAgentDtoWithOrgId = { ...createAgentDto, organisationId: '01HZXYZ1234567890ABCDEFGHJL' };
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      const createAgentDtoWithOrgId = {
+        ...createAgentDto,
+        organisationId: '01HZXYZ1234567890ABCDEFGHJL',
+      };
+      mockPrismaService.organisation.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJL',
+        isDeleted: false,
+      });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.agent.findUnique.mockResolvedValue(null);
       mockPrismaService.agent.create.mockResolvedValue(mockAgent);
 
-      const result = await service.create('01HZXYZ1234567890ABCDEFGHJL', createAgentDtoWithOrgId, 'user-1', false);
+      const result = await service.create(
+        '01HZXYZ1234567890ABCDEFGHJL',
+        createAgentDtoWithOrgId,
+        'user-1',
+        false,
+      );
 
       expect(result).toBeDefined();
       expect(result.id).toBe('01HZXYZ1234567890ABCDEFGHJK');
@@ -76,29 +93,53 @@ describe('AgentService', () => {
     it('should throw NotFoundException if organisation not found', async () => {
       mockPrismaService.organisation.findUnique.mockResolvedValue(null);
 
-      await expect(service.create('01HZXYZ1234567890ABCDEFGHJL', createAgentDto, 'user-1', false)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.create(
+          '01HZXYZ1234567890ABCDEFGHJL',
+          createAgentDto,
+          'user-1',
+          false,
+        ),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw ConflictException if slug already exists', async () => {
-      const createAgentDtoWithOrgId = { ...createAgentDto, organisationId: '01HZXYZ1234567890ABCDEFGHJL' };
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      const createAgentDtoWithOrgId = {
+        ...createAgentDto,
+        organisationId: '01HZXYZ1234567890ABCDEFGHJL',
+      };
+      mockPrismaService.organisation.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJL',
+        isDeleted: false,
+      });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.agent.findUnique.mockResolvedValue(mockAgent);
 
-      await expect(service.create('01HZXYZ1234567890ABCDEFGHJL', createAgentDtoWithOrgId, 'user-1', false)).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(
+        service.create(
+          '01HZXYZ1234567890ABCDEFGHJL',
+          createAgentDtoWithOrgId,
+          'user-1',
+          false,
+        ),
+      ).rejects.toThrow(ConflictException);
     });
   });
 
   describe('findAll', () => {
     it('should return all agents for organisation', async () => {
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.agent.findMany.mockResolvedValue([mockAgent]);
 
-      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false);
+      const result = await service.findAll(
+        '01HZXYZ1234567890ABCDEFGHJL',
+        'user-1',
+        false,
+      );
 
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('01HZXYZ1234567890ABCDEFGHJK');
@@ -107,15 +148,19 @@ describe('AgentService', () => {
     it('should throw ForbiddenException if user has no access', async () => {
       mockPrismaService.userOrganisation.findFirst.mockResolvedValue(null);
 
-      await expect(service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false)).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(
+        service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false),
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it('should allow super admin to access any organisation', async () => {
       mockPrismaService.agent.findMany.mockResolvedValue([mockAgent]);
 
-      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', true);
+      const result = await service.findAll(
+        '01HZXYZ1234567890ABCDEFGHJL',
+        'user-1',
+        true,
+      );
 
       expect(result).toHaveLength(1);
       expect(prisma.userOrganisation.findFirst).not.toHaveBeenCalled();
@@ -124,21 +169,35 @@ describe('AgentService', () => {
 
   describe('findOne', () => {
     it('should return an agent by id', async () => {
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.agent.findUnique.mockResolvedValue(mockAgent);
 
-      const result = await service.findOne('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJL', 'user-1', false);
+      const result = await service.findOne(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        '01HZXYZ1234567890ABCDEFGHJL',
+        'user-1',
+        false,
+      );
 
       expect(result).toBeDefined();
       expect(result.id).toBe('01HZXYZ1234567890ABCDEFGHJK');
     });
 
     it('should throw NotFoundException if agent not found', async () => {
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.agent.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.findOne('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJL', 'user-1', false),
+        service.findOne(
+          '01HZXYZ1234567890ABCDEFGHJK',
+          '01HZXYZ1234567890ABCDEFGHJL',
+          'user-1',
+          false,
+        ),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -149,11 +208,22 @@ describe('AgentService', () => {
     };
 
     it('should update an agent successfully', async () => {
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.agent.findUnique.mockResolvedValue(mockAgent);
-      mockPrismaService.agent.update.mockResolvedValue({ ...mockAgent, ...updateAgentDto });
+      mockPrismaService.agent.update.mockResolvedValue({
+        ...mockAgent,
+        ...updateAgentDto,
+      });
 
-      const result = await service.update('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJL', updateAgentDto, 'user-1', false);
+      const result = await service.update(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        '01HZXYZ1234567890ABCDEFGHJL',
+        updateAgentDto,
+        'user-1',
+        false,
+      );
 
       expect(result).toBeDefined();
       expect(result.name).toBe('Updated Agent');
@@ -161,22 +231,40 @@ describe('AgentService', () => {
     });
 
     it('should throw NotFoundException if agent not found', async () => {
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.agent.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.update('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJL', updateAgentDto, 'user-1', false),
+        service.update(
+          '01HZXYZ1234567890ABCDEFGHJK',
+          '01HZXYZ1234567890ABCDEFGHJL',
+          updateAgentDto,
+          'user-1',
+          false,
+        ),
       ).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('remove', () => {
     it('should soft delete an agent successfully', async () => {
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.agent.findUnique.mockResolvedValue(mockAgent);
-      mockPrismaService.agent.update.mockResolvedValue({ ...mockAgent, isDeleted: true });
+      mockPrismaService.agent.update.mockResolvedValue({
+        ...mockAgent,
+        isDeleted: true,
+      });
 
-      const result = await service.remove('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJL', 'user-1', false);
+      const result = await service.remove(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        '01HZXYZ1234567890ABCDEFGHJL',
+        'user-1',
+        false,
+      );
 
       expect(result).toBeDefined();
       expect(prisma.agent.update).toHaveBeenCalledWith({
@@ -186,13 +274,19 @@ describe('AgentService', () => {
     });
 
     it('should throw NotFoundException if agent not found', async () => {
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.agent.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.remove('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJL', 'user-1', false),
+        service.remove(
+          '01HZXYZ1234567890ABCDEFGHJK',
+          '01HZXYZ1234567890ABCDEFGHJL',
+          'user-1',
+          false,
+        ),
       ).rejects.toThrow(NotFoundException);
     });
   });
 });
-

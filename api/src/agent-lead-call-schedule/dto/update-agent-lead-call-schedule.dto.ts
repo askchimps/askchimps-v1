@@ -4,4 +4,3 @@ import { CreateAgentLeadCallScheduleDto } from './create-agent-lead-call-schedul
 export class UpdateAgentLeadCallScheduleDto extends PartialType(
   OmitType(CreateAgentLeadCallScheduleDto, ['agentId', 'leadId'] as const),
 ) {}
-

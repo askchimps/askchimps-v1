@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, MaxLength, IsArray, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MaxLength,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsULID } from '../../common/validators/is-ulid.validator';
 import { Type } from 'class-transformer';
@@ -82,7 +88,8 @@ export class CreateBulkCallMessageDto {
       },
       {
         role: 'assistant',
-        content: 'Hello! I would be happy to help you. What would you like to know?',
+        content:
+          'Hello! I would be happy to help you. What would you like to know?',
       },
     ],
   })
@@ -91,4 +98,3 @@ export class CreateBulkCallMessageDto {
   @Type(() => CallMessageItemDto)
   messages: CallMessageItemDto[];
 }
-

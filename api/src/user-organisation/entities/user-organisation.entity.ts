@@ -13,4 +13,3 @@ export class UserOrganisationEntity {
     Object.assign(this, partial);
   }
 }
-

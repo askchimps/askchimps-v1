@@ -8,7 +8,13 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 import { OrganisationService } from './organisation.service';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { UpdateOrganisationDto } from './dto/update-organisation.dto';
@@ -29,7 +35,8 @@ export class OrganisationController {
   @Post()
   @ApiOperation({
     summary: 'Create a new organisation',
-    description: 'Create a new organisation. The authenticated user will automatically become the owner.',
+    description:
+      'Create a new organisation. The authenticated user will automatically become the owner.',
   })
   @ApiResponse({
     status: 201,
@@ -55,7 +62,10 @@ export class OrganisationController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 409, description: 'Organisation with this slug already exists' })
+  @ApiResponse({
+    status: 409,
+    description: 'Organisation with this slug already exists',
+  })
   create(
     @Body() createOrganisationDto: CreateOrganisationDto,
     @CurrentUser() user: UserPayload,
@@ -66,7 +76,8 @@ export class OrganisationController {
   @Get()
   @ApiOperation({
     summary: 'Get all organisations',
-    description: 'Retrieve all organisations the user has access to. Super admins can see all organisations.',
+    description:
+      'Retrieve all organisations the user has access to. Super admins can see all organisations.',
   })
   @ApiResponse({
     status: 200,
@@ -130,7 +141,10 @@ export class OrganisationController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - No access to this organisation' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - No access to this organisation',
+  })
   @ApiResponse({ status: 404, description: 'Organisation not found' })
   findOne(@Param('id') id: string, @CurrentUser() user: UserPayload) {
     return this.OrganisationService.findOne(id, user.sub, user.isSuperAdmin);
@@ -141,7 +155,8 @@ export class OrganisationController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({
     summary: 'Update organisation',
-    description: 'Update organisation details. Only owners and admins can update organisations.',
+    description:
+      'Update organisation details. Only owners and admins can update organisations.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -172,7 +187,10 @@ export class OrganisationController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Organisation not found' })
   update(
     @Param('organisationId') organisationId: string,
@@ -192,7 +210,8 @@ export class OrganisationController {
   @Roles(Role.OWNER)
   @ApiOperation({
     summary: 'Delete organisation',
-    description: 'Soft delete an organisation. Only the owner can delete an organisation.',
+    description:
+      'Soft delete an organisation. Only the owner can delete an organisation.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -222,10 +241,19 @@ export class OrganisationController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Only owners can delete organisations' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Only owners can delete organisations',
+  })
   @ApiResponse({ status: 404, description: 'Organisation not found' })
-  remove(@Param('organisationId') organisationId: string, @CurrentUser() user: UserPayload) {
-    return this.OrganisationService.remove(organisationId, user.sub, user.isSuperAdmin);
+  remove(
+    @Param('organisationId') organisationId: string,
+    @CurrentUser() user: UserPayload,
+  ) {
+    return this.OrganisationService.remove(
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 }
-

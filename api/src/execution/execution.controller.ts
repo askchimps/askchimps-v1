@@ -8,7 +8,14 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiBody,
+} from '@nestjs/swagger';
 import { ExecutionService } from './execution.service';
 import { CreateExecutionDto } from './dto/create-execution.dto';
 import { UpdateExecutionDto } from './dto/update-execution.dto';
@@ -31,7 +38,8 @@ export class ExecutionController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Create a new execution',
-    description: 'Create a new execution record to track workflow events. Executions can be of type SYNC_LEAD, CALL_TRIGGER, CALL_END, or CALL_ANALYSIS. Each execution is identified by an external ID from the workflow system.',
+    description:
+      'Create a new execution record to track workflow events. Executions can be of type SYNC_LEAD, CALL_TRIGGER, CALL_END, or CALL_ANALYSIS. Each execution is identified by an external ID from the workflow system.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -97,7 +105,8 @@ export class ExecutionController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid input or execution with this external ID already exists',
+    description:
+      'Invalid input or execution with this external ID already exists',
     schema: {
       example: {
         message: 'Execution with this external ID already exists',
@@ -107,7 +116,10 @@ export class ExecutionController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   create(
     @Param('organisationId') organisationId: string,
     @Body() createExecutionDto: CreateExecutionDto,
@@ -115,7 +127,11 @@ export class ExecutionController {
   ) {
     // Ensure organisationId from params matches body
     createExecutionDto.organisationId = organisationId;
-    return this.executionService.create(createExecutionDto, user.sub, user.isSuperAdmin);
+    return this.executionService.create(
+      createExecutionDto,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 
   @Get()
@@ -123,7 +139,8 @@ export class ExecutionController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Get all executions for an organisation',
-    description: 'Retrieve all execution records for an organisation. Useful for tracking workflow history and debugging.',
+    description:
+      'Retrieve all execution records for an organisation. Useful for tracking workflow history and debugging.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -167,12 +184,19 @@ export class ExecutionController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   findAll(
     @Param('organisationId') organisationId: string,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.executionService.findAll(organisationId, user.sub, user.isSuperAdmin);
+    return this.executionService.findAll(
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 
   @Get(':id')
@@ -180,7 +204,8 @@ export class ExecutionController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Get execution by ID or External ID',
-    description: 'Retrieve a specific execution by its internal ID (ULID) or external ID from the workflow system.',
+    description:
+      'Retrieve a specific execution by its internal ID (ULID) or external ID from the workflow system.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -222,14 +247,22 @@ export class ExecutionController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Execution not found' })
   findOne(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.executionService.findOne(id, organisationId, user.sub, user.isSuperAdmin);
+    return this.executionService.findOne(
+      id,
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 
   @Patch(':id')
@@ -237,7 +270,8 @@ export class ExecutionController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({
     summary: 'Update execution by ID or External ID',
-    description: 'Update an execution record. Typically used to update associated IDs after workflow completion.',
+    description:
+      'Update an execution record. Typically used to update associated IDs after workflow completion.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -289,7 +323,10 @@ export class ExecutionController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Only OWNER and ADMIN can update executions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Only OWNER and ADMIN can update executions',
+  })
   @ApiResponse({ status: 404, description: 'Execution not found' })
   update(
     @Param('organisationId') organisationId: string,
@@ -311,7 +348,8 @@ export class ExecutionController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({
     summary: 'Delete execution by ID or External ID (hard delete)',
-    description: 'Permanently delete an execution record. Only OWNER and ADMIN roles can delete executions. This is a hard delete and cannot be undone.',
+    description:
+      'Permanently delete an execution record. Only OWNER and ADMIN roles can delete executions. This is a hard delete and cannot be undone.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -346,14 +384,21 @@ export class ExecutionController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Only OWNER and ADMIN can delete executions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Only OWNER and ADMIN can delete executions',
+  })
   @ApiResponse({ status: 404, description: 'Execution not found' })
   remove(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.executionService.remove(id, organisationId, user.sub, user.isSuperAdmin);
+    return this.executionService.remove(
+      id,
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 }
-

@@ -4,7 +4,11 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { CreateCallMessageDto, CreateBulkCallMessageDto, CallMessageItemDto } from './dto/create-call-message.dto';
+import {
+  CreateCallMessageDto,
+  CreateBulkCallMessageDto,
+  CallMessageItemDto,
+} from './dto/create-call-message.dto';
 import { UpdateCallMessageDto } from './dto/update-call-message.dto';
 import { CallMessageEntity } from './entities/call-message.entity';
 
@@ -37,7 +41,9 @@ export class CallMessageService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -46,7 +52,11 @@ export class CallMessageService {
       where: { id: createCallMessageDto.callId },
     });
 
-    if (!call || call.isDeleted || call.organisationId !== createCallMessageDto.organisationId) {
+    if (
+      !call ||
+      call.isDeleted ||
+      call.organisationId !== createCallMessageDto.organisationId
+    ) {
       throw new NotFoundException('Call not found');
     }
 
@@ -88,7 +98,9 @@ export class CallMessageService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -144,7 +156,9 @@ export class CallMessageService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -170,7 +184,12 @@ export class CallMessageService {
       where: { id },
     });
 
-    if (!message || message.isDeleted || message.callId !== callId || message.organisationId !== organisationId) {
+    if (
+      !message ||
+      message.isDeleted ||
+      message.callId !== callId ||
+      message.organisationId !== organisationId
+    ) {
       throw new NotFoundException('Call message not found');
     }
 
@@ -185,7 +204,9 @@ export class CallMessageService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -204,7 +225,12 @@ export class CallMessageService {
       where: { id },
     });
 
-    if (!message || message.isDeleted || message.callId !== callId || message.organisationId !== organisationId) {
+    if (
+      !message ||
+      message.isDeleted ||
+      message.callId !== callId ||
+      message.organisationId !== organisationId
+    ) {
       throw new NotFoundException('Call message not found');
     }
 
@@ -219,7 +245,9 @@ export class CallMessageService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -242,7 +270,12 @@ export class CallMessageService {
       where: { id },
     });
 
-    if (!message || message.isDeleted || message.callId !== callId || message.organisationId !== organisationId) {
+    if (
+      !message ||
+      message.isDeleted ||
+      message.callId !== callId ||
+      message.organisationId !== organisationId
+    ) {
       throw new NotFoundException('Call message not found');
     }
 
@@ -257,7 +290,9 @@ export class CallMessageService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 

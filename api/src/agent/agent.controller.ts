@@ -8,7 +8,13 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { AgentService } from './agent.service';
 import { CreateAgentDto } from './dto/create-agent.dto';
 import { UpdateAgentDto } from './dto/update-agent.dto';
@@ -31,7 +37,8 @@ export class AgentController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({
     summary: 'Create a new agent',
-    description: 'Create a new AI agent for the organisation. Agents can be of different types (MARKETING, SALES, SUPPORT).',
+    description:
+      'Create a new AI agent for the organisation. Agents can be of different types (MARKETING, SALES, SUPPORT).',
   })
   @ApiParam({
     name: 'organisationId',
@@ -61,8 +68,14 @@ export class AgentController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  @ApiResponse({ status: 409, description: 'Agent with this slug already exists in the organisation' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Agent with this slug already exists in the organisation',
+  })
   create(
     @Param('organisationId') organisationId: string,
     @Body() createAgentDto: CreateAgentDto,
@@ -70,7 +83,11 @@ export class AgentController {
   ) {
     // Ensure organisationId from params matches body
     createAgentDto.organisationId = organisationId;
-    return this.agentService.create(createAgentDto, user.sub, user.isSuperAdmin);
+    return this.agentService.create(
+      createAgentDto,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 
   @Get()
@@ -109,12 +126,19 @@ export class AgentController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   findAll(
     @Param('organisationId') organisationId: string,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.agentService.findAll(organisationId, user.sub, user.isSuperAdmin);
+    return this.agentService.findAll(
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 
   @Get(':id')
@@ -156,14 +180,22 @@ export class AgentController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Agent not found' })
   findOne(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.agentService.findOne(id, organisationId, user.sub, user.isSuperAdmin);
+    return this.agentService.findOne(
+      id,
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 
   @Patch(':id')
@@ -202,7 +234,11 @@ export class AgentController {
     @Param('id') id: string,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.agentService.remove(id, organisationId, user.sub, user.isSuperAdmin);
+    return this.agentService.remove(
+      id,
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 }
-

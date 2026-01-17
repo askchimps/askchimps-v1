@@ -12,4 +12,3 @@ export class CallMessageEntity {
     Object.assign(this, partial);
   }
 }
-

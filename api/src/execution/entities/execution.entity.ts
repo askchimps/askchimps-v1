@@ -67,4 +67,3 @@ export class ExecutionEntity {
     Object.assign(this, partial);
   }
 }
-

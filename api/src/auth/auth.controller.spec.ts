@@ -77,9 +77,13 @@ describe('AuthController', () => {
         password: 'Password123!',
       };
 
-      mockAuthService.register.mockRejectedValue(new Error('Email already exists'));
+      mockAuthService.register.mockRejectedValue(
+        new Error('Email already exists'),
+      );
 
-      await expect(controller.register(createUserDto)).rejects.toThrow('Email already exists');
+      await expect(controller.register(createUserDto)).rejects.toThrow(
+        'Email already exists',
+      );
     });
   });
 
@@ -107,7 +111,9 @@ describe('AuthController', () => {
 
       mockAuthService.login.mockRejectedValue(new Error('Invalid credentials'));
 
-      await expect(controller.login(loginDto)).rejects.toThrow('Invalid credentials');
+      await expect(controller.login(loginDto)).rejects.toThrow(
+        'Invalid credentials',
+      );
     });
   });
 
@@ -123,7 +129,10 @@ describe('AuthController', () => {
       const result = await controller.refresh(userId, refreshTokenDto);
 
       expect(result).toEqual(mockAuthResponse);
-      expect(authService.refreshTokens).toHaveBeenCalledWith(userId, refreshTokenDto.refreshToken);
+      expect(authService.refreshTokens).toHaveBeenCalledWith(
+        userId,
+        refreshTokenDto.refreshToken,
+      );
       expect(authService.refreshTokens).toHaveBeenCalledTimes(1);
     });
 
@@ -133,9 +142,13 @@ describe('AuthController', () => {
         refreshToken: 'invalid-token',
       };
 
-      mockAuthService.refreshTokens.mockRejectedValue(new Error('Invalid refresh token'));
+      mockAuthService.refreshTokens.mockRejectedValue(
+        new Error('Invalid refresh token'),
+      );
 
-      await expect(controller.refresh(userId, refreshTokenDto)).rejects.toThrow('Invalid refresh token');
+      await expect(controller.refresh(userId, refreshTokenDto)).rejects.toThrow(
+        'Invalid refresh token',
+      );
     });
   });
 
@@ -191,4 +204,3 @@ describe('AuthController', () => {
     });
   });
 });
-

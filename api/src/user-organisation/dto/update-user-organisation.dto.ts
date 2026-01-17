@@ -5,4 +5,3 @@ export class UpdateUserOrganisationDto {
   @IsEnum(Role)
   role: Role;
 }
-

@@ -8,7 +8,14 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+} from '@nestjs/swagger';
 import { LeadService } from './lead.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
@@ -24,14 +31,15 @@ import type { UserPayload } from '../common/interfaces/request-with-user.interfa
 @Controller({ path: 'organisation/:organisationId/lead', version: '1' })
 @UseGuards(JwtAuthGuard)
 export class LeadController {
-  constructor(private readonly LeadService: LeadService) { }
+  constructor(private readonly LeadService: LeadService) {}
 
   @Post()
   @UseGuards(RbacGuard)
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Create a new lead',
-    description: 'Create a new lead in the organisation. organisationId and agentId are required.'
+    description:
+      'Create a new lead in the organisation. organisationId and agentId are required.',
   })
   @ApiResponse({
     status: 201,
@@ -58,12 +66,12 @@ export class LeadController {
           isTransferred: false,
           isDeleted: false,
           createdAt: '2024-01-15T10:30:00.000Z',
-          updatedAt: '2024-01-15T10:30:00.000Z'
+          updatedAt: '2024-01-15T10:30:00.000Z',
         },
         statusCode: 201,
-        timestamp: '2024-01-15T10:30:00.000Z'
-      }
-    }
+        timestamp: '2024-01-15T10:30:00.000Z',
+      },
+    },
   })
   @ApiBody({
     type: CreateLeadDto,
@@ -77,9 +85,9 @@ export class LeadController {
           email: 'priya.menon@example.com',
           phone: '+919123456789',
           source: 'WhatsApp',
-          status: 'New'
+          status: 'New',
         },
-        summary: 'Create a basic lead with essential information'
+        summary: 'Create a basic lead with essential information',
       },
       'Complete Lead': {
         value: {
@@ -96,11 +104,11 @@ export class LeadController {
           disposition: 'Interested',
           country: 'India',
           state: 'Karnataka',
-          city: 'Bangalore'
+          city: 'Bangalore',
         },
-        summary: 'Create a lead with all available fields'
-      }
-    }
+        summary: 'Create a lead with all available fields',
+      },
+    },
   })
   create(
     @Param('organisationId') organisationId: string,
@@ -117,7 +125,8 @@ export class LeadController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Get all leads in organisation',
-    description: 'Retrieve all leads for the specified organisation. Returns an array of lead objects.',
+    description:
+      'Retrieve all leads for the specified organisation. Returns an array of lead objects.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -159,12 +168,19 @@ export class LeadController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   findAll(
     @Param('organisationId') organisationId: string,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.LeadService.findAll(organisationId, user.sub, user.isSuperAdmin);
+    return this.LeadService.findAll(
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 
   @Get(':id')
@@ -217,14 +233,22 @@ export class LeadController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Lead not found' })
   findOne(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.LeadService.findOne(id, organisationId, user.sub, user.isSuperAdmin);
+    return this.LeadService.findOne(
+      id,
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 
   @Patch(':id')
@@ -232,7 +256,8 @@ export class LeadController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({
     summary: 'Update a lead',
-    description: 'Update lead information. All fields are optional. Only provide the fields you want to update.'
+    description:
+      'Update lead information. All fields are optional. Only provide the fields you want to update.',
   })
   @ApiResponse({
     status: 200,
@@ -259,12 +284,12 @@ export class LeadController {
           isTransferred: false,
           isDeleted: false,
           createdAt: '2024-01-15T10:30:00.000Z',
-          updatedAt: '2024-01-15T14:45:00.000Z'
+          updatedAt: '2024-01-15T14:45:00.000Z',
         },
         statusCode: 200,
-        timestamp: '2024-01-15T14:45:00.000Z'
-      }
-    }
+        timestamp: '2024-01-15T14:45:00.000Z',
+      },
+    },
   })
   @ApiBody({
     type: UpdateLeadDto,
@@ -276,24 +301,24 @@ export class LeadController {
           disposition: 'Qualified',
           isTransferred: false,
         },
-        summary: 'Update lead status and disposition'
+        summary: 'Update lead status and disposition',
       },
       'Update Contact Info': {
         value: {
           firstName: 'Arjun',
           lastName: 'Sharma',
           email: 'arjun.sharma@example.com',
-          phone: '+919876543210'
+          phone: '+919876543210',
         },
-        summary: 'Update contact information'
+        summary: 'Update contact information',
       },
       'Update Location': {
         value: {
           country: 'India',
           state: 'Karnataka',
-          city: 'Bangalore'
+          city: 'Bangalore',
         },
-        summary: 'Update location details'
+        summary: 'Update location details',
       },
       'Complete Update': {
         value: {
@@ -306,11 +331,11 @@ export class LeadController {
           disposition: 'Qualified',
           country: 'India',
           state: 'Karnataka',
-          city: 'Bangalore'
+          city: 'Bangalore',
         },
-        summary: 'Update multiple fields at once'
-      }
-    }
+        summary: 'Update multiple fields at once',
+      },
+    },
   })
   update(
     @Param('organisationId') organisationId: string,
@@ -332,7 +357,8 @@ export class LeadController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({
     summary: 'Delete a lead',
-    description: 'Soft delete a lead by marking it as deleted. The lead will not be permanently removed from the database.',
+    description:
+      'Soft delete a lead by marking it as deleted. The lead will not be permanently removed from the database.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -377,14 +403,21 @@ export class LeadController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Lead not found' })
   remove(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.LeadService.remove(id, organisationId, user.sub, user.isSuperAdmin);
+    return this.LeadService.remove(
+      id,
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 }
-

@@ -14,4 +14,3 @@ export class OrganisationEntity {
     Object.assign(this, partial);
   }
 }
-

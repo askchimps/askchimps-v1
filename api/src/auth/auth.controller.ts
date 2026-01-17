@@ -32,7 +32,8 @@ export class AuthController {
   @Post('register')
   @ApiOperation({
     summary: 'Register a new user',
-    description: 'Create a new user account and receive authentication tokens. This endpoint is public and does not require authentication.',
+    description:
+      'Create a new user account and receive authentication tokens. This endpoint is public and does not require authentication.',
   })
   @ApiResponse({
     status: 201,
@@ -50,8 +51,10 @@ export class AuthController {
             createdAt: '2024-01-15T10:30:00.000Z',
             updatedAt: '2024-01-15T10:30:00.000Z',
           },
-          accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUFSWjNOREVLVFNWNFJSRkZRNjlHNUZBViIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTcwNDQ1NjAwMCwiZXhwIjoxNzA0NDU5NjAwfQ.signature',
-          refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUFSWjNOREVLVFNWNFJSRkZRNjlHNUZBViIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTcwNDQ1NjAwMCwiZXhwIjoxNzA1MDYwODAwfQ.signature',
+          accessToken:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUFSWjNOREVLVFNWNFJSRkZRNjlHNUZBViIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTcwNDQ1NjAwMCwiZXhwIjoxNzA0NDU5NjAwfQ.signature',
+          refreshToken:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUFSWjNOREVLVFNWNFJSRkZRNjlHNUZBViIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTcwNDQ1NjAwMCwiZXhwIjoxNzA1MDYwODAwfQ.signature',
         },
         statusCode: 201,
         timestamp: '2024-01-15T10:30:00.000Z',
@@ -59,7 +62,10 @@ export class AuthController {
     },
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
-  @ApiResponse({ status: 409, description: 'User with this email already exists' })
+  @ApiResponse({
+    status: 409,
+    description: 'User with this email already exists',
+  })
   register(@Body() createUserDto: CreateUserDto) {
     return this.authService.register(createUserDto);
   }
@@ -69,7 +75,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Login user',
-    description: 'Authenticate a user with email and password. Returns user profile and authentication tokens.',
+    description:
+      'Authenticate a user with email and password. Returns user profile and authentication tokens.',
   })
   @ApiResponse({
     status: 200,
@@ -87,8 +94,10 @@ export class AuthController {
             createdAt: '2024-01-15T10:30:00.000Z',
             updatedAt: '2024-01-15T10:30:00.000Z',
           },
-          accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUFSWjNOREVLVFNWNFJSRkZRNjlHNUZBViIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTcwNDQ1NjAwMCwiZXhwIjoxNzA0NDU5NjAwfQ.signature',
-          refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUFSWjNOREVLVFNWNFJSRkZRNjlHNUZBViIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTcwNDQ1NjAwMCwiZXhwIjoxNzA1MDYwODAwfQ.signature',
+          accessToken:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUFSWjNOREVLVFNWNFJSRkZRNjlHNUZBViIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTcwNDQ1NjAwMCwiZXhwIjoxNzA0NDU5NjAwfQ.signature',
+          refreshToken:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUFSWjNOREVLVFNWNFJSRkZRNjlHNUZBViIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTcwNDQ1NjAwMCwiZXhwIjoxNzA1MDYwODAwfQ.signature',
         },
         statusCode: 200,
         timestamp: '2024-01-15T10:30:00.000Z',
@@ -107,7 +116,8 @@ export class AuthController {
   @UseGuards(JwtRefreshAuthGuard)
   @ApiOperation({
     summary: 'Refresh access token',
-    description: 'Get a new access token using a valid refresh token. The refresh token must be provided in the request body.',
+    description:
+      'Get a new access token using a valid refresh token. The refresh token must be provided in the request body.',
   })
   @ApiResponse({
     status: 200,
@@ -115,8 +125,10 @@ export class AuthController {
     schema: {
       example: {
         data: {
-          accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUFSWjNOREVLVFNWNFJSRkZRNjlHNUZBViIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTcwNDQ1NjAwMCwiZXhwIjoxNzA0NDU5NjAwfQ.signature',
-          refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUFSWjNOREVLVFNWNFJSRkZRNjlHNUZBViIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTcwNDQ1NjAwMCwiZXhwIjoxNzA1MDYwODAwfQ.signature',
+          accessToken:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUFSWjNOREVLVFNWNFJSRkZRNjlHNUZBViIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTcwNDQ1NjAwMCwiZXhwIjoxNzA0NDU5NjAwfQ.signature',
+          refreshToken:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUFSWjNOREVLVFNWNFJSRkZRNjlHNUZBViIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTcwNDQ1NjAwMCwiZXhwIjoxNzA1MDYwODAwfQ.signature',
         },
         statusCode: 200,
         timestamp: '2024-01-15T10:30:00.000Z',
@@ -136,7 +148,8 @@ export class AuthController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Logout from current device',
-    description: 'Invalidate the current refresh token. The user will need to login again to get new tokens.',
+    description:
+      'Invalidate the current refresh token. The user will need to login again to get new tokens.',
   })
   @ApiResponse({
     status: 200,
@@ -161,7 +174,8 @@ export class AuthController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Logout from all devices',
-    description: 'Invalidate all refresh tokens for the user. The user will be logged out from all devices and need to login again.',
+    description:
+      'Invalidate all refresh tokens for the user. The user will be logged out from all devices and need to login again.',
   })
   @ApiResponse({
     status: 200,
@@ -185,7 +199,8 @@ export class AuthController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get current user profile',
-    description: 'Retrieve the profile information of the currently authenticated user.',
+    description:
+      'Retrieve the profile information of the currently authenticated user.',
   })
   @ApiResponse({
     status: 200,

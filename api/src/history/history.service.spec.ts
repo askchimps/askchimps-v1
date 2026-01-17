@@ -194,8 +194,18 @@ describe('HistoryService', () => {
       ];
 
       mockPrismaService.$transaction.mockResolvedValue([
-        { ...mockHistory, fieldName: 'firstName', oldValue: 'Arjun', newValue: 'Arjun Kumar' },
-        { ...mockHistory, fieldName: 'status', oldValue: 'New', newValue: 'Contacted' },
+        {
+          ...mockHistory,
+          fieldName: 'firstName',
+          oldValue: 'Arjun',
+          newValue: 'Arjun Kumar',
+        },
+        {
+          ...mockHistory,
+          fieldName: 'status',
+          oldValue: 'New',
+          newValue: 'Contacted',
+        },
       ]);
 
       const result = await service.bulkCreate({ records: bulkRecords });
@@ -207,4 +217,3 @@ describe('HistoryService', () => {
     });
   });
 });
-

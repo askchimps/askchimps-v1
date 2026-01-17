@@ -44,7 +44,8 @@ export class ChatController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Create a new chat',
-    description: 'Create a new chat session for a lead on a specific platform (WhatsApp, Instagram, etc.)',
+    description:
+      'Create a new chat session for a lead on a specific platform (WhatsApp, Instagram, etc.)',
   })
   @ApiParam({
     name: 'organisationId',
@@ -79,7 +80,10 @@ export class ChatController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   create(
     @Param('organisationId') organisationId: string,
     @Body() createChatDto: CreateChatDto,
@@ -92,7 +96,8 @@ export class ChatController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Get all chats in organisation',
-    description: 'Retrieve all chats for the organisation. Optionally filter by lead ID.',
+    description:
+      'Retrieve all chats for the organisation. Optionally filter by lead ID.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -121,7 +126,8 @@ export class ChatController {
             sourceId: '+919876543210',
             status: 'NEW',
             shortSummary: 'Customer inquiring about solar panels',
-            detailedSummary: 'Customer John Doe contacted via WhatsApp asking about solar panel installation.',
+            detailedSummary:
+              'Customer John Doe contacted via WhatsApp asking about solar panel installation.',
             isTransferred: false,
             isDeleted: false,
             createdAt: '2024-01-15T10:30:00.000Z',
@@ -134,7 +140,10 @@ export class ChatController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   findAll(
     @Param('organisationId') organisationId: string,
     @Query('leadId') leadId?: string,
@@ -150,7 +159,8 @@ export class ChatController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Get chat by ID or sourceId with messages',
-    description: 'Retrieve a specific chat with all its messages. Can use either the chat ID or sourceId.',
+    description:
+      'Retrieve a specific chat with all its messages. Can use either the chat ID or sourceId.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -159,7 +169,8 @@ export class ChatController {
   })
   @ApiParam({
     name: 'id',
-    description: 'Chat ID (ULID) or sourceId (e.g., whatsapp_919876543210_1234567890)',
+    description:
+      'Chat ID (ULID) or sourceId (e.g., whatsapp_919876543210_1234567890)',
     example: '01HZXYZ1234567890ABCDEFGHJK',
   })
   @ApiResponse({
@@ -177,7 +188,8 @@ export class ChatController {
           sourceId: '+919876543210',
           status: 'NEW',
           shortSummary: 'Customer inquiring about solar panels',
-          detailedSummary: 'Customer John Doe contacted via WhatsApp asking about solar panel installation.',
+          detailedSummary:
+            'Customer John Doe contacted via WhatsApp asking about solar panel installation.',
           isTransferred: false,
           isDeleted: false,
           createdAt: '2024-01-15T10:30:00.000Z',
@@ -200,7 +212,10 @@ export class ChatController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Chat not found' })
   findOne(
     @Param('organisationId') organisationId: string,
@@ -214,7 +229,10 @@ export class ChatController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({ summary: 'Update chat details' })
   @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
-  @ApiParam({ name: 'id', description: 'Chat ID or sourceId (e.g., whatsapp_919876543210_1234567890)' })
+  @ApiParam({
+    name: 'id',
+    description: 'Chat ID or sourceId (e.g., whatsapp_919876543210_1234567890)',
+  })
   update(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,
@@ -228,7 +246,10 @@ export class ChatController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({ summary: 'Update chat status' })
   @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
-  @ApiParam({ name: 'id', description: 'Chat ID or sourceId (e.g., whatsapp_919876543210_1234567890)' })
+  @ApiParam({
+    name: 'id',
+    description: 'Chat ID or sourceId (e.g., whatsapp_919876543210_1234567890)',
+  })
   updateStatus(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,
@@ -242,7 +263,10 @@ export class ChatController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({ summary: 'Delete chat (soft delete)' })
   @ApiParam({ name: 'organisationId', description: 'Organisation ID' })
-  @ApiParam({ name: 'id', description: 'Chat ID or sourceId (e.g., whatsapp_919876543210_1234567890)' })
+  @ApiParam({
+    name: 'id',
+    description: 'Chat ID or sourceId (e.g., whatsapp_919876543210_1234567890)',
+  })
   remove(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,
@@ -267,7 +291,10 @@ export class ChatController {
       type: 'object',
       properties: {
         exists: { type: 'boolean', example: false },
-        message: { type: 'string', example: 'Instagram message cached successfully' },
+        message: {
+          type: 'string',
+          example: 'Instagram message cached successfully',
+        },
       },
     },
   })
@@ -278,7 +305,10 @@ export class ChatController {
       type: 'object',
       properties: {
         statusCode: { type: 'number', example: 409 },
-        message: { type: 'string', example: 'Instagram message already processed' },
+        message: {
+          type: 'string',
+          example: 'Instagram message already processed',
+        },
         error: { type: 'string', example: 'Conflict' },
       },
     },
@@ -290,4 +320,3 @@ export class ChatController {
     return this.chatService.checkInstagramMessage(checkInstagramMessageDto);
   }
 }
-

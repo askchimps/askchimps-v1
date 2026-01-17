@@ -17,7 +17,14 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Role } from '../common/enums';
 import type { UserPayload } from '../common/interfaces/request-with-user.interface';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiBody,
+} from '@nestjs/swagger';
 
 @ApiTags('Organisation User')
 @ApiBearerAuth('JWT-auth')
@@ -33,7 +40,8 @@ export class UserOrganisationController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({
     summary: 'Add a user to an organisation',
-    description: 'Create a user-organisation relationship with a specific role (OWNER, ADMIN, or MEMBER). Only OWNER and ADMIN roles can add users to an organisation.',
+    description:
+      'Create a user-organisation relationship with a specific role (OWNER, ADMIN, or MEMBER). Only OWNER and ADMIN roles can add users to an organisation.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -78,9 +86,15 @@ export class UserOrganisationController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid input data or user already in organisation' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid input data or user already in organisation',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Only OWNER and ADMIN can add users' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Only OWNER and ADMIN can add users',
+  })
   @ApiResponse({ status: 404, description: 'User or organisation not found' })
   create(
     @Param('organisationId') organisationId: string,
@@ -101,7 +115,8 @@ export class UserOrganisationController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Get all users in an organisation',
-    description: 'Retrieve all user-organisation relationships for a specific organisation. Shows all users and their roles.',
+    description:
+      'Retrieve all user-organisation relationships for a specific organisation. Shows all users and their roles.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -137,7 +152,10 @@ export class UserOrganisationController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   findAll(
     @Param('organisationId') organisationId: string,
     @CurrentUser() user: UserPayload,
@@ -183,9 +201,16 @@ export class UserOrganisationController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'User-organisation relationship not found' })
+  @ApiResponse({
+    status: 404,
+    description: 'User-organisation relationship not found',
+  })
   findOne(@Param('id') id: string, @CurrentUser() user: UserPayload) {
-    return this.UserOrganisationService.findOne(id, user.sub, user.isSuperAdmin);
+    return this.UserOrganisationService.findOne(
+      id,
+      user.sub,
+      user.isSuperAdmin,
+    );
   }
 
   @Patch(':id')
@@ -193,7 +218,8 @@ export class UserOrganisationController {
   @Roles(Role.OWNER)
   @ApiOperation({
     summary: 'Update user role in organisation',
-    description: 'Update a user\'s role in an organisation. Only OWNER role can update user roles.',
+    description:
+      "Update a user's role in an organisation. Only OWNER role can update user roles.",
   })
   @ApiParam({
     name: 'organisationId',
@@ -241,8 +267,14 @@ export class UserOrganisationController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Only OWNER can update user roles' })
-  @ApiResponse({ status: 404, description: 'User-organisation relationship not found' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Only OWNER can update user roles',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User-organisation relationship not found',
+  })
   update(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,
@@ -262,7 +294,8 @@ export class UserOrganisationController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({
     summary: 'Remove user from organisation',
-    description: 'Remove a user from an organisation by deleting the user-organisation relationship. Only OWNER and ADMIN roles can remove users.',
+    description:
+      'Remove a user from an organisation by deleting the user-organisation relationship. Only OWNER and ADMIN roles can remove users.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -293,8 +326,14 @@ export class UserOrganisationController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Only OWNER and ADMIN can remove users' })
-  @ApiResponse({ status: 404, description: 'User-organisation relationship not found' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Only OWNER and ADMIN can remove users',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User-organisation relationship not found',
+  })
   remove(
     @Param('organisationId') organisationId: string,
     @Param('id') id: string,
@@ -303,4 +342,3 @@ export class UserOrganisationController {
     return this.UserOrganisationService.remove(id, user.sub, user.isSuperAdmin);
   }
 }
-

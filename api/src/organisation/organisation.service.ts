@@ -33,10 +33,13 @@ export class OrganisationService {
         name: createOrganisationDto.name,
         slug: createOrganisationDto.slug,
         ...(createOrganisationDto.availableIndianChannels !== undefined && {
-          availableIndianChannels: createOrganisationDto.availableIndianChannels,
+          availableIndianChannels:
+            createOrganisationDto.availableIndianChannels,
         }),
-        ...(createOrganisationDto.availableInternationalChannels !== undefined && {
-          availableInternationalChannels: createOrganisationDto.availableInternationalChannels,
+        ...(createOrganisationDto.availableInternationalChannels !==
+          undefined && {
+          availableInternationalChannels:
+            createOrganisationDto.availableInternationalChannels,
         }),
         ...(createOrganisationDto.chatCredits !== undefined && {
           chatCredits: createOrganisationDto.chatCredits,
@@ -56,7 +59,10 @@ export class OrganisationService {
     return new OrganisationEntity(organisation);
   }
 
-  async findAll(userId: string, isSuperAdmin: boolean): Promise<OrganisationEntity[]> {
+  async findAll(
+    userId: string,
+    isSuperAdmin: boolean,
+  ): Promise<OrganisationEntity[]> {
     const where = isSuperAdmin
       ? { isDeleted: false }
       : {
@@ -77,7 +83,11 @@ export class OrganisationService {
     return organisations.map((org) => new OrganisationEntity(org));
   }
 
-  async findOne(id: string, userId: string, isSuperAdmin: boolean): Promise<OrganisationEntity> {
+  async findOne(
+    id: string,
+    userId: string,
+    isSuperAdmin: boolean,
+  ): Promise<OrganisationEntity> {
     const organisation = await this.prisma.organisation.findUnique({
       where: { id },
       include: {
@@ -107,7 +117,9 @@ export class OrganisationService {
         (uo) => uo.userId === userId,
       );
       if (!hasAccess) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -136,13 +148,21 @@ export class OrganisationService {
     // Check permissions (OWNER or ADMIN or SuperAdmin)
     if (!isSuperAdmin) {
       const userOrg = organisation.userOrganisations[0];
-      if (!userOrg || (userOrg.role !== Role.OWNER && userOrg.role !== Role.ADMIN)) {
-        throw new ForbiddenException('Insufficient permissions to update organisation');
+      if (
+        !userOrg ||
+        (userOrg.role !== Role.OWNER && userOrg.role !== Role.ADMIN)
+      ) {
+        throw new ForbiddenException(
+          'Insufficient permissions to update organisation',
+        );
       }
     }
 
     // Check slug uniqueness if being updated
-    if (updateOrganisationDto.slug && updateOrganisationDto.slug !== organisation.slug) {
+    if (
+      updateOrganisationDto.slug &&
+      updateOrganisationDto.slug !== organisation.slug
+    ) {
       const existingOrg = await this.prisma.organisation.findUnique({
         where: { slug: updateOrganisationDto.slug },
       });
@@ -160,7 +180,11 @@ export class OrganisationService {
     return new OrganisationEntity(updated);
   }
 
-  async remove(id: string, userId: string, isSuperAdmin: boolean): Promise<OrganisationEntity> {
+  async remove(
+    id: string,
+    userId: string,
+    isSuperAdmin: boolean,
+  ): Promise<OrganisationEntity> {
     const organisation = await this.prisma.organisation.findUnique({
       where: { id },
       include: {
@@ -178,7 +202,9 @@ export class OrganisationService {
     if (!isSuperAdmin) {
       const userOrg = organisation.userOrganisations[0];
       if (!userOrg || userOrg.role !== Role.OWNER) {
-        throw new ForbiddenException('Only organisation owners can delete organisations');
+        throw new ForbiddenException(
+          'Only organisation owners can delete organisations',
+        );
       }
     }
 

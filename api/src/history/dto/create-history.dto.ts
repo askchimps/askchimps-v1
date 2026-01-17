@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, IsEnum, IsOptional, IsBoolean, IsObject } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEnum,
+  IsOptional,
+  IsBoolean,
+  IsObject,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { HISTORY_ACTION, HISTORY_TRIGGER } from '@prisma/client';
 
@@ -218,5 +225,3 @@ export class CreateHistoryDto {
   @IsOptional()
   errorStack?: string;
 }
-
-

@@ -1,4 +1,13 @@
-import { IsString, IsNotEmpty, IsOptional, IsEnum, MaxLength, IsNumber, IsObject } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsEnum,
+  MaxLength,
+  IsNumber,
+  IsObject,
+  IsArray,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsULID } from '../../common/validators/is-ulid.validator';
 
@@ -135,4 +144,14 @@ export class CreateCallDto {
   @IsObject()
   @IsOptional()
   analysis?: Record<string, any>;
+
+  @ApiPropertyOptional({
+    description: 'Array of tag IDs to associate with this call (ULID format)',
+    example: ['01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJL'],
+    type: [String],
+  })
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  tagIds?: string[];
 }

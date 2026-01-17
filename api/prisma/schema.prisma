@@ -34,16 +34,16 @@ model RefreshToken {
 }
 
 model Organisation {
-  id                             String             @id @default(ulid())
+  id                             String                 @id @default(ulid())
   name                           String
-  slug                           String             @unique
-  availableIndianChannels        Int                @default(0) @map("available_indian_channels")
-  availableInternationalChannels Int                @default(0) @map("available_international_channels")
-  chatCredits                    Float              @default(0) @map("chat_credits")
-  callCredits                    Float              @default(0) @map("call_credits")
-  isDeleted                      Boolean            @default(false) @map("is_deleted")
-  createdAt                      DateTime           @default(now()) @map("created_at")
-  updatedAt                      DateTime           @updatedAt @map("updated_at")
+  slug                           String                 @unique
+  availableIndianChannels        Int                    @default(0) @map("available_indian_channels")
+  availableInternationalChannels Int                    @default(0) @map("available_international_channels")
+  chatCredits                    Float                  @default(0) @map("chat_credits")
+  callCredits                    Float                  @default(0) @map("call_credits")
+  isDeleted                      Boolean                @default(false) @map("is_deleted")
+  createdAt                      DateTime               @default(now()) @map("created_at")
+  updatedAt                      DateTime               @updatedAt @map("updated_at")
   chatMessages                   ChatMessage[]
   chats                          Chat[]
   leads                          Lead[]
@@ -52,6 +52,8 @@ model Organisation {
   callMessages                   CallMessage[]
   calls                          Call[]
   executions                     Execution[]
+  tags                           Tag[]
+  chatFollowUpMessages           ChatFollowUpMessages[]
 
   @@map("organisations")
 }
@@ -118,6 +120,7 @@ model Lead {
   calls          Call[]
   callSchedule   AgentLeadCallSchedule[]
   executions     Execution[]
+  tags           Tag[]                   @relation("LeadTags")
 
   @@unique([phone, organisationId])
   @@unique([email, organisationId])
@@ -156,25 +159,27 @@ model LeadOwner {
 }
 
 model Chat {
-  id              String        @id @default(ulid())
-  organisationId  String        @map("organisation_id")
-  agentId         String        @map("agent_id")
-  leadId          String?       @map("lead_id")
-  name            String?
-  source          CHAT_SOURCE
-  sourceId        String        @unique @map("source_id")
-  status          CHAT_STATUS   @default(NEW)
-  shortSummary    String?       @map("short_summary")
-  detailedSummary String?       @map("detailed_summary")
-  isTransferred   Boolean       @default(false) @map("is_transferred")
-  isDeleted       Boolean       @default(false) @map("is_deleted")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  messages        ChatMessage[]
-  lead            Lead?         @relation(fields: [leadId], references: [id])
-  organisation    Organisation  @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  agent           Agent         @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  executions      Execution[]
+  id                    String                 @id @default(ulid())
+  organisationId        String                 @map("organisation_id")
+  agentId               String                 @map("agent_id")
+  leadId                String?                @map("lead_id")
+  name                  String?
+  source                CHAT_SOURCE
+  sourceId              String                 @unique @map("source_id")
+  status                CHAT_STATUS            @default(NEW)
+  shortSummary          String?                @map("short_summary")
+  detailedSummary       String?                @map("detailed_summary")
+  isTransferred         Boolean                @default(false) @map("is_transferred")
+  isDeleted             Boolean                @default(false) @map("is_deleted")
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
+  messages              ChatMessage[]
+  lead                  Lead?                  @relation(fields: [leadId], references: [id])
+  organisation          Organisation           @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  agent                 Agent                  @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  executions            Execution[]
+  tags                  Tag[]                  @relation("ChatTags")
+  chatFollowUpSchedules ChatFollowUpSchedule[]
 
   @@map("chats")
 }
@@ -194,6 +199,41 @@ model ChatMessage {
   attachments    MessageAttachment[]
 
   @@map("chat_messages")
+}
+
+model ChatFollowUpSchedule {
+  id                String    @id @default(ulid())
+  chatId            String    @map("chat_id")
+  followUpMessageId String    @map("follow_up_message_id")
+  scheduledAt       DateTime  @map("scheduled_at")
+  isSent            Boolean   @default(false) @map("is_sent")
+  sentAt            DateTime? @map("sent_at")
+  isDeleted         Boolean   @default(false) @map("is_deleted")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  chat            Chat                 @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  followUpMessage ChatFollowUpMessages @relation(fields: [followUpMessageId], references: [id], onDelete: Cascade)
+
+  @@unique([chatId, scheduledAt])
+  @@map("chat_follow_up_schedules")
+}
+
+model ChatFollowUpMessages {
+  id             String                 @id @default(ulid())
+  slug           String
+  organisationId String                 @map("organisation_id")
+  content        String
+  sequence       Int                    @default(1)
+  delayInMinutes Int                    @default(0) @map("delay_in_minutes")
+  isDeleted      Boolean                @default(false) @map("is_deleted")
+  createdAt      DateTime               @default(now()) @map("created_at")
+  updatedAt      DateTime               @updatedAt @map("updated_at")
+  organisation   Organisation           @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  schedules      ChatFollowUpSchedule[]
+
+  @@unique([slug, organisationId, sequence])
+  @@map("chat_follow_up_messages")
 }
 
 model Call {
@@ -219,6 +259,7 @@ model Call {
   agent           Agent         @relation(fields: [agentId], references: [id], onDelete: Cascade)
   lead            Lead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
   executions      Execution[]
+  tags            Tag[]         @relation("CallTags")
 
   @@map("calls")
 }
@@ -346,6 +387,22 @@ model History {
   @@map("history")
 }
 
+model Tag {
+  id             String       @id @default(ulid())
+  name           String
+  slug           String       @unique
+  organisationId String       @map("organisation_id")
+  isDeleted      Boolean      @default(false) @map("is_deleted")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  chats          Chat[]       @relation("ChatTags")
+  calls          Call[]       @relation("CallTags")
+  leads          Lead[]       @relation("LeadTags")
+
+  @@map("tags")
+}
+
 enum ROLE {
   OWNER
   ADMIN
@@ -395,13 +452,14 @@ enum SENTIMENT {
 }
 
 enum SCHEDULE_TYPE {
-  SYNC_LEAD
   INITIAL
   FOLLOW_UP
   RESCHEDULE
 }
 
 enum EXECUTION_TYPE {
+  CHAT
+  SYNC_LEAD
   CALL_TRIGGER
   CALL_END
   CALL_ANALYSIS

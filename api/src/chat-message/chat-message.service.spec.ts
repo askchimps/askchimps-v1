@@ -85,9 +85,9 @@ describe('ChatMessageService', () => {
     it('should throw NotFoundException if chat not found', async () => {
       mockPrismaService.chat.findFirst.mockResolvedValue(null);
 
-      await expect(service.create('org-123', 'chat-123', createDto)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.create('org-123', 'chat-123', createDto),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should create message with attachments', async () => {
@@ -108,7 +108,11 @@ describe('ChatMessageService', () => {
         attachments: dtoWithAttachments.attachments,
       });
 
-      const result = await service.create('org-123', 'chat-123', dtoWithAttachments);
+      const result = await service.create(
+        'org-123',
+        'chat-123',
+        dtoWithAttachments,
+      );
 
       expect(result).toBeDefined();
       expect(prisma.chatMessage.create).toHaveBeenCalledWith(
@@ -133,7 +137,11 @@ describe('ChatMessageService', () => {
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('msg-123');
       expect(prisma.chatMessage.findMany).toHaveBeenCalledWith({
-        where: { chatId: 'chat-123', organisationId: 'org-123', isDeleted: false },
+        where: {
+          chatId: 'chat-123',
+          organisationId: 'org-123',
+          isDeleted: false,
+        },
         include: { attachments: { where: { isDeleted: false } } },
         orderBy: { createdAt: 'asc' },
       });
@@ -148,8 +156,6 @@ describe('ChatMessageService', () => {
     });
   });
 
-
-
   describe('update', () => {
     const updateDto = {
       content: 'Updated content',
@@ -163,7 +169,12 @@ describe('ChatMessageService', () => {
         ...updateDto,
       });
 
-      const result = await service.update('org-123', 'chat-123', 'msg-123', updateDto);
+      const result = await service.update(
+        'org-123',
+        'chat-123',
+        'msg-123',
+        updateDto,
+      );
 
       expect(result).toBeDefined();
       expect(result.content).toBe('Updated content');
@@ -193,10 +204,9 @@ describe('ChatMessageService', () => {
     it('should throw NotFoundException if message not found', async () => {
       mockPrismaService.chatMessage.findFirst.mockResolvedValue(null);
 
-      await expect(service.remove('org-123', 'chat-123', 'msg-123')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.remove('org-123', 'chat-123', 'msg-123'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });
-

@@ -6,4 +6,3 @@ export const OrganisationId = createParamDecorator(
     return request.params.organisationId || request.body.organisationId;
   },
 );
-

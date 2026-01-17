@@ -69,16 +69,25 @@ describe('CallMessageService', () => {
     };
 
     it('should create a call message successfully', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJM', isDeleted: false });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJM',
+        isDeleted: false,
+      });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.call.findUnique.mockResolvedValue({
         id: '01HZXYZ1234567890ABCDEFGHJL',
         organisationId: '01HZXYZ1234567890ABCDEFGHJM',
-        isDeleted: false
+        isDeleted: false,
       });
       mockPrismaService.callMessage.create.mockResolvedValue(mockCallMessage);
 
-      const result = await service.create(createCallMessageDto, 'user-1', false);
+      const result = await service.create(
+        createCallMessageDto,
+        'user-1',
+        false,
+      );
 
       expect(result).toBeDefined();
       expect(result.id).toBe('01HZXYZ1234567890ABCDEFGHJK');
@@ -88,19 +97,24 @@ describe('CallMessageService', () => {
     it('should throw NotFoundException if organisation not found', async () => {
       mockPrismaService.organisation.findUnique.mockResolvedValue(null);
 
-      await expect(service.create(createCallMessageDto, 'user-1', false)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.create(createCallMessageDto, 'user-1', false),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw NotFoundException if call not found', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJM', isDeleted: false });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJM',
+        isDeleted: false,
+      });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.call.findUnique.mockResolvedValue(null);
 
-      await expect(service.create(createCallMessageDto, 'user-1', false)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.create(createCallMessageDto, 'user-1', false),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -109,12 +123,21 @@ describe('CallMessageService', () => {
       mockPrismaService.call.findUnique.mockResolvedValue({
         id: '01HZXYZ1234567890ABCDEFGHJL',
         organisationId: '01HZXYZ1234567890ABCDEFGHJM',
-        isDeleted: false
+        isDeleted: false,
       });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
-      mockPrismaService.callMessage.findMany.mockResolvedValue([mockCallMessage]);
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
+      mockPrismaService.callMessage.findMany.mockResolvedValue([
+        mockCallMessage,
+      ]);
 
-      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', '01HZXYZ1234567890ABCDEFGHJM', 'user-1', false);
+      const result = await service.findAll(
+        '01HZXYZ1234567890ABCDEFGHJL',
+        '01HZXYZ1234567890ABCDEFGHJM',
+        'user-1',
+        false,
+      );
 
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('01HZXYZ1234567890ABCDEFGHJK');
@@ -124,52 +147,84 @@ describe('CallMessageService', () => {
       mockPrismaService.call.findUnique.mockResolvedValue({
         id: '01HZXYZ1234567890ABCDEFGHJL',
         organisationId: '01HZXYZ1234567890ABCDEFGHJM',
-        isDeleted: false
+        isDeleted: false,
       });
       mockPrismaService.userOrganisation.findFirst.mockResolvedValue(null);
 
-      await expect(service.findAll('01HZXYZ1234567890ABCDEFGHJL', '01HZXYZ1234567890ABCDEFGHJM', 'user-1', false)).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(
+        service.findAll(
+          '01HZXYZ1234567890ABCDEFGHJL',
+          '01HZXYZ1234567890ABCDEFGHJM',
+          'user-1',
+          false,
+        ),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 
   describe('findOne', () => {
     it('should return a call message by id', async () => {
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.callMessage.findUnique.mockResolvedValue({
         ...mockCallMessage,
         callId: '01HZXYZ1234567890ABCDEFGHJL',
         organisationId: '01HZXYZ1234567890ABCDEFGHJM',
       });
 
-      const result = await service.findOne('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJL', '01HZXYZ1234567890ABCDEFGHJM', 'user-1', false);
+      const result = await service.findOne(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        '01HZXYZ1234567890ABCDEFGHJL',
+        '01HZXYZ1234567890ABCDEFGHJM',
+        'user-1',
+        false,
+      );
 
       expect(result).toBeDefined();
       expect(result.id).toBe('01HZXYZ1234567890ABCDEFGHJK');
     });
 
     it('should throw NotFoundException if call message not found', async () => {
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.callMessage.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.findOne('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJL', '01HZXYZ1234567890ABCDEFGHJM', 'user-1', false),
+        service.findOne(
+          '01HZXYZ1234567890ABCDEFGHJK',
+          '01HZXYZ1234567890ABCDEFGHJL',
+          '01HZXYZ1234567890ABCDEFGHJM',
+          'user-1',
+          false,
+        ),
       ).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('remove', () => {
     it('should soft delete a call message successfully', async () => {
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.callMessage.findUnique.mockResolvedValue({
         ...mockCallMessage,
         callId: '01HZXYZ1234567890ABCDEFGHJL',
         organisationId: '01HZXYZ1234567890ABCDEFGHJM',
       });
-      mockPrismaService.callMessage.update.mockResolvedValue({ ...mockCallMessage, isDeleted: true });
+      mockPrismaService.callMessage.update.mockResolvedValue({
+        ...mockCallMessage,
+        isDeleted: true,
+      });
 
-      const result = await service.remove('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJL', '01HZXYZ1234567890ABCDEFGHJM', 'user-1', false);
+      const result = await service.remove(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        '01HZXYZ1234567890ABCDEFGHJL',
+        '01HZXYZ1234567890ABCDEFGHJM',
+        'user-1',
+        false,
+      );
 
       expect(result).toBeDefined();
       expect(prisma.callMessage.update).toHaveBeenCalledWith({
@@ -217,21 +272,28 @@ describe('CallMessageService', () => {
     ];
 
     it('should create multiple call messages successfully', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJM', isDeleted: false });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJM',
+        isDeleted: false,
+      });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.call.findUnique.mockResolvedValue({
         id: '01HZXYZ1234567890ABCDEFGHJL',
         organisationId: '01HZXYZ1234567890ABCDEFGHJM',
-        isDeleted: false
+        isDeleted: false,
       });
-      mockPrismaService.callMessage.createManyAndReturn.mockResolvedValue(mockCreatedMessages);
+      mockPrismaService.callMessage.createManyAndReturn.mockResolvedValue(
+        mockCreatedMessages,
+      );
 
       const result = await service.createMany(
         '01HZXYZ1234567890ABCDEFGHJL',
         '01HZXYZ1234567890ABCDEFGHJM',
         createBulkCallMessageDto,
         'user-1',
-        false
+        false,
       );
 
       expect(result).toBeDefined();
@@ -265,14 +327,19 @@ describe('CallMessageService', () => {
           '01HZXYZ1234567890ABCDEFGHJM',
           createBulkCallMessageDto,
           'user-1',
-          false
-        )
+          false,
+        ),
       ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw NotFoundException if call not found', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJM', isDeleted: false });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJM',
+        isDeleted: false,
+      });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.call.findUnique.mockResolvedValue(null);
 
       await expect(
@@ -281,13 +348,16 @@ describe('CallMessageService', () => {
           '01HZXYZ1234567890ABCDEFGHJM',
           createBulkCallMessageDto,
           'user-1',
-          false
-        )
+          false,
+        ),
       ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw ForbiddenException if user does not have access', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJM', isDeleted: false });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJM',
+        isDeleted: false,
+      });
       mockPrismaService.userOrganisation.findFirst.mockResolvedValue(null);
 
       await expect(
@@ -296,26 +366,31 @@ describe('CallMessageService', () => {
           '01HZXYZ1234567890ABCDEFGHJM',
           createBulkCallMessageDto,
           'user-1',
-          false
-        )
+          false,
+        ),
       ).rejects.toThrow(ForbiddenException);
     });
 
     it('should allow super admin to create messages without organisation membership', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJM', isDeleted: false });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJM',
+        isDeleted: false,
+      });
       mockPrismaService.call.findUnique.mockResolvedValue({
         id: '01HZXYZ1234567890ABCDEFGHJL',
         organisationId: '01HZXYZ1234567890ABCDEFGHJM',
-        isDeleted: false
+        isDeleted: false,
       });
-      mockPrismaService.callMessage.createManyAndReturn.mockResolvedValue(mockCreatedMessages);
+      mockPrismaService.callMessage.createManyAndReturn.mockResolvedValue(
+        mockCreatedMessages,
+      );
 
       const result = await service.createMany(
         '01HZXYZ1234567890ABCDEFGHJL',
         '01HZXYZ1234567890ABCDEFGHJM',
         createBulkCallMessageDto,
         'super-admin',
-        true
+        true,
       );
 
       expect(result).toBeDefined();
@@ -324,4 +399,3 @@ describe('CallMessageService', () => {
     });
   });
 });
-

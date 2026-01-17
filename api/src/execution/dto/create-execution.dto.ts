@@ -5,7 +5,8 @@ import { EXECUTION_TYPE } from '@prisma/client';
 
 export class CreateExecutionDto {
   @ApiProperty({
-    description: 'External ID for the execution (unique identifier from external system)',
+    description:
+      'External ID for the execution (unique identifier from external system)',
     example: 'ext_exec_123456',
   })
   @IsString()
@@ -66,4 +67,3 @@ export class CreateExecutionDto {
   @IsULID()
   chatId?: string;
 }
-

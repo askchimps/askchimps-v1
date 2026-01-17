@@ -35,4 +35,3 @@ export class HistoryEntity {
     Object.assign(this, partial);
   }
 }
-

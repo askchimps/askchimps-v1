@@ -68,7 +68,10 @@ describe('OrganisationController', () => {
       const result = await controller.create(createDto, mockUser);
 
       expect(result).toEqual(mockOrganisation);
-      expect(mockOrganisationService.create).toHaveBeenCalledWith(createDto, mockUser.sub);
+      expect(mockOrganisationService.create).toHaveBeenCalledWith(
+        createDto,
+        mockUser.sub,
+      );
     });
   });
 
@@ -79,7 +82,10 @@ describe('OrganisationController', () => {
       const result = await controller.findAll(mockUser);
 
       expect(result).toEqual([mockOrganisation]);
-      expect(mockOrganisationService.findAll).toHaveBeenCalledWith(mockUser.sub, mockUser.isSuperAdmin);
+      expect(mockOrganisationService.findAll).toHaveBeenCalledWith(
+        mockUser.sub,
+        mockUser.isSuperAdmin,
+      );
     });
   });
 
@@ -90,7 +96,11 @@ describe('OrganisationController', () => {
       const result = await controller.findOne('org-123', mockUser);
 
       expect(result).toEqual(mockOrganisation);
-      expect(mockOrganisationService.findOne).toHaveBeenCalledWith('org-123', mockUser.sub, mockUser.isSuperAdmin);
+      expect(mockOrganisationService.findOne).toHaveBeenCalledWith(
+        'org-123',
+        mockUser.sub,
+        mockUser.isSuperAdmin,
+      );
     });
   });
 
@@ -103,7 +113,12 @@ describe('OrganisationController', () => {
       const result = await controller.update('org-123', updateDto, mockUser);
 
       expect(result).toEqual(updatedOrg);
-      expect(mockOrganisationService.update).toHaveBeenCalledWith('org-123', updateDto, mockUser.sub, mockUser.isSuperAdmin);
+      expect(mockOrganisationService.update).toHaveBeenCalledWith(
+        'org-123',
+        updateDto,
+        mockUser.sub,
+        mockUser.isSuperAdmin,
+      );
     });
   });
 
@@ -115,8 +130,11 @@ describe('OrganisationController', () => {
       const result = await controller.remove('org-123', mockUser);
 
       expect(result).toEqual(deletedOrg);
-      expect(mockOrganisationService.remove).toHaveBeenCalledWith('org-123', mockUser.sub, mockUser.isSuperAdmin);
+      expect(mockOrganisationService.remove).toHaveBeenCalledWith(
+        'org-123',
+        mockUser.sub,
+        mockUser.isSuperAdmin,
+      );
     });
   });
 });
-

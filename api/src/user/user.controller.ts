@@ -9,7 +9,14 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiResponse,
+  ApiParam,
+  ApiBody,
+} from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -26,7 +33,8 @@ export class UserController {
   @Post()
   @ApiOperation({
     summary: 'Create a new user',
-    description: 'Create a new user account. This endpoint is public and does not require authentication. Password will be hashed before storage.',
+    description:
+      'Create a new user account. This endpoint is public and does not require authentication. Password will be hashed before storage.',
   })
   @ApiBody({
     type: CreateUserDto,
@@ -73,7 +81,10 @@ export class UserController {
     description: 'Invalid input data',
     schema: {
       example: {
-        message: ['email must be a valid email', 'password must be longer than or equal to 8 characters'],
+        message: [
+          'email must be a valid email',
+          'password must be longer than or equal to 8 characters',
+        ],
         error: 'Bad Request',
         statusCode: 400,
       },
@@ -97,7 +108,8 @@ export class UserController {
   @Get()
   @ApiOperation({
     summary: 'Get all users',
-    description: 'Retrieve a list of all users. Requires authentication. Password field is excluded from response.',
+    description:
+      'Retrieve a list of all users. Requires authentication. Password field is excluded from response.',
   })
   @ApiResponse({
     status: 200,
@@ -131,7 +143,10 @@ export class UserController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing JWT token' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing JWT token',
+  })
   findAll() {
     return this.UserService.findAll();
   }
@@ -139,7 +154,8 @@ export class UserController {
   @Get(':id')
   @ApiOperation({
     summary: 'Get user by ID',
-    description: 'Retrieve a specific user by their ID. Requires authentication. Password field is excluded from response.',
+    description:
+      'Retrieve a specific user by their ID. Requires authentication. Password field is excluded from response.',
   })
   @ApiParam({
     name: 'id',
@@ -166,7 +182,10 @@ export class UserController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing JWT token' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing JWT token',
+  })
   @ApiResponse({
     status: 404,
     description: 'User not found',
@@ -185,7 +204,8 @@ export class UserController {
   @Patch(':id')
   @ApiOperation({
     summary: 'Update user',
-    description: 'Update user information. All fields are optional. Requires authentication.',
+    description:
+      'Update user information. All fields are optional. Requires authentication.',
   })
   @ApiParam({
     name: 'id',
@@ -235,7 +255,10 @@ export class UserController {
     },
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
-  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing JWT token' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing JWT token',
+  })
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({
     status: 409,
@@ -255,7 +278,8 @@ export class UserController {
   @Delete(':id')
   @ApiOperation({
     summary: 'Delete user (soft delete)',
-    description: 'Soft delete a user by setting isActive to false. The user data is retained but the account is deactivated. Requires authentication.',
+    description:
+      'Soft delete a user by setting isActive to false. The user data is retained but the account is deactivated. Requires authentication.',
   })
   @ApiParam({
     name: 'id',
@@ -282,10 +306,12 @@ export class UserController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing JWT token' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing JWT token',
+  })
   @ApiResponse({ status: 404, description: 'User not found' })
   remove(@Param('id') id: string) {
     return this.UserService.remove(id);
   }
 }
-

@@ -17,7 +17,7 @@ async function bootstrap() {
 
   // CORS
   app.enableCors({
-    origin: true
+    origin: true,
   });
 
   // Global validation pipe
@@ -35,9 +35,15 @@ async function bootstrap() {
   // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('AskChimps API')
-    .setDescription('AskChimps API - Multi-platform chat management and lead tracking system')
+    .setDescription(
+      'AskChimps API - Multi-platform chat management and lead tracking system',
+    )
     .setVersion('1.0')
-    .setContact('AskChimps Support', 'https://askchimps.com', 'support@askchimps.com')
+    .setContact(
+      'AskChimps Support',
+      'https://askchimps.com',
+      'support@askchimps.com',
+    )
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
     .addBearerAuth(
       {

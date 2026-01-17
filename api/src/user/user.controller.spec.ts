@@ -47,7 +47,10 @@ describe('UserController', () => {
 
   describe('findAll', () => {
     it('should return an array of users', async () => {
-      const users = [mockUser, { ...mockUser, id: 'user-456', email: 'test2@example.com' }];
+      const users = [
+        mockUser,
+        { ...mockUser, id: 'user-456', email: 'test2@example.com' },
+      ];
       mockUserService.findAll.mockResolvedValue(users);
 
       const result = await controller.findAll();
@@ -79,7 +82,9 @@ describe('UserController', () => {
     it('should handle user not found error', async () => {
       mockUserService.findOne.mockRejectedValue(new Error('User not found'));
 
-      await expect(controller.findOne('non-existent')).rejects.toThrow('User not found');
+      await expect(controller.findOne('non-existent')).rejects.toThrow(
+        'User not found',
+      );
     });
   });
 
@@ -103,9 +108,13 @@ describe('UserController', () => {
       const updateUserDto: UpdateUserDto = {
         email: 'existing@example.com',
       };
-      mockUserService.update.mockRejectedValue(new Error('Email already exists'));
+      mockUserService.update.mockRejectedValue(
+        new Error('Email already exists'),
+      );
 
-      await expect(controller.update('user-123', updateUserDto)).rejects.toThrow('Email already exists');
+      await expect(
+        controller.update('user-123', updateUserDto),
+      ).rejects.toThrow('Email already exists');
     });
   });
 
@@ -124,8 +133,9 @@ describe('UserController', () => {
     it('should handle remove errors', async () => {
       mockUserService.remove.mockRejectedValue(new Error('User not found'));
 
-      await expect(controller.remove('non-existent')).rejects.toThrow('User not found');
+      await expect(controller.remove('non-existent')).rejects.toThrow(
+        'User not found',
+      );
     });
   });
 });
-

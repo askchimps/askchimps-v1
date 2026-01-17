@@ -1,4 +1,13 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, IsArray, ValidateNested } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
 import { CHAT_MESSAGE_TYPE } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
@@ -54,7 +63,8 @@ export class CreateChatMessageDto {
 
   @ApiPropertyOptional({
     description: 'Content of the message (optional for media-only messages)',
-    example: 'Hello! I would like to know more about your solar panel installation services.',
+    example:
+      'Hello! I would like to know more about your solar panel installation services.',
   })
   @IsOptional()
   @IsString()
@@ -89,4 +99,3 @@ export class CreateChatMessageDto {
   @Type(() => CreateAttachmentDto)
   attachments?: CreateAttachmentDto[];
 }
-

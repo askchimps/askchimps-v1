@@ -38,7 +38,9 @@ export class AgentService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -83,7 +85,9 @@ export class AgentService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -123,7 +127,9 @@ export class AgentService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -156,7 +162,9 @@ export class AgentService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -204,7 +212,9 @@ export class AgentService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -217,4 +227,3 @@ export class AgentService {
     return new AgentEntity(deleted);
   }
 }
-

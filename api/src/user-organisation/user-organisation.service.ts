@@ -48,8 +48,14 @@ export class UserOrganisationService {
         },
       });
 
-      if (!requestUserOrg || (requestUserOrg.role !== Role.OWNER && requestUserOrg.role !== Role.ADMIN)) {
-        throw new ForbiddenException('Only organisation owners and admins can add users');
+      if (
+        !requestUserOrg ||
+        (requestUserOrg.role !== Role.OWNER &&
+          requestUserOrg.role !== Role.ADMIN)
+      ) {
+        throw new ForbiddenException(
+          'Only organisation owners and admins can add users',
+        );
       }
 
       // ADMIN cannot add OWNER
@@ -67,7 +73,9 @@ export class UserOrganisationService {
     });
 
     if (existing && !existing.isDeleted) {
-      throw new ConflictException('User is already a member of this organisation');
+      throw new ConflictException(
+        'User is already a member of this organisation',
+      );
     }
 
     // If exists but deleted, restore it
@@ -106,7 +114,9 @@ export class UserOrganisationService {
       });
 
       if (!hasAccess) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -173,7 +183,9 @@ export class UserOrganisationService {
       });
 
       if (!hasAccess) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -205,7 +217,9 @@ export class UserOrganisationService {
       });
 
       if (!requestUserOrg || requestUserOrg.role !== Role.OWNER) {
-        throw new ForbiddenException('Only organisation owners can change user roles');
+        throw new ForbiddenException(
+          'Only organisation owners can change user roles',
+        );
       }
 
       // Cannot change own role
@@ -224,7 +238,9 @@ export class UserOrganisationService {
         });
 
         if (ownerCount <= 1) {
-          throw new BadRequestException('Cannot demote the last owner of the organisation');
+          throw new BadRequestException(
+            'Cannot demote the last owner of the organisation',
+          );
         }
       }
     }
@@ -261,14 +277,24 @@ export class UserOrganisationService {
       });
 
       const isSelfRemoval = userOrg.userId === requestUserId;
-      const hasPermission = requestUserOrg && (requestUserOrg.role === Role.OWNER || requestUserOrg.role === Role.ADMIN);
+      const hasPermission =
+        requestUserOrg &&
+        (requestUserOrg.role === Role.OWNER ||
+          requestUserOrg.role === Role.ADMIN);
 
       if (!isSelfRemoval && !hasPermission) {
-        throw new ForbiddenException('Insufficient permissions to remove this user');
+        throw new ForbiddenException(
+          'Insufficient permissions to remove this user',
+        );
       }
 
       // ADMIN cannot remove OWNER
-      if (!isSelfRemoval && requestUserOrg && requestUserOrg.role === Role.ADMIN && userOrg.role === Role.OWNER) {
+      if (
+        !isSelfRemoval &&
+        requestUserOrg &&
+        requestUserOrg.role === Role.ADMIN &&
+        userOrg.role === Role.OWNER
+      ) {
         throw new ForbiddenException('Admins cannot remove owners');
       }
 
@@ -283,7 +309,9 @@ export class UserOrganisationService {
         });
 
         if (ownerCount <= 1) {
-          throw new BadRequestException('Cannot remove the last owner of the organisation');
+          throw new BadRequestException(
+            'Cannot remove the last owner of the organisation',
+          );
         }
       }
     }
@@ -297,4 +325,3 @@ export class UserOrganisationService {
     return new UserOrganisationEntity(deleted);
   }
 }
-

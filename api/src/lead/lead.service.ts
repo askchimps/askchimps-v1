@@ -39,7 +39,9 @@ export class LeadService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -48,7 +50,11 @@ export class LeadService {
       where: { id: createLeadDto.agentId },
     });
 
-    if (!agent || agent.isDeleted || agent.organisationId !== createLeadDto.organisationId) {
+    if (
+      !agent ||
+      agent.isDeleted ||
+      agent.organisationId !== createLeadDto.organisationId
+    ) {
       throw new NotFoundException('Agent not found');
     }
 
@@ -78,16 +84,51 @@ export class LeadService {
 
       if (existingLead) {
         if (existingLead.email === createLeadDto.email) {
-          throw new ConflictException('A lead with this email already exists in this organisation');
+          throw new ConflictException(
+            'A lead with this email already exists in this organisation',
+          );
         }
         if (existingLead.phone === createLeadDto.phone) {
-          throw new ConflictException('A lead with this phone number already exists in this organisation');
+          throw new ConflictException(
+            'A lead with this phone number already exists in this organisation',
+          );
         }
       }
     }
 
+    // Verify tags exist and belong to organisation if provided
+    if (createLeadDto.tagIds && createLeadDto.tagIds.length > 0) {
+      const tags = await this.prisma.tag.findMany({
+        where: {
+          id: { in: createLeadDto.tagIds },
+          organisationId: createLeadDto.organisationId,
+          isDeleted: false,
+        },
+      });
+
+      if (tags.length !== createLeadDto.tagIds.length) {
+        throw new NotFoundException(
+          'One or more tags not found or do not belong to this organisation',
+        );
+      }
+    }
+
+    const { tagIds, ...leadData } = createLeadDto;
+
     const lead = await this.prisma.lead.create({
-      data: createLeadDto,
+      data: {
+        ...leadData,
+        ...(tagIds && tagIds.length > 0
+          ? {
+              tags: {
+                connect: tagIds.map((id) => ({ id })),
+              },
+            }
+          : {}),
+      },
+      include: {
+        tags: true,
+      },
     });
 
     return new LeadEntity(lead);
@@ -109,7 +150,9 @@ export class LeadService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -169,7 +212,9 @@ export class LeadService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -206,8 +251,13 @@ export class LeadService {
         },
       });
 
-      if (!userOrg || (userOrg.role !== Role.OWNER && userOrg.role !== Role.ADMIN)) {
-        throw new ForbiddenException('Insufficient permissions to update leads');
+      if (
+        !userOrg ||
+        (userOrg.role !== Role.OWNER && userOrg.role !== Role.ADMIN)
+      ) {
+        throw new ForbiddenException(
+          'Insufficient permissions to update leads',
+        );
       }
     }
 
@@ -238,17 +288,52 @@ export class LeadService {
 
       if (existingLead) {
         if (existingLead.email === updateLeadDto.email) {
-          throw new ConflictException('A lead with this email already exists in this organisation');
+          throw new ConflictException(
+            'A lead with this email already exists in this organisation',
+          );
         }
         if (existingLead.phone === updateLeadDto.phone) {
-          throw new ConflictException('A lead with this phone number already exists in this organisation');
+          throw new ConflictException(
+            'A lead with this phone number already exists in this organisation',
+          );
         }
       }
     }
 
+    // Verify tags exist and belong to organisation if provided
+    if (updateLeadDto.tagIds && updateLeadDto.tagIds.length > 0) {
+      const tags = await this.prisma.tag.findMany({
+        where: {
+          id: { in: updateLeadDto.tagIds },
+          organisationId,
+          isDeleted: false,
+        },
+      });
+
+      if (tags.length !== updateLeadDto.tagIds.length) {
+        throw new NotFoundException(
+          'One or more tags not found or do not belong to this organisation',
+        );
+      }
+    }
+
+    const { tagIds, ...leadData } = updateLeadDto;
+
     const updated = await this.prisma.lead.update({
       where: { id },
-      data: updateLeadDto,
+      data: {
+        ...leadData,
+        ...(tagIds !== undefined
+          ? {
+              tags: {
+                set: tagIds.map((id) => ({ id })),
+              },
+            }
+          : {}),
+      },
+      include: {
+        tags: true,
+      },
     });
 
     return new LeadEntity(updated);
@@ -283,8 +368,13 @@ export class LeadService {
         },
       });
 
-      if (!userOrg || (userOrg.role !== Role.OWNER && userOrg.role !== Role.ADMIN)) {
-        throw new ForbiddenException('Insufficient permissions to delete leads');
+      if (
+        !userOrg ||
+        (userOrg.role !== Role.OWNER && userOrg.role !== Role.ADMIN)
+      ) {
+        throw new ForbiddenException(
+          'Insufficient permissions to delete leads',
+        );
       }
     }
 
@@ -297,4 +387,3 @@ export class LeadService {
     return new LeadEntity(deleted);
   }
 }
-

@@ -12,7 +12,9 @@ import { LeadOwnerEntity } from './entities/lead-owner.entity';
 export class LeadOwnerService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createLeadOwnerDto: CreateLeadOwnerDto): Promise<LeadOwnerEntity> {
+  async create(
+    createLeadOwnerDto: CreateLeadOwnerDto,
+  ): Promise<LeadOwnerEntity> {
     // Check if lead owner with this ID already exists
     const existingLeadOwner = await this.prisma.leadOwner.findUnique({
       where: { id: createLeadOwnerDto.id },
@@ -88,4 +90,3 @@ export class LeadOwnerService {
     return new LeadOwnerEntity(deleted);
   }
 }
-

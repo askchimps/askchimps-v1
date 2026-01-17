@@ -11,4 +11,3 @@ export class AgentEntity {
     Object.assign(this, partial);
   }
 }
-

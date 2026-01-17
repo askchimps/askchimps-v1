@@ -10,7 +10,14 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags, ApiParam, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiTags,
+  ApiParam,
+  ApiResponse,
+  ApiBody,
+} from '@nestjs/swagger';
 import { ChatMessageService } from './chat-message.service';
 import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
@@ -21,7 +28,10 @@ import { Role } from '../common/enums';
 
 @ApiTags('Chat Message')
 @ApiBearerAuth('JWT-auth')
-@Controller({ path: 'organisation/:organisationId/chat/:chatId/message', version: '1' })
+@Controller({
+  path: 'organisation/:organisationId/chat/:chatId/message',
+  version: '1',
+})
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class ChatMessageController {
@@ -32,7 +42,8 @@ export class ChatMessageController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Create a new message in chat',
-    description: 'Create a new message in a chat conversation. Supports text messages and various media types (IMAGE, VIDEO, AUDIO, FILE, GIF, DOCUMENT) with attachments.',
+    description:
+      'Create a new message in a chat conversation. Supports text messages and various media types (IMAGE, VIDEO, AUDIO, FILE, GIF, DOCUMENT) with attachments.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -41,7 +52,8 @@ export class ChatMessageController {
   })
   @ApiParam({
     name: 'chatId',
-    description: 'Chat ID (ULID format) or sourceId (e.g., whatsapp_919876543210_1234567890)',
+    description:
+      'Chat ID (ULID format) or sourceId (e.g., whatsapp_919876543210_1234567890)',
     example: '01HZXYZ1234567890ABCDEFGHJK',
   })
   @ApiBody({
@@ -51,7 +63,8 @@ export class ChatMessageController {
       'Text Message': {
         value: {
           role: 'user',
-          content: 'Hello! I would like to know more about your solar panel installation services.',
+          content:
+            'Hello! I would like to know more about your solar panel installation services.',
           type: 'TEXT',
         },
       },
@@ -97,7 +110,8 @@ export class ChatMessageController {
           chatId: '01HZXYZ1234567890ABCDEFGHJK',
           organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
           role: 'user',
-          content: 'Hello! I would like to know more about your solar panel installation services.',
+          content:
+            'Hello! I would like to know more about your solar panel installation services.',
           type: 'TEXT',
           createdAt: '2024-01-15T10:30:00.000Z',
           updatedAt: '2024-01-15T10:30:00.000Z',
@@ -110,14 +124,21 @@ export class ChatMessageController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Chat not found' })
   create(
     @Param('organisationId') organisationId: string,
     @Param('chatId') chatId: string,
     @Body() createChatMessageDto: CreateChatMessageDto,
   ) {
-    return this.ChatMessageService.create(organisationId, chatId, createChatMessageDto);
+    return this.ChatMessageService.create(
+      organisationId,
+      chatId,
+      createChatMessageDto,
+    );
   }
 
   @Get()
@@ -125,7 +146,8 @@ export class ChatMessageController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Get all messages in chat',
-    description: 'Retrieve all messages in a chat conversation, ordered by creation time. Includes attachments for each message.',
+    description:
+      'Retrieve all messages in a chat conversation, ordered by creation time. Includes attachments for each message.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -134,7 +156,8 @@ export class ChatMessageController {
   })
   @ApiParam({
     name: 'chatId',
-    description: 'Chat ID (ULID format) or sourceId (e.g., whatsapp_919876543210_1234567890)',
+    description:
+      'Chat ID (ULID format) or sourceId (e.g., whatsapp_919876543210_1234567890)',
     example: '01HZXYZ1234567890ABCDEFGHJK',
   })
   @ApiResponse({
@@ -172,7 +195,10 @@ export class ChatMessageController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Chat not found' })
   findAll(
     @Param('organisationId') organisationId: string,
@@ -195,7 +221,8 @@ export class ChatMessageController {
   })
   @ApiParam({
     name: 'chatId',
-    description: 'Chat ID (ULID format) or sourceId (e.g., whatsapp_919876543210_1234567890)',
+    description:
+      'Chat ID (ULID format) or sourceId (e.g., whatsapp_919876543210_1234567890)',
     example: '01HZXYZ1234567890ABCDEFGHJK',
   })
   @ApiParam({
@@ -236,7 +263,10 @@ export class ChatMessageController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Message not found' })
   findOne(
     @Param('organisationId') organisationId: string,
@@ -251,7 +281,8 @@ export class ChatMessageController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Update message content',
-    description: 'Update the content of an existing message. Typically used for editing sent messages.',
+    description:
+      'Update the content of an existing message. Typically used for editing sent messages.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -260,7 +291,8 @@ export class ChatMessageController {
   })
   @ApiParam({
     name: 'chatId',
-    description: 'Chat ID (ULID format) or sourceId (e.g., whatsapp_919876543210_1234567890)',
+    description:
+      'Chat ID (ULID format) or sourceId (e.g., whatsapp_919876543210_1234567890)',
     example: '01HZXYZ1234567890ABCDEFGHJK',
   })
   @ApiParam({
@@ -302,7 +334,10 @@ export class ChatMessageController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Message not found' })
   update(
     @Param('organisationId') organisationId: string,
@@ -310,7 +345,12 @@ export class ChatMessageController {
     @Param('id') id: string,
     @Body() updateChatMessageDto: UpdateChatMessageDto,
   ) {
-    return this.ChatMessageService.update(organisationId, chatId, id, updateChatMessageDto);
+    return this.ChatMessageService.update(
+      organisationId,
+      chatId,
+      id,
+      updateChatMessageDto,
+    );
   }
 
   @Delete(':id')
@@ -318,7 +358,8 @@ export class ChatMessageController {
   @Roles(Role.OWNER, Role.ADMIN)
   @ApiOperation({
     summary: 'Delete message (soft delete)',
-    description: 'Soft delete a message. Only OWNER and ADMIN roles can delete messages. The message is marked as deleted but retained in the database.',
+    description:
+      'Soft delete a message. Only OWNER and ADMIN roles can delete messages. The message is marked as deleted but retained in the database.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -327,7 +368,8 @@ export class ChatMessageController {
   })
   @ApiParam({
     name: 'chatId',
-    description: 'Chat ID (ULID format) or sourceId (e.g., whatsapp_919876543210_1234567890)',
+    description:
+      'Chat ID (ULID format) or sourceId (e.g., whatsapp_919876543210_1234567890)',
     example: '01HZXYZ1234567890ABCDEFGHJK',
   })
   @ApiParam({
@@ -357,7 +399,10 @@ export class ChatMessageController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Only OWNER and ADMIN can delete messages' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Only OWNER and ADMIN can delete messages',
+  })
   @ApiResponse({ status: 404, description: 'Message not found' })
   remove(
     @Param('organisationId') organisationId: string,
@@ -367,4 +412,3 @@ export class ChatMessageController {
     return this.ChatMessageService.remove(organisationId, chatId, id);
   }
 }
-

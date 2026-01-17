@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateHistoryDto } from './dto/create-history.dto';
 import { QueryHistoryDto } from './dto/query-history.dto';
@@ -24,7 +28,9 @@ export class HistoryService {
   /**
    * Bulk create multiple history records in a single transaction
    */
-  async bulkCreate(bulkCreateHistoryDto: BulkCreateHistoryDto): Promise<HistoryEntity[]> {
+  async bulkCreate(
+    bulkCreateHistoryDto: BulkCreateHistoryDto,
+  ): Promise<HistoryEntity[]> {
     // Use a transaction to ensure all records are created or none
     const histories = await this.prisma.$transaction(
       bulkCreateHistoryDto.records.map((record) =>
@@ -44,7 +50,12 @@ export class HistoryService {
     queryDto: QueryHistoryDto,
     userId: string,
     isSuperAdmin: boolean,
-  ): Promise<{ data: HistoryEntity[]; total: number; limit: number; offset: number }> {
+  ): Promise<{
+    data: HistoryEntity[];
+    total: number;
+    limit: number;
+    offset: number;
+  }> {
     // Build where clause
     const where: any = {};
 
@@ -122,10 +133,7 @@ export class HistoryService {
       const orgIds = userOrgs.map((uo) => uo.organisationId);
 
       // User can only see history for their organisations or their own actions
-      where.OR = [
-        { organisationId: { in: orgIds } },
-        { userId },
-      ];
+      where.OR = [{ organisationId: { in: orgIds } }, { userId }];
     }
 
     const limit = queryDto.limit || 50;
@@ -179,10 +187,7 @@ export class HistoryService {
 
       const orgIds = userOrgs.map((uo) => uo.organisationId);
 
-      where.OR = [
-        { organisationId: { in: orgIds } },
-        { userId },
-      ];
+      where.OR = [{ organisationId: { in: orgIds } }, { userId }];
     }
 
     const records = await this.prisma.history.findMany({
@@ -376,4 +381,3 @@ export class HistoryService {
     return entries;
   }
 }
-

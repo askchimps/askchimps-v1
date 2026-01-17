@@ -45,8 +45,12 @@ describe('UserService', () => {
     jest.clearAllMocks();
 
     // Setup bcrypt mocks
-    (bcrypt.hash as jest.MockedFunction<typeof bcrypt.hash>).mockResolvedValue('$2b$10$hashedpassword' as never);
-    (bcrypt.compare as jest.MockedFunction<typeof bcrypt.compare>).mockResolvedValue(true as never);
+    (bcrypt.hash as jest.MockedFunction<typeof bcrypt.hash>).mockResolvedValue(
+      '$2b$10$hashedpassword' as never,
+    );
+    (
+      bcrypt.compare as jest.MockedFunction<typeof bcrypt.compare>
+    ).mockResolvedValue(true as never);
   });
 
   it('should be defined', () => {
@@ -67,10 +71,12 @@ describe('UserService', () => {
 
       const result = await service.create(createUserDto);
 
-      expect(result).toEqual(expect.objectContaining({
-        id: mockUser.id,
-        email: mockUser.email,
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: mockUser.id,
+          email: mockUser.email,
+        }),
+      );
       expect(result).not.toHaveProperty('password');
       expect(prismaService.user.findUnique).toHaveBeenCalledWith({
         where: { email: createUserDto.email },
@@ -82,8 +88,12 @@ describe('UserService', () => {
     it('should throw ConflictException if email already exists', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
 
-      await expect(service.create(createUserDto)).rejects.toThrow(ConflictException);
-      await expect(service.create(createUserDto)).rejects.toThrow('Email already exists');
+      await expect(service.create(createUserDto)).rejects.toThrow(
+        ConflictException,
+      );
+      await expect(service.create(createUserDto)).rejects.toThrow(
+        'Email already exists',
+      );
       expect(prismaService.user.create).not.toHaveBeenCalled();
     });
 
@@ -118,7 +128,11 @@ describe('UserService', () => {
         password: 'Password123!',
       };
       mockPrismaService.user.findUnique.mockResolvedValue(null);
-      mockPrismaService.user.create.mockResolvedValue({ ...mockUser, firstName: null, lastName: null });
+      mockPrismaService.user.create.mockResolvedValue({
+        ...mockUser,
+        firstName: null,
+        lastName: null,
+      });
 
       const result = await service.create(minimalDto);
 
@@ -129,7 +143,10 @@ describe('UserService', () => {
 
   describe('findAll', () => {
     it('should return all active users', async () => {
-      const users = [mockUser, { ...mockUser, id: 'user-456', email: 'test2@example.com' }];
+      const users = [
+        mockUser,
+        { ...mockUser, id: 'user-456', email: 'test2@example.com' },
+      ];
       mockPrismaService.user.findMany.mockResolvedValue(users);
 
       const result = await service.findAll();
@@ -154,7 +171,7 @@ describe('UserService', () => {
 
       const result = await service.findAll();
 
-      result.forEach(user => {
+      result.forEach((user) => {
         expect(user).not.toHaveProperty('password');
       });
     });
@@ -166,10 +183,12 @@ describe('UserService', () => {
 
       const result = await service.findOne('user-123');
 
-      expect(result).toEqual(expect.objectContaining({
-        id: mockUser.id,
-        email: mockUser.email,
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: mockUser.id,
+          email: mockUser.email,
+        }),
+      );
       expect(result).not.toHaveProperty('password');
       expect(prismaService.user.findUnique).toHaveBeenCalledWith({
         where: { id: 'user-123' },
@@ -179,16 +198,24 @@ describe('UserService', () => {
     it('should throw NotFoundException if user not found', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.findOne('non-existent')).rejects.toThrow(NotFoundException);
-      await expect(service.findOne('non-existent')).rejects.toThrow('User not found');
+      await expect(service.findOne('non-existent')).rejects.toThrow(
+        NotFoundException,
+      );
+      await expect(service.findOne('non-existent')).rejects.toThrow(
+        'User not found',
+      );
     });
 
     it('should throw NotFoundException if user is inactive', async () => {
       const inactiveUser = { ...mockUser, isActive: false };
       mockPrismaService.user.findUnique.mockResolvedValue(inactiveUser);
 
-      await expect(service.findOne('user-123')).rejects.toThrow(NotFoundException);
-      await expect(service.findOne('user-123')).rejects.toThrow('User not found');
+      await expect(service.findOne('user-123')).rejects.toThrow(
+        NotFoundException,
+      );
+      await expect(service.findOne('user-123')).rejects.toThrow(
+        'User not found',
+      );
     });
   });
 
@@ -235,10 +262,12 @@ describe('UserService', () => {
 
       const result = await service.update('user-123', updateUserDto);
 
-      expect(result).toEqual(expect.objectContaining({
-        firstName: 'Jane',
-        lastName: 'Smith',
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          firstName: 'Jane',
+          lastName: 'Smith',
+        }),
+      );
       expect(result).not.toHaveProperty('password');
       expect(prismaService.user.update).toHaveBeenCalledWith({
         where: { id: 'user-123' },
@@ -249,14 +278,18 @@ describe('UserService', () => {
     it('should throw NotFoundException if user not found', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.update('non-existent', updateUserDto)).rejects.toThrow(NotFoundException);
+      await expect(
+        service.update('non-existent', updateUserDto),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw NotFoundException if user is inactive', async () => {
       const inactiveUser = { ...mockUser, isActive: false };
       mockPrismaService.user.findUnique.mockResolvedValue(inactiveUser);
 
-      await expect(service.update('user-123', updateUserDto)).rejects.toThrow(NotFoundException);
+      await expect(service.update('user-123', updateUserDto)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should allow updating email', async () => {
@@ -264,7 +297,10 @@ describe('UserService', () => {
       mockPrismaService.user.findUnique
         .mockResolvedValueOnce(mockUser)
         .mockResolvedValueOnce(null);
-      mockPrismaService.user.update.mockResolvedValue({ ...mockUser, ...emailUpdate });
+      mockPrismaService.user.update.mockResolvedValue({
+        ...mockUser,
+        ...emailUpdate,
+      });
 
       const result = await service.update('user-123', emailUpdate);
 
@@ -273,21 +309,31 @@ describe('UserService', () => {
 
     it('should throw ConflictException if new email already exists', async () => {
       const emailUpdate = { email: 'existing@example.com' };
-      const existingUser = { ...mockUser, id: 'other-user', email: 'existing@example.com' };
+      const existingUser = {
+        ...mockUser,
+        id: 'other-user',
+        email: 'existing@example.com',
+      };
       mockPrismaService.user.findUnique
         .mockResolvedValueOnce(mockUser)
         .mockResolvedValueOnce(existingUser)
         .mockResolvedValueOnce(mockUser)
         .mockResolvedValueOnce(existingUser);
 
-      await expect(service.update('user-123', emailUpdate)).rejects.toThrow(ConflictException);
-      await expect(service.update('user-123', emailUpdate)).rejects.toThrow('Email already exists');
+      await expect(service.update('user-123', emailUpdate)).rejects.toThrow(
+        ConflictException,
+      );
+      await expect(service.update('user-123', emailUpdate)).rejects.toThrow(
+        'Email already exists',
+      );
     });
 
     it('should hash password if password is being updated', async () => {
       const passwordUpdate = { password: 'NewPassword123!' };
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
-      (bcrypt.hash as jest.MockedFunction<typeof bcrypt.hash>).mockResolvedValueOnce('$2b$10$newhash' as never);
+      (
+        bcrypt.hash as jest.MockedFunction<typeof bcrypt.hash>
+      ).mockResolvedValueOnce('$2b$10$newhash' as never);
       mockPrismaService.user.update.mockResolvedValue(mockUser);
 
       await service.update('user-123', passwordUpdate);
@@ -308,9 +354,11 @@ describe('UserService', () => {
 
       const result = await service.remove('user-123');
 
-      expect(result).toEqual(expect.objectContaining({
-        isActive: false,
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          isActive: false,
+        }),
+      );
       expect(prismaService.user.update).toHaveBeenCalledWith({
         where: { id: 'user-123' },
         data: { isActive: false },
@@ -320,15 +368,18 @@ describe('UserService', () => {
     it('should throw NotFoundException if user not found', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.remove('non-existent')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('non-existent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw NotFoundException if user already inactive', async () => {
       const inactiveUser = { ...mockUser, isActive: false };
       mockPrismaService.user.findUnique.mockResolvedValue(inactiveUser);
 
-      await expect(service.remove('user-123')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('user-123')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });
-

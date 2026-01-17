@@ -5,4 +5,3 @@ import { OmitType } from '@nestjs/swagger';
 export class UpdateAgentDto extends PartialType(
   OmitType(CreateAgentDto, ['organisationId'] as const),
 ) {}
-

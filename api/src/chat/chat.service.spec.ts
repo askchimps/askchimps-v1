@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChatService } from './chat.service';
 import { PrismaService } from '../database/prisma.service';
-import { NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { CHAT_SOURCE, CHAT_STATUS } from '@prisma/client';
 
 describe('ChatService', () => {
@@ -117,13 +121,18 @@ describe('ChatService', () => {
     };
 
     it('should create a chat successfully', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue(mockOrganisation);
+      mockPrismaService.organisation.findUnique.mockResolvedValue(
+        mockOrganisation,
+      );
       mockPrismaService.agent.findUnique.mockResolvedValue(mockAgent);
       mockPrismaService.lead.findFirst.mockResolvedValue(mockLead);
       mockPrismaService.chat.findFirst.mockResolvedValue(null);
       mockPrismaService.chat.create.mockResolvedValue(mockChat);
 
-      const result = await service.create('01HZXYZ1234567890ABCDEFGHJK', createChatDto);
+      const result = await service.create(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        createChatDto,
+      );
 
       expect(result).toBeDefined();
       expect(result.id).toBe('01HZXYZ1234567890ABCDEFGHJN');
@@ -139,49 +148,63 @@ describe('ChatService', () => {
     it('should throw NotFoundException if organisation not found', async () => {
       mockPrismaService.organisation.findUnique.mockResolvedValue(null);
 
-      await expect(service.create('01HZXYZ1234567890ABCDEFGHJK', createChatDto)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.create('01HZXYZ1234567890ABCDEFGHJK', createChatDto),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw NotFoundException if agent not found', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue(mockOrganisation);
+      mockPrismaService.organisation.findUnique.mockResolvedValue(
+        mockOrganisation,
+      );
       mockPrismaService.agent.findUnique.mockResolvedValue(null);
 
-      await expect(service.create('01HZXYZ1234567890ABCDEFGHJK', createChatDto)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.create('01HZXYZ1234567890ABCDEFGHJK', createChatDto),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw BadRequestException if lead not found', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue(mockOrganisation);
+      mockPrismaService.organisation.findUnique.mockResolvedValue(
+        mockOrganisation,
+      );
       mockPrismaService.agent.findUnique.mockResolvedValue(mockAgent);
       mockPrismaService.lead.findFirst.mockResolvedValue(null);
 
-      await expect(service.create('01HZXYZ1234567890ABCDEFGHJK', createChatDto)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.create('01HZXYZ1234567890ABCDEFGHJK', createChatDto),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw BadRequestException if duplicate sourceId exists', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue(mockOrganisation);
+      mockPrismaService.organisation.findUnique.mockResolvedValue(
+        mockOrganisation,
+      );
       mockPrismaService.agent.findUnique.mockResolvedValue(mockAgent);
       mockPrismaService.lead.findFirst.mockResolvedValue(mockLead);
       mockPrismaService.chat.findFirst.mockResolvedValue(mockChat);
 
-      await expect(service.create('01HZXYZ1234567890ABCDEFGHJK', createChatDto)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.create('01HZXYZ1234567890ABCDEFGHJK', createChatDto),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should create chat without leadId', async () => {
       const dtoWithoutLead = { ...createChatDto, leadId: undefined };
-      mockPrismaService.organisation.findUnique.mockResolvedValue(mockOrganisation);
+      mockPrismaService.organisation.findUnique.mockResolvedValue(
+        mockOrganisation,
+      );
       mockPrismaService.agent.findUnique.mockResolvedValue(mockAgent);
       mockPrismaService.chat.findFirst.mockResolvedValue(null);
-      mockPrismaService.chat.create.mockResolvedValue({ ...mockChat, leadId: null });
+      mockPrismaService.chat.create.mockResolvedValue({
+        ...mockChat,
+        leadId: null,
+      });
 
-      const result = await service.create('01HZXYZ1234567890ABCDEFGHJK', dtoWithoutLead);
+      const result = await service.create(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        dtoWithoutLead,
+      );
 
       expect(result).toBeDefined();
       expect(prisma.lead.findFirst).not.toHaveBeenCalled();
@@ -197,7 +220,10 @@ describe('ChatService', () => {
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('01HZXYZ1234567890ABCDEFGHJN');
       expect(prisma.chat.findMany).toHaveBeenCalledWith({
-        where: { organisationId: '01HZXYZ1234567890ABCDEFGHJK', isDeleted: false },
+        where: {
+          organisationId: '01HZXYZ1234567890ABCDEFGHJK',
+          isDeleted: false,
+        },
         include: { lead: true },
         orderBy: { createdAt: 'desc' },
       });
@@ -220,7 +246,10 @@ describe('ChatService', () => {
       };
       mockPrismaService.chat.findFirst.mockResolvedValue(chatWithMessages);
 
-      const result = await service.findOne('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJN');
+      const result = await service.findOne(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        '01HZXYZ1234567890ABCDEFGHJN',
+      );
 
       expect(result).toBeDefined();
       expect(result.id).toBe('01HZXYZ1234567890ABCDEFGHJN');
@@ -247,9 +276,12 @@ describe('ChatService', () => {
     it('should throw NotFoundException if chat not found', async () => {
       mockPrismaService.chat.findFirst.mockResolvedValue(null);
 
-      await expect(service.findOne('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJN')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.findOne(
+          '01HZXYZ1234567890ABCDEFGHJK',
+          '01HZXYZ1234567890ABCDEFGHJN',
+        ),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -261,9 +293,16 @@ describe('ChatService', () => {
 
     it('should update a chat successfully', async () => {
       mockPrismaService.chat.findFirst.mockResolvedValue(mockChat);
-      mockPrismaService.chat.update.mockResolvedValue({ ...mockChat, ...updateChatDto });
+      mockPrismaService.chat.update.mockResolvedValue({
+        ...mockChat,
+        ...updateChatDto,
+      });
 
-      const result = await service.update('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJN', updateChatDto);
+      const result = await service.update(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        '01HZXYZ1234567890ABCDEFGHJN',
+        updateChatDto,
+      );
 
       expect(result).toBeDefined();
       expect(result.name).toBe('Updated Chat');
@@ -273,28 +312,45 @@ describe('ChatService', () => {
     it('should throw NotFoundException if chat not found', async () => {
       mockPrismaService.chat.findFirst.mockResolvedValue(null);
 
-      await expect(service.update('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJN', updateChatDto)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.update(
+          '01HZXYZ1234567890ABCDEFGHJK',
+          '01HZXYZ1234567890ABCDEFGHJN',
+          updateChatDto,
+        ),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should validate leadId if provided in update', async () => {
-      const updateWithLead = { ...updateChatDto, leadId: '01HZXYZ1234567890ABCDEFGHJP' };
+      const updateWithLead = {
+        ...updateChatDto,
+        leadId: '01HZXYZ1234567890ABCDEFGHJP',
+      };
       mockPrismaService.chat.findFirst.mockResolvedValue(mockChat);
       mockPrismaService.lead.findFirst.mockResolvedValue(null);
 
-      await expect(service.update('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJN', updateWithLead)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.update(
+          '01HZXYZ1234567890ABCDEFGHJK',
+          '01HZXYZ1234567890ABCDEFGHJN',
+          updateWithLead,
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('remove', () => {
     it('should soft delete a chat', async () => {
       mockPrismaService.chat.findFirst.mockResolvedValue(mockChat);
-      mockPrismaService.chat.update.mockResolvedValue({ ...mockChat, isDeleted: true });
+      mockPrismaService.chat.update.mockResolvedValue({
+        ...mockChat,
+        isDeleted: true,
+      });
 
-      await service.remove('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJN');
+      await service.remove(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        '01HZXYZ1234567890ABCDEFGHJN',
+      );
 
       expect(prisma.chat.update).toHaveBeenCalledWith({
         where: { id: '01HZXYZ1234567890ABCDEFGHJN' },
@@ -305,9 +361,12 @@ describe('ChatService', () => {
     it('should throw NotFoundException if chat not found', async () => {
       mockPrismaService.chat.findFirst.mockResolvedValue(null);
 
-      await expect(service.remove('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJN')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.remove(
+          '01HZXYZ1234567890ABCDEFGHJK',
+          '01HZXYZ1234567890ABCDEFGHJN',
+        ),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -315,12 +374,19 @@ describe('ChatService', () => {
     it('should return chats for a specific lead', async () => {
       mockPrismaService.chat.findMany.mockResolvedValue([mockChat]);
 
-      const result = await service.findByLead('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJM');
+      const result = await service.findByLead(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        '01HZXYZ1234567890ABCDEFGHJM',
+      );
 
       expect(result).toHaveLength(1);
       expect(result[0].leadId).toBe('01HZXYZ1234567890ABCDEFGHJM');
       expect(prisma.chat.findMany).toHaveBeenCalledWith({
-        where: { organisationId: '01HZXYZ1234567890ABCDEFGHJK', leadId: '01HZXYZ1234567890ABCDEFGHJM', isDeleted: false },
+        where: {
+          organisationId: '01HZXYZ1234567890ABCDEFGHJK',
+          leadId: '01HZXYZ1234567890ABCDEFGHJM',
+          isDeleted: false,
+        },
         include: { lead: true },
         orderBy: { createdAt: 'desc' },
       });
@@ -331,7 +397,11 @@ describe('ChatService', () => {
     it('should return chat by source and sourceId', async () => {
       mockPrismaService.chat.findFirst.mockResolvedValue(mockChat);
 
-      const result = await service.findBySource('01HZXYZ1234567890ABCDEFGHJK', 'WHATSAPP', 'whatsapp-123');
+      const result = await service.findBySource(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        'WHATSAPP',
+        'whatsapp-123',
+      );
 
       expect(result).toBeDefined();
       expect(result?.sourceId).toBe('whatsapp-123');
@@ -340,7 +410,11 @@ describe('ChatService', () => {
     it('should return null if chat not found', async () => {
       mockPrismaService.chat.findFirst.mockResolvedValue(null);
 
-      const result = await service.findBySource('01HZXYZ1234567890ABCDEFGHJK', 'WHATSAPP', 'whatsapp-123');
+      const result = await service.findBySource(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        'WHATSAPP',
+        'whatsapp-123',
+      );
 
       expect(result).toBeNull();
     });
@@ -354,7 +428,11 @@ describe('ChatService', () => {
         status: CHAT_STATUS.CLOSED,
       });
 
-      const result = await service.updateStatus('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJN', CHAT_STATUS.CLOSED);
+      const result = await service.updateStatus(
+        '01HZXYZ1234567890ABCDEFGHJK',
+        '01HZXYZ1234567890ABCDEFGHJN',
+        CHAT_STATUS.CLOSED,
+      );
 
       expect(result.status).toBe(CHAT_STATUS.CLOSED);
       expect(prisma.chat.update).toHaveBeenCalledWith({
@@ -368,7 +446,11 @@ describe('ChatService', () => {
       mockPrismaService.chat.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.updateStatus('01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJN', CHAT_STATUS.CLOSED),
+        service.updateStatus(
+          '01HZXYZ1234567890ABCDEFGHJK',
+          '01HZXYZ1234567890ABCDEFGHJN',
+          CHAT_STATUS.CLOSED,
+        ),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -377,7 +459,9 @@ describe('ChatService', () => {
     const checkDto = { messageId: '1234567890_1234567890' };
 
     it('should cache new Instagram message successfully', async () => {
-      mockPrismaService.instagramMessageCache.findUnique.mockResolvedValue(null);
+      mockPrismaService.instagramMessageCache.findUnique.mockResolvedValue(
+        null,
+      );
       mockPrismaService.instagramMessageCache.create.mockResolvedValue({
         id: '01HZXYZ1234567890ABCDEFGHJQ',
         messageId: checkDto.messageId,
@@ -405,7 +489,9 @@ describe('ChatService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      mockPrismaService.instagramMessageCache.findUnique.mockResolvedValue(existingMessage);
+      mockPrismaService.instagramMessageCache.findUnique.mockResolvedValue(
+        existingMessage,
+      );
 
       await expect(service.checkInstagramMessage(checkDto)).rejects.toThrow(
         ConflictException,
@@ -417,4 +503,3 @@ describe('ChatService', () => {
     });
   });
 });
-

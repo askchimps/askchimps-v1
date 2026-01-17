@@ -1,4 +1,14 @@
-import { IsString, IsNotEmpty, MinLength, MaxLength, Matches, IsInt, Min, IsOptional, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MinLength,
+  MaxLength,
+  Matches,
+  IsInt,
+  Min,
+  IsOptional,
+  IsNumber,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateOrganisationDto {
@@ -15,7 +25,8 @@ export class CreateOrganisationDto {
   name: string;
 
   @ApiProperty({
-    description: 'URL-friendly slug for the organisation (lowercase alphanumeric with hyphens)',
+    description:
+      'URL-friendly slug for the organisation (lowercase alphanumeric with hyphens)',
     example: 'acme-corporation',
     minLength: 2,
     maxLength: 100,
@@ -42,7 +53,8 @@ export class CreateOrganisationDto {
   availableIndianChannels?: number;
 
   @ApiPropertyOptional({
-    description: 'Number of available international channels for the organisation',
+    description:
+      'Number of available international channels for the organisation',
     example: 5,
     minimum: 0,
     default: 0,
@@ -74,4 +86,3 @@ export class CreateOrganisationDto {
   @IsOptional()
   callCredits?: number;
 }
-

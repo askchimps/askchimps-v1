@@ -9,7 +9,8 @@ export class HealthController {
   @Get()
   @ApiOperation({
     summary: 'Health check endpoint',
-    description: 'Check if the API is running and healthy. This endpoint is public and does not require authentication.',
+    description:
+      'Check if the API is running and healthy. This endpoint is public and does not require authentication.',
   })
   @ApiResponse({
     status: 200,
@@ -26,4 +27,3 @@ export class HealthController {
     return 'System is up and running';
   }
 }
-

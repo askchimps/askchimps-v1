@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../database/prisma.service';
@@ -104,19 +101,23 @@ export class AuthService {
   }
 
   async logout(userId: string): Promise<void> {
-    await this.prisma.refreshToken.delete({
-      where: { userId },
-    }).catch(() => {
-      // Ignore error if token doesn't exist
-    });
+    await this.prisma.refreshToken
+      .delete({
+        where: { userId },
+      })
+      .catch(() => {
+        // Ignore error if token doesn't exist
+      });
   }
 
   async logoutAll(userId: string): Promise<void> {
-    await this.prisma.refreshToken.delete({
-      where: { userId },
-    }).catch(() => {
-      // Ignore error if token doesn't exist
-    });
+    await this.prisma.refreshToken
+      .delete({
+        where: { userId },
+      })
+      .catch(() => {
+        // Ignore error if token doesn't exist
+      });
   }
 
   async getCurrentUser(userId: string): Promise<UserEntity> {
@@ -145,7 +146,9 @@ export class AuthService {
         expiresIn: '15d',
       }),
       this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET') || 'refresh-secret',
+        secret:
+          this.configService.get<string>('JWT_REFRESH_SECRET') ||
+          'refresh-secret',
         expiresIn: '30d',
       }),
     ]);
@@ -153,8 +156,11 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  private async saveRefreshToken(userId: string, refreshToken: string): Promise<void> {
-    const decoded = this.jwtService.decode(refreshToken) as any;
+  private async saveRefreshToken(
+    userId: string,
+    refreshToken: string,
+  ): Promise<void> {
+    const decoded = this.jwtService.decode(refreshToken);
     const expiresAt = new Date(decoded.exp * 1000);
 
     await this.prisma.refreshToken.upsert({

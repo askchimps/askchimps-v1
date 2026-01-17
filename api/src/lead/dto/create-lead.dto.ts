@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   MaxLength,
   IsBoolean,
+  IsArray,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsULID } from '../../common/validators/is-ulid.validator';
@@ -155,12 +156,22 @@ export class CreateLeadDto {
   reasonForCold?: string;
 
   @ApiPropertyOptional({
-    description: 'Whether the lead has been transferred to another agent or system',
+    description:
+      'Whether the lead has been transferred to another agent or system',
     example: false,
     default: false,
   })
   @IsBoolean()
   @IsOptional()
   isTransferred?: boolean;
-}
 
+  @ApiPropertyOptional({
+    description: 'Array of tag IDs to associate with this lead (ULID format)',
+    example: ['01HZXYZ1234567890ABCDEFGHJK', '01HZXYZ1234567890ABCDEFGHJL'],
+    type: [String],
+  })
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  tagIds?: string[];
+}

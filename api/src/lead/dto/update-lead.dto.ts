@@ -138,11 +138,11 @@ export class UpdateLeadDto extends PartialType(
   reasonForCold?: string;
 
   @ApiPropertyOptional({
-    description: 'Whether the lead has been transferred to another agent or system',
+    description:
+      'Whether the lead has been transferred to another agent or system',
     example: false,
   })
   @IsBoolean()
   @IsOptional()
   isTransferred?: boolean;
 }
-

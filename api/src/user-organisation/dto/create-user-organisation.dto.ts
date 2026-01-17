@@ -31,4 +31,3 @@ export class CreateUserOrganisationDto {
   @IsEnum(Role)
   role: Role;
 }
-

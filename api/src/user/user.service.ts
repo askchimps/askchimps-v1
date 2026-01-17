@@ -111,4 +111,3 @@ export class UserService {
     return new UserEntity(updatedUser);
   }
 }
-

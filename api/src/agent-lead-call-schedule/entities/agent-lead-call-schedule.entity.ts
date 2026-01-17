@@ -14,4 +14,3 @@ export class AgentLeadCallScheduleEntity {
     Object.assign(this, partial);
   }
 }
-

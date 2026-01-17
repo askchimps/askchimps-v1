@@ -10,4 +10,3 @@ import { DatabaseModule } from '../database/database.module';
   exports: [UserOrganisationService],
 })
 export class UserOrganisationModule {}
-

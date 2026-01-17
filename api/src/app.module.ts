@@ -20,6 +20,9 @@ import { AgentLeadCallScheduleModule } from './agent-lead-call-schedule/agent-le
 import { ExecutionModule } from './execution/execution.module';
 import { HistoryModule } from './history/history.module';
 import { HealthModule } from './health/health.module';
+import { TagModule } from './tag/tag.module';
+import { ChatFollowUpMessageModule } from './chat-follow-up-message/chat-follow-up-message.module';
+import { ChatFollowUpScheduleModule } from './chat-follow-up-schedule/chat-follow-up-schedule.module';
 
 @Module({
   imports: [
@@ -40,6 +43,9 @@ import { HealthModule } from './health/health.module';
     ExecutionModule,
     HistoryModule,
     HealthModule,
+    TagModule,
+    ChatFollowUpMessageModule,
+    ChatFollowUpScheduleModule,
   ],
   providers: [
     {

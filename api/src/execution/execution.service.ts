@@ -37,7 +37,9 @@ export class ExecutionService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -46,7 +48,11 @@ export class ExecutionService {
       const agent = await this.prisma.agent.findUnique({
         where: { id: createExecutionDto.agentId },
       });
-      if (!agent || agent.isDeleted || agent.organisationId !== createExecutionDto.organisationId) {
+      if (
+        !agent ||
+        agent.isDeleted ||
+        agent.organisationId !== createExecutionDto.organisationId
+      ) {
         throw new NotFoundException('Agent not found');
       }
     }
@@ -55,7 +61,11 @@ export class ExecutionService {
       const lead = await this.prisma.lead.findUnique({
         where: { id: createExecutionDto.leadId },
       });
-      if (!lead || lead.isDeleted || lead.organisationId !== createExecutionDto.organisationId) {
+      if (
+        !lead ||
+        lead.isDeleted ||
+        lead.organisationId !== createExecutionDto.organisationId
+      ) {
         throw new NotFoundException('Lead not found');
       }
     }
@@ -64,7 +74,11 @@ export class ExecutionService {
       const call = await this.prisma.call.findUnique({
         where: { id: createExecutionDto.callId },
       });
-      if (!call || call.isDeleted || call.organisationId !== createExecutionDto.organisationId) {
+      if (
+        !call ||
+        call.isDeleted ||
+        call.organisationId !== createExecutionDto.organisationId
+      ) {
         throw new NotFoundException('Call not found');
       }
     }
@@ -73,7 +87,11 @@ export class ExecutionService {
       const chat = await this.prisma.chat.findUnique({
         where: { id: createExecutionDto.chatId },
       });
-      if (!chat || chat.isDeleted || chat.organisationId !== createExecutionDto.organisationId) {
+      if (
+        !chat ||
+        chat.isDeleted ||
+        chat.organisationId !== createExecutionDto.organisationId
+      ) {
         throw new NotFoundException('Chat not found');
       }
     }
@@ -110,7 +128,9 @@ export class ExecutionService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -155,7 +175,9 @@ export class ExecutionService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -196,7 +218,9 @@ export class ExecutionService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -241,7 +265,9 @@ export class ExecutionService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 

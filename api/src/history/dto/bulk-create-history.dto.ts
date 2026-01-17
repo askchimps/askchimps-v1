@@ -38,4 +38,3 @@ export class BulkCreateHistoryDto {
   @Type(() => CreateHistoryDto)
   records: CreateHistoryDto[];
 }
-

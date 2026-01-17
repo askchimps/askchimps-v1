@@ -11,7 +11,7 @@ import { AgentLeadCallScheduleEntity } from './entities/agent-lead-call-schedule
 
 @Injectable()
 export class AgentLeadCallScheduleService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(
     createDto: CreateAgentLeadCallScheduleDto,
@@ -39,7 +39,9 @@ export class AgentLeadCallScheduleService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -72,7 +74,9 @@ export class AgentLeadCallScheduleService {
     });
 
     if (existing) {
-      throw new ConflictException('A schedule already exists for this agent, lead, and time');
+      throw new ConflictException(
+        'A schedule already exists for this agent, lead, and time',
+      );
     }
 
     const schedule = await this.prisma.agentLeadCallSchedule.create({
@@ -118,7 +122,9 @@ export class AgentLeadCallScheduleService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -136,7 +142,11 @@ export class AgentLeadCallScheduleService {
         where: { id: agentId },
       });
 
-      if (!agent || agent.isDeleted || agent.organisationId !== organisationId) {
+      if (
+        !agent ||
+        agent.isDeleted ||
+        agent.organisationId !== organisationId
+      ) {
         throw new NotFoundException('Agent not found');
       }
 
@@ -175,7 +185,9 @@ export class AgentLeadCallScheduleService {
       ...(limit !== undefined && { take: limit }),
     });
 
-    return schedules.map((schedule) => new AgentLeadCallScheduleEntity(schedule));
+    return schedules.map(
+      (schedule) => new AgentLeadCallScheduleEntity(schedule),
+    );
   }
 
   async findOne(
@@ -212,7 +224,9 @@ export class AgentLeadCallScheduleService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -253,7 +267,9 @@ export class AgentLeadCallScheduleService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -306,7 +322,9 @@ export class AgentLeadCallScheduleService {
       });
 
       if (!userOrg) {
-        throw new ForbiddenException('You do not have access to this organisation');
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
       }
     }
 
@@ -319,4 +337,3 @@ export class AgentLeadCallScheduleService {
     return new AgentLeadCallScheduleEntity(deleted);
   }
 }
-
