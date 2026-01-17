@@ -25,41 +25,41 @@ import { ChatFollowUpMessageModule } from './chat-follow-up-message/chat-follow-
 import { ChatFollowUpScheduleModule } from './chat-follow-up-schedule/chat-follow-up-schedule.module';
 
 @Module({
-  imports: [
-    ConfigModule,
-    DatabaseModule,
-    AuthModule,
-    UserModule,
-    OrganisationModule,
-    UserOrganisationModule,
-    LeadModule,
-    LeadOwnerModule,
-    ChatModule,
-    ChatMessageModule,
-    AgentModule,
-    CallModule,
-    CallMessageModule,
-    AgentLeadCallScheduleModule,
-    ExecutionModule,
-    HistoryModule,
-    HealthModule,
-    TagModule,
-    ChatFollowUpMessageModule,
-    ChatFollowUpScheduleModule,
-  ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-    {
-      provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: TransformInterceptor,
-    },
-  ],
+    imports: [
+        ConfigModule,
+        DatabaseModule,
+        AuthModule,
+        UserModule,
+        OrganisationModule,
+        UserOrganisationModule,
+        LeadModule,
+        LeadOwnerModule,
+        ChatModule,
+        ChatMessageModule,
+        AgentModule,
+        CallModule,
+        CallMessageModule,
+        AgentLeadCallScheduleModule,
+        ExecutionModule,
+        HistoryModule,
+        HealthModule,
+        TagModule,
+        ChatFollowUpMessageModule,
+        ChatFollowUpScheduleModule,
+    ],
+    providers: [
+        {
+            provide: APP_GUARD,
+            useClass: JwtAuthGuard,
+        },
+        {
+            provide: APP_FILTER,
+            useClass: HttpExceptionFilter,
+        },
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: TransformInterceptor,
+        },
+    ],
 })
 export class AppModule {}

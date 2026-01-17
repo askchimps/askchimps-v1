@@ -4,9 +4,9 @@ import { AgentLeadCallScheduleController } from './agent-lead-call-schedule.cont
 import { DatabaseModule } from '../database/database.module';
 
 @Module({
-  imports: [DatabaseModule],
-  controllers: [AgentLeadCallScheduleController],
-  providers: [AgentLeadCallScheduleService],
-  exports: [AgentLeadCallScheduleService],
+    imports: [DatabaseModule],
+    controllers: [AgentLeadCallScheduleController],
+    providers: [AgentLeadCallScheduleService],
+    exports: [AgentLeadCallScheduleService],
 })
 export class AgentLeadCallScheduleModule {}

@@ -4,9 +4,9 @@ import { ChatFollowUpMessageController } from './chat-follow-up-message.controll
 import { DatabaseModule } from '../database/database.module';
 
 @Module({
-  imports: [DatabaseModule],
-  controllers: [ChatFollowUpMessageController],
-  providers: [ChatFollowUpMessageService],
-  exports: [ChatFollowUpMessageService],
+    imports: [DatabaseModule],
+    controllers: [ChatFollowUpMessageController],
+    providers: [ChatFollowUpMessageService],
+    exports: [ChatFollowUpMessageService],
 })
 export class ChatFollowUpMessageModule {}

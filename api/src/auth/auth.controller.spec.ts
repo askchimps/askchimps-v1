@@ -6,201 +6,203 @@ import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 describe('AuthController', () => {
-  let controller: AuthController;
-  let authService: AuthService;
+    let controller: AuthController;
+    let authService: AuthService;
 
-  const mockAuthResponse = {
-    user: {
-      id: 'user-123',
-      email: 'test@example.com',
-      firstName: 'John',
-      lastName: 'Doe',
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    accessToken: 'mock-access-token',
-    refreshToken: 'mock-refresh-token',
-  };
-
-  const mockAuthService = {
-    register: jest.fn(),
-    login: jest.fn(),
-    refreshTokens: jest.fn(),
-    logout: jest.fn(),
-    logoutAll: jest.fn(),
-    getCurrentUser: jest.fn(),
-  };
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [AuthController],
-      providers: [
-        {
-          provide: AuthService,
-          useValue: mockAuthService,
+    const mockAuthResponse = {
+        user: {
+            id: 'user-123',
+            email: 'test@example.com',
+            firstName: 'John',
+            lastName: 'Doe',
+            isActive: true,
+            createdAt: new Date(),
+            updatedAt: new Date(),
         },
-      ],
-    }).compile();
+        accessToken: 'mock-access-token',
+        refreshToken: 'mock-refresh-token',
+    };
 
-    controller = module.get<AuthController>(AuthController);
-    authService = module.get<AuthService>(AuthService);
+    const mockAuthService = {
+        register: jest.fn(),
+        login: jest.fn(),
+        refreshTokens: jest.fn(),
+        logout: jest.fn(),
+        logoutAll: jest.fn(),
+        getCurrentUser: jest.fn(),
+    };
 
-    jest.clearAllMocks();
-  });
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            controllers: [AuthController],
+            providers: [
+                {
+                    provide: AuthService,
+                    useValue: mockAuthService,
+                },
+            ],
+        }).compile();
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+        controller = module.get<AuthController>(AuthController);
+        authService = module.get<AuthService>(AuthService);
 
-  describe('register', () => {
-    it('should register a new user', async () => {
-      const createUserDto: CreateUserDto = {
-        email: 'test@example.com',
-        password: 'Password123!',
-        firstName: 'John',
-        lastName: 'Doe',
-      };
-
-      mockAuthService.register.mockResolvedValue(mockAuthResponse);
-
-      const result = await controller.register(createUserDto);
-
-      expect(result).toEqual(mockAuthResponse);
-      expect(authService.register).toHaveBeenCalledWith(createUserDto);
-      expect(authService.register).toHaveBeenCalledTimes(1);
+        jest.clearAllMocks();
     });
 
-    it('should handle registration errors', async () => {
-      const createUserDto: CreateUserDto = {
-        email: 'test@example.com',
-        password: 'Password123!',
-      };
-
-      mockAuthService.register.mockRejectedValue(
-        new Error('Email already exists'),
-      );
-
-      await expect(controller.register(createUserDto)).rejects.toThrow(
-        'Email already exists',
-      );
-    });
-  });
-
-  describe('login', () => {
-    it('should login a user', async () => {
-      const loginDto: LoginDto = {
-        email: 'test@example.com',
-        password: 'Password123!',
-      };
-
-      mockAuthService.login.mockResolvedValue(mockAuthResponse);
-
-      const result = await controller.login(loginDto);
-
-      expect(result).toEqual(mockAuthResponse);
-      expect(authService.login).toHaveBeenCalledWith(loginDto);
-      expect(authService.login).toHaveBeenCalledTimes(1);
+    it('should be defined', () => {
+        expect(controller).toBeDefined();
     });
 
-    it('should handle login errors', async () => {
-      const loginDto: LoginDto = {
-        email: 'test@example.com',
-        password: 'WrongPassword',
-      };
+    describe('register', () => {
+        it('should register a new user', async () => {
+            const createUserDto: CreateUserDto = {
+                email: 'test@example.com',
+                password: 'Password123!',
+                firstName: 'John',
+                lastName: 'Doe',
+            };
 
-      mockAuthService.login.mockRejectedValue(new Error('Invalid credentials'));
+            mockAuthService.register.mockResolvedValue(mockAuthResponse);
 
-      await expect(controller.login(loginDto)).rejects.toThrow(
-        'Invalid credentials',
-      );
+            const result = await controller.register(createUserDto);
+
+            expect(result).toEqual(mockAuthResponse);
+            expect(authService.register).toHaveBeenCalledWith(createUserDto);
+            expect(authService.register).toHaveBeenCalledTimes(1);
+        });
+
+        it('should handle registration errors', async () => {
+            const createUserDto: CreateUserDto = {
+                email: 'test@example.com',
+                password: 'Password123!',
+            };
+
+            mockAuthService.register.mockRejectedValue(
+                new Error('Email already exists'),
+            );
+
+            await expect(controller.register(createUserDto)).rejects.toThrow(
+                'Email already exists',
+            );
+        });
     });
-  });
 
-  describe('refresh', () => {
-    it('should refresh tokens', async () => {
-      const userId = 'user-123';
-      const refreshTokenDto: RefreshTokenDto = {
-        refreshToken: 'valid-refresh-token',
-      };
+    describe('login', () => {
+        it('should login a user', async () => {
+            const loginDto: LoginDto = {
+                email: 'test@example.com',
+                password: 'Password123!',
+            };
 
-      mockAuthService.refreshTokens.mockResolvedValue(mockAuthResponse);
+            mockAuthService.login.mockResolvedValue(mockAuthResponse);
 
-      const result = await controller.refresh(userId, refreshTokenDto);
+            const result = await controller.login(loginDto);
 
-      expect(result).toEqual(mockAuthResponse);
-      expect(authService.refreshTokens).toHaveBeenCalledWith(
-        userId,
-        refreshTokenDto.refreshToken,
-      );
-      expect(authService.refreshTokens).toHaveBeenCalledTimes(1);
+            expect(result).toEqual(mockAuthResponse);
+            expect(authService.login).toHaveBeenCalledWith(loginDto);
+            expect(authService.login).toHaveBeenCalledTimes(1);
+        });
+
+        it('should handle login errors', async () => {
+            const loginDto: LoginDto = {
+                email: 'test@example.com',
+                password: 'WrongPassword',
+            };
+
+            mockAuthService.login.mockRejectedValue(
+                new Error('Invalid credentials'),
+            );
+
+            await expect(controller.login(loginDto)).rejects.toThrow(
+                'Invalid credentials',
+            );
+        });
     });
 
-    it('should handle refresh errors', async () => {
-      const userId = 'user-123';
-      const refreshTokenDto: RefreshTokenDto = {
-        refreshToken: 'invalid-token',
-      };
+    describe('refresh', () => {
+        it('should refresh tokens', async () => {
+            const userId = 'user-123';
+            const refreshTokenDto: RefreshTokenDto = {
+                refreshToken: 'valid-refresh-token',
+            };
 
-      mockAuthService.refreshTokens.mockRejectedValue(
-        new Error('Invalid refresh token'),
-      );
+            mockAuthService.refreshTokens.mockResolvedValue(mockAuthResponse);
 
-      await expect(controller.refresh(userId, refreshTokenDto)).rejects.toThrow(
-        'Invalid refresh token',
-      );
+            const result = await controller.refresh(userId, refreshTokenDto);
+
+            expect(result).toEqual(mockAuthResponse);
+            expect(authService.refreshTokens).toHaveBeenCalledWith(
+                userId,
+                refreshTokenDto.refreshToken,
+            );
+            expect(authService.refreshTokens).toHaveBeenCalledTimes(1);
+        });
+
+        it('should handle refresh errors', async () => {
+            const userId = 'user-123';
+            const refreshTokenDto: RefreshTokenDto = {
+                refreshToken: 'invalid-token',
+            };
+
+            mockAuthService.refreshTokens.mockRejectedValue(
+                new Error('Invalid refresh token'),
+            );
+
+            await expect(
+                controller.refresh(userId, refreshTokenDto),
+            ).rejects.toThrow('Invalid refresh token');
+        });
     });
-  });
 
-  describe('logout', () => {
-    it('should logout a user', async () => {
-      const userId = 'user-123';
+    describe('logout', () => {
+        it('should logout a user', async () => {
+            const userId = 'user-123';
 
-      mockAuthService.logout.mockResolvedValue(undefined);
+            mockAuthService.logout.mockResolvedValue(undefined);
 
-      const result = await controller.logout(userId);
+            const result = await controller.logout(userId);
 
-      expect(result).toBeUndefined();
-      expect(authService.logout).toHaveBeenCalledWith(userId);
-      expect(authService.logout).toHaveBeenCalledTimes(1);
+            expect(result).toBeUndefined();
+            expect(authService.logout).toHaveBeenCalledWith(userId);
+            expect(authService.logout).toHaveBeenCalledTimes(1);
+        });
     });
-  });
 
-  describe('logoutAll', () => {
-    it('should logout user from all devices', async () => {
-      const userId = 'user-123';
+    describe('logoutAll', () => {
+        it('should logout user from all devices', async () => {
+            const userId = 'user-123';
 
-      mockAuthService.logoutAll.mockResolvedValue(undefined);
+            mockAuthService.logoutAll.mockResolvedValue(undefined);
 
-      const result = await controller.logoutAll(userId);
+            const result = await controller.logoutAll(userId);
 
-      expect(result).toBeUndefined();
-      expect(authService.logoutAll).toHaveBeenCalledWith(userId);
-      expect(authService.logoutAll).toHaveBeenCalledTimes(1);
+            expect(result).toBeUndefined();
+            expect(authService.logoutAll).toHaveBeenCalledWith(userId);
+            expect(authService.logoutAll).toHaveBeenCalledTimes(1);
+        });
     });
-  });
 
-  describe('getCurrentUser', () => {
-    it('should return current user details', async () => {
-      const userId = 'user-123';
-      const mockUser = {
-        id: userId,
-        email: 'test@example.com',
-        firstName: 'John',
-        lastName: 'Doe',
-        isActive: true,
-        isSuperAdmin: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+    describe('getCurrentUser', () => {
+        it('should return current user details', async () => {
+            const userId = 'user-123';
+            const mockUser = {
+                id: userId,
+                email: 'test@example.com',
+                firstName: 'John',
+                lastName: 'Doe',
+                isActive: true,
+                isSuperAdmin: false,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
 
-      mockAuthService.getCurrentUser.mockResolvedValue(mockUser);
+            mockAuthService.getCurrentUser.mockResolvedValue(mockUser);
 
-      const result = await controller.getCurrentUser(userId);
+            const result = await controller.getCurrentUser(userId);
 
-      expect(result).toEqual(mockUser);
-      expect(authService.getCurrentUser).toHaveBeenCalledWith(userId);
-      expect(authService.getCurrentUser).toHaveBeenCalledTimes(1);
+            expect(result).toEqual(mockUser);
+            expect(authService.getCurrentUser).toHaveBeenCalledWith(userId);
+            expect(authService.getCurrentUser).toHaveBeenCalledTimes(1);
+        });
     });
-  });
 });

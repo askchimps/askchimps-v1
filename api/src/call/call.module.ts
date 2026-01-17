@@ -4,9 +4,9 @@ import { CallController } from './call.controller';
 import { DatabaseModule } from '../database/database.module';
 
 @Module({
-  imports: [DatabaseModule],
-  controllers: [CallController],
-  providers: [CallService],
-  exports: [CallService],
+    imports: [DatabaseModule],
+    controllers: [CallController],
+    providers: [CallService],
+    exports: [CallService],
 })
 export class CallModule {}

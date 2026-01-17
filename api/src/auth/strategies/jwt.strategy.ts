@@ -7,30 +7,31 @@ import { JwtPayload } from '../interfaces/jwt-payload.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly userService: UserService,
-  ) {
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey:
-        configService.get<string>('JWT_ACCESS_SECRET') || 'default-secret',
-    });
-  }
-
-  async validate(payload: JwtPayload) {
-    const user = await this.userService.findByEmail(payload.email);
-
-    if (!user || !user.isActive) {
-      throw new UnauthorizedException('User not found or inactive');
+    constructor(
+        private readonly configService: ConfigService,
+        private readonly userService: UserService,
+    ) {
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            ignoreExpiration: false,
+            secretOrKey:
+                configService.get<string>('JWT_ACCESS_SECRET') ||
+                'default-secret',
+        });
     }
 
-    return {
-      id: payload.sub,
-      sub: payload.sub,
-      email: payload.email,
-      isSuperAdmin: user.isSuperAdmin,
-    };
-  }
+    async validate(payload: JwtPayload) {
+        const user = await this.userService.findByEmail(payload.email);
+
+        if (!user || !user.isActive) {
+            throw new UnauthorizedException('User not found or inactive');
+        }
+
+        return {
+            id: payload.sub,
+            sub: payload.sub,
+            email: payload.email,
+            isSuperAdmin: user.isSuperAdmin,
+        };
+    }
 }
