@@ -8,9 +8,11 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
+import { QueryChatDto } from './dto/query-chat.dto';
 import { CheckInstagramMessageDto } from './dto/check-instagram-message.dto';
 import { ChatEntity } from './entities/chat.entity';
 import { CHAT_STATUS } from '@prisma/client';
+import type { PaginatedResponse } from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class ChatService {
@@ -129,49 +131,181 @@ export class ChatService {
     return new ChatEntity(chat);
   }
 
-  async findAll(organisationId: string): Promise<ChatEntity[]> {
+  async findAll(
+    organisationId: string,
+    userId: string,
+    isSuperAdmin: boolean,
+    queryDto: QueryChatDto,
+  ): Promise<PaginatedResponse<ChatEntity>> {
+    // Verify organisation exists
+    const organisation = await this.prisma.organisation.findUnique({
+      where: { id: organisationId },
+    });
+
+    if (!organisation || organisation.isDeleted) {
+      throw new NotFoundException('Organisation not found');
+    }
+
+    // Check user has access to organisation
+    if (!isSuperAdmin) {
+      const userOrg = await this.prisma.userOrganisation.findFirst({
+        where: {
+          userId,
+          organisationId,
+          isDeleted: false,
+        },
+      });
+
+      if (!userOrg) {
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
+      }
+    }
+
+    const where: any = {
+      organisationId,
+      isDeleted: false,
+    };
+
+    if (queryDto.status) {
+      where.status = queryDto.status;
+    }
+
+    if (queryDto.source) {
+      where.source = queryDto.source;
+    }
+
+    if (queryDto.agentId) {
+      // Verify agent belongs to organisation
+      const agent = await this.prisma.agent.findUnique({
+        where: { id: queryDto.agentId },
+      });
+
+      if (
+        !agent ||
+        agent.isDeleted ||
+        agent.organisationId !== organisationId
+      ) {
+        throw new NotFoundException('Agent not found');
+      }
+
+      where.agentId = queryDto.agentId;
+    }
+
+    if (queryDto.leadId) {
+      // Verify lead belongs to organisation
+      const lead = await this.prisma.lead.findUnique({
+        where: { id: queryDto.leadId },
+      });
+
+      if (!lead || lead.isDeleted || lead.organisationId !== organisationId) {
+        throw new NotFoundException('Lead not found');
+      }
+
+      where.leadId = queryDto.leadId;
+    }
+
+    if (queryDto.search) {
+      // Search by chat name, lead name (firstName + lastName), or phone number
+      where.OR = [
+        { name: { contains: queryDto.search, mode: 'insensitive' } },
+        {
+          lead: {
+            firstName: { contains: queryDto.search, mode: 'insensitive' },
+          },
+        },
+        {
+          lead: {
+            lastName: { contains: queryDto.search, mode: 'insensitive' },
+          },
+        },
+        {
+          lead: {
+            phone: { contains: queryDto.search, mode: 'insensitive' },
+          },
+        },
+      ];
+    }
+
+    const limit = queryDto.limit || 50;
+    const offset = queryDto.offset || 0;
+    const sortOrder = queryDto.sortOrder || 'desc';
+
+    // Get total count
+    const total = await this.prisma.chat.count({ where });
+
+    // Get paginated records with lead data
     const chats = await this.prisma.chat.findMany({
-      where: {
-        organisationId,
-        isDeleted: false,
-      },
+      where,
       include: {
         lead: true,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: sortOrder },
+      take: limit,
+      skip: offset,
     });
 
-    return chats.map((chat) => new ChatEntity(chat));
+    return {
+      data: chats.map((chat) => new ChatEntity(chat)),
+      total,
+      limit,
+      offset,
+    };
   }
 
   async findOne(
     organisationId: string,
     idOrSourceId: string,
+    userId: string,
+    isSuperAdmin: boolean,
+    includeMessages: boolean = false,
   ): Promise<ChatEntity> {
+    // Build include object
+    const includeObj: any = {
+      lead: true,
+    };
+
+    if (includeMessages) {
+      includeObj.messages = {
+        where: { isDeleted: false },
+        orderBy: { createdAt: 'asc' },
+        include: {
+          attachments: {
+            where: { isDeleted: false },
+          },
+        },
+      };
+    }
+
     const chat = await this.prisma.chat.findFirst({
       where: {
         organisationId,
         isDeleted: false,
         OR: [{ id: idOrSourceId }, { sourceId: idOrSourceId }],
       },
-      include: {
-        lead: true,
-        messages: {
-          where: { isDeleted: false },
-          orderBy: { createdAt: 'asc' },
-          include: {
-            attachments: {
-              where: { isDeleted: false },
-            },
-          },
-        },
-      },
+      include: includeObj,
     });
 
     if (!chat) {
       throw new NotFoundException('Chat not found');
+    }
+
+    // Check user has access to organisation
+    if (!isSuperAdmin) {
+      const userOrg = await this.prisma.userOrganisation.findFirst({
+        where: {
+          userId,
+          organisationId,
+          isDeleted: false,
+        },
+      });
+
+      if (!userOrg) {
+        throw new ForbiddenException(
+          'You do not have access to this organisation',
+        );
+      }
     }
 
     return new ChatEntity(chat);
