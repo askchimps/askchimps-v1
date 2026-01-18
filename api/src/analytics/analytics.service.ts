@@ -52,6 +52,30 @@ export class AnalyticsService {
         };
     }
 
+    async getCallActivityByHour(
+        organisationId: string,
+        month?: string,
+    ): Promise<HourlyCount[]> {
+        // Default to current month if not provided
+        const now = new Date();
+        const targetMonth =
+            month ||
+            `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+        // Parse month string (YYYY-MM)
+        const [year, monthNum] = targetMonth.split('-').map(Number);
+
+        // Get start and end of month
+        const startDate = new Date(year, monthNum - 1, 1);
+        const endDate = new Date(year, monthNum, 0, 23, 59, 59, 999);
+
+        return this.getMostActiveHoursForCalls(
+            organisationId,
+            startDate,
+            endDate,
+        );
+    }
+
     private async getTotalLeads(
         organisationId: string,
         startDate: Date,

@@ -7,7 +7,10 @@ import {
     ApiParam,
 } from '@nestjs/swagger';
 import { AnalyticsService } from './analytics.service';
-import { AnalyticsQueryDto } from './dto/analytics-query.dto';
+import {
+    AnalyticsQueryDto,
+    CallActivityQueryDto,
+} from './dto/analytics-query.dto';
 import { AnalyticsData } from './entities/analytics.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../common/guards/rbac.guard';
@@ -60,6 +63,39 @@ export class AnalyticsController {
             organisationId,
             startDate,
             endDate,
+        );
+    }
+
+    @Get('call-activity')
+    @UseGuards(RbacGuard)
+    @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
+    @ApiOperation({
+        summary: 'Get call activity by hour',
+        description:
+            'Retrieve hourly call activity for a specific month. Defaults to current month if not specified.',
+    })
+    @ApiParam({
+        name: 'organisationId',
+        description: 'Organisation ID (ULID format)',
+        example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Call activity data retrieved successfully',
+    })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @ApiResponse({
+        status: 403,
+        description: 'Forbidden - Insufficient permissions',
+    })
+    async getCallActivity(
+        @Param('organisationId') organisationId: string,
+        @Query() query: CallActivityQueryDto,
+        @CurrentUser() user: JwtPayload,
+    ) {
+        return this.analyticsService.getCallActivityByHour(
+            organisationId,
+            query.month,
         );
     }
 }

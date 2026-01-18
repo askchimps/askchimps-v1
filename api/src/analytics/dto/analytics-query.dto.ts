@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsDateString } from 'class-validator';
+import { IsOptional, IsDateString, IsString, Matches } from 'class-validator';
 
 export class AnalyticsQueryDto {
     @ApiProperty({
@@ -19,4 +19,18 @@ export class AnalyticsQueryDto {
     @IsOptional()
     @IsDateString()
     endDate?: string;
+}
+
+export class CallActivityQueryDto {
+    @ApiProperty({
+        description: 'Month in YYYY-MM format',
+        example: '2024-01',
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    @Matches(/^\d{4}-\d{2}$/, {
+        message: 'Month must be in YYYY-MM format',
+    })
+    month?: string;
 }
