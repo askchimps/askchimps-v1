@@ -52,11 +52,11 @@ export class AnalyticsService {
         };
     }
 
-    async getCallActivityByHour(
-        organisationId: string,
-        month?: string,
-    ): Promise<HourlyCount[]> {
-        // Default to current month if not provided
+    // Helper method to parse month and get date range
+    private getMonthDateRange(month?: string): {
+        startDate: Date;
+        endDate: Date;
+    } {
         const now = new Date();
         const targetMonth =
             month ||
@@ -69,7 +69,86 @@ export class AnalyticsService {
         const startDate = new Date(year, monthNum - 1, 1);
         const endDate = new Date(year, monthNum, 0, 23, 59, 59, 999);
 
+        return { startDate, endDate };
+    }
+
+    async getTotalLeadsForMonth(
+        organisationId: string,
+        month?: string,
+    ): Promise<{ totalLeads: number }> {
+        const { startDate, endDate } = this.getMonthDateRange(month);
+        const totalLeads = await this.getTotalLeads(
+            organisationId,
+            startDate,
+            endDate,
+        );
+        return { totalLeads };
+    }
+
+    async getTotalCallsForMonth(
+        organisationId: string,
+        month?: string,
+    ): Promise<{ totalCalls: number }> {
+        const { startDate, endDate } = this.getMonthDateRange(month);
+        const totalCalls = await this.getTotalCalls(
+            organisationId,
+            startDate,
+            endDate,
+        );
+        return { totalCalls };
+    }
+
+    async getTotalChatsForMonth(
+        organisationId: string,
+        month?: string,
+    ): Promise<{ totalChats: number }> {
+        const { startDate, endDate } = this.getMonthDateRange(month);
+        const totalChats = await this.getTotalChats(
+            organisationId,
+            startDate,
+            endDate,
+        );
+        return { totalChats };
+    }
+
+    async getCallActivityByHour(
+        organisationId: string,
+        month?: string,
+    ): Promise<HourlyCount[]> {
+        const { startDate, endDate } = this.getMonthDateRange(month);
         return this.getMostActiveHoursForCalls(
+            organisationId,
+            startDate,
+            endDate,
+        );
+    }
+
+    async getChatActivityByHour(
+        organisationId: string,
+        month?: string,
+    ): Promise<HourlyCount[]> {
+        const { startDate, endDate } = this.getMonthDateRange(month);
+        return this.getChatCountByHoursPerDay(
+            organisationId,
+            startDate,
+            endDate,
+        );
+    }
+
+    async getCallPickupRatePerDayForMonth(
+        organisationId: string,
+        month?: string,
+    ): Promise<DailyPickupRate[]> {
+        const { startDate, endDate } = this.getMonthDateRange(month);
+        return this.getCallPickupRatePerDay(organisationId, startDate, endDate);
+    }
+
+    async getAvgCallDurationPerDayForMonth(
+        organisationId: string,
+        month?: string,
+    ): Promise<DailyAvgDuration[]> {
+        const { startDate, endDate } = this.getMonthDateRange(month);
+        return this.getAvgCallDurationPerDay(
             organisationId,
             startDate,
             endDate,

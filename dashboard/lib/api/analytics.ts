@@ -31,9 +31,19 @@ export interface AnalyticsResponse {
     timestamp: string;
 }
 
+export interface CallActivityResponse {
+    data: HourlyCount[];
+    statusCode: number;
+    timestamp: string;
+}
+
 export interface AnalyticsQueryParams {
     startDate?: string;
     endDate?: string;
+}
+
+export interface CallActivityQueryParams {
+    month?: string;
 }
 
 export const analyticsApi = {
@@ -53,5 +63,20 @@ export const analyticsApi = {
         }`;
 
         return apiClient.get<AnalyticsResponse>(endpoint);
+    },
+
+    getCallActivity: async (
+        organisationId: string,
+        params?: CallActivityQueryParams,
+    ): Promise<CallActivityResponse> => {
+        const queryParams = new URLSearchParams();
+        if (params?.month) queryParams.append("month", params.month);
+
+        const queryString = queryParams.toString();
+        const endpoint = `/v1/organisation/${organisationId}/analytics/call-activity${
+            queryString ? `?${queryString}` : ""
+        }`;
+
+        return apiClient.get<CallActivityResponse>(endpoint);
     },
 };

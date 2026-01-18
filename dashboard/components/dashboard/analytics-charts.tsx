@@ -24,12 +24,19 @@ import type {
     DailyPickupRate,
     DailyAvgDuration,
 } from "@/lib/api/analytics";
+import { MonthPicker } from "./month-picker";
 
 interface CallActivityChartProps {
     data: HourlyCount[];
+    selectedMonth: string;
+    onMonthChange: (month: string) => void;
 }
 
-export function CallActivityChart({ data }: CallActivityChartProps) {
+export function CallActivityChart({
+    data,
+    selectedMonth,
+    onMonthChange,
+}: CallActivityChartProps) {
     const chartData = data.map((item) => ({
         hour: `${item.hour}:00`,
         calls: item.count,
@@ -38,10 +45,18 @@ export function CallActivityChart({ data }: CallActivityChartProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Call Activity by Hour</CardTitle>
-                <CardDescription>
-                    Distribution of completed calls throughout the day
-                </CardDescription>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <CardTitle>Call Activity by Hour</CardTitle>
+                        <CardDescription>
+                            Distribution of completed calls throughout the day
+                        </CardDescription>
+                    </div>
+                    <MonthPicker
+                        selectedMonth={selectedMonth}
+                        onMonthChange={onMonthChange}
+                    />
+                </div>
             </CardHeader>
             <CardContent>
                 <ResponsiveContainer width="100%" height={300}>

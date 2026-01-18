@@ -32,6 +32,12 @@ export default function DashboardPage() {
         };
     });
 
+    // Default to current month for call activity
+    const [callActivityMonth, setCallActivityMonth] = useState(() => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    });
+
     const { data: analytics, isLoading } = useQuery({
         queryKey: ["analytics", orgId, dateRange],
         queryFn: () =>
@@ -42,7 +48,16 @@ export default function DashboardPage() {
         enabled: !!orgId,
     });
 
-    if (isLoading) {
+    const { data: callActivity, isLoading: isLoadingCallActivity } = useQuery({
+        queryKey: ["callActivity", orgId, callActivityMonth],
+        queryFn: () =>
+            analyticsApi.getCallActivity(orgId, {
+                month: callActivityMonth,
+            }),
+        enabled: !!orgId,
+    });
+
+    if (isLoading || isLoadingCallActivity) {
         return (
             <DashboardLayout>
                 <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
@@ -81,10 +96,12 @@ export default function DashboardPage() {
                 )}
 
                 {/* Charts Grid */}
-                {analytics?.data && (
+                {analytics?.data && callActivity?.data && (
                     <div className="grid gap-6 lg:grid-cols-2">
                         <CallActivityChart
-                            data={analytics.data.mostActiveHoursForCalls}
+                            data={callActivity.data}
+                            selectedMonth={callActivityMonth}
+                            onMonthChange={setCallActivityMonth}
                         />
                         <ChatActivityChart
                             data={analytics.data.chatCountByHoursPerDay}
