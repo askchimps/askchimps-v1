@@ -23,6 +23,7 @@ import { HealthModule } from './health/health.module';
 import { TagModule } from './tag/tag.module';
 import { ChatFollowUpMessageModule } from './chat-follow-up-message/chat-follow-up-message.module';
 import { ChatFollowUpScheduleModule } from './chat-follow-up-schedule/chat-follow-up-schedule.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
     imports: [
@@ -46,6 +47,7 @@ import { ChatFollowUpScheduleModule } from './chat-follow-up-schedule/chat-follo
         TagModule,
         ChatFollowUpMessageModule,
         ChatFollowUpScheduleModule,
+        AnalyticsModule,
     ],
     providers: [
         {

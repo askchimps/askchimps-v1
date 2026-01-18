@@ -6,13 +6,13 @@ import { cn } from "@/lib/utils";
 import {
     LayoutDashboard,
     Users,
-    Bot,
     Phone,
     MessageSquare,
     Building2,
     Settings,
     ChevronLeft,
     ChevronRight,
+    Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/stores/ui-store";
@@ -20,7 +20,6 @@ import { useOrganisationStore } from "@/stores/organisation-store";
 
 const navigation = [
     { name: "Dashboard", href: "dashboard", icon: LayoutDashboard },
-    { name: "Agents", href: "agents", icon: Bot },
     { name: "Leads", href: "leads", icon: Users },
     { name: "Calls", href: "calls", icon: Phone },
     { name: "Chats", href: "chats", icon: MessageSquare },
