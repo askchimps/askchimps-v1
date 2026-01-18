@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import {
     Card,
     CardContent,
@@ -32,7 +33,25 @@ interface CallActivityChartProps {
     onMonthChange: (month: string) => void;
 }
 
-export function CallActivityChart({
+interface ChatActivityChartProps {
+    data: HourlyCount[];
+    selectedMonth: string;
+    onMonthChange: (month: string) => void;
+}
+
+interface PickupRateChartProps {
+    data: DailyPickupRate[];
+    selectedMonth: string;
+    onMonthChange: (month: string) => void;
+}
+
+interface AvgDurationChartProps {
+    data: DailyAvgDuration[];
+    selectedMonth: string;
+    onMonthChange: (month: string) => void;
+}
+
+export const CallActivityChart = React.memo(function CallActivityChart({
     data,
     selectedMonth,
     onMonthChange,
@@ -92,13 +111,13 @@ export function CallActivityChart({
             </CardContent>
         </Card>
     );
-}
+});
 
-interface ChatActivityChartProps {
-    data: HourlyCount[];
-}
-
-export function ChatActivityChart({ data }: ChatActivityChartProps) {
+export const ChatActivityChart = React.memo(function ChatActivityChart({
+    data,
+    selectedMonth,
+    onMonthChange,
+}: ChatActivityChartProps) {
     const chartData = data.map((item) => ({
         hour: `${item.hour}:00`,
         chats: item.count,
@@ -107,10 +126,18 @@ export function ChatActivityChart({ data }: ChatActivityChartProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Chat Activity by Hour</CardTitle>
-                <CardDescription>
-                    Distribution of chats throughout the day
-                </CardDescription>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <CardTitle>Chat Activity by Hour</CardTitle>
+                        <CardDescription>
+                            Distribution of chats throughout the day
+                        </CardDescription>
+                    </div>
+                    <MonthPicker
+                        selectedMonth={selectedMonth}
+                        onMonthChange={onMonthChange}
+                    />
+                </div>
             </CardHeader>
             <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -146,13 +173,13 @@ export function ChatActivityChart({ data }: ChatActivityChartProps) {
             </CardContent>
         </Card>
     );
-}
+});
 
-interface PickupRateChartProps {
-    data: DailyPickupRate[];
-}
-
-export function PickupRateChart({ data }: PickupRateChartProps) {
+export const PickupRateChart = React.memo(function PickupRateChart({
+    data,
+    selectedMonth,
+    onMonthChange,
+}: PickupRateChartProps) {
     const chartData = data.map((item) => ({
         date: new Date(item.date).toLocaleDateString("en-US", {
             month: "short",
@@ -164,10 +191,18 @@ export function PickupRateChart({ data }: PickupRateChartProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Call Pickup Rate</CardTitle>
-                <CardDescription>
-                    Daily percentage of successfully connected calls
-                </CardDescription>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <CardTitle>Call Pickup Rate</CardTitle>
+                        <CardDescription>
+                            Daily percentage of successfully connected calls
+                        </CardDescription>
+                    </div>
+                    <MonthPicker
+                        selectedMonth={selectedMonth}
+                        onMonthChange={onMonthChange}
+                    />
+                </div>
             </CardHeader>
             <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -208,13 +243,13 @@ export function PickupRateChart({ data }: PickupRateChartProps) {
             </CardContent>
         </Card>
     );
-}
+});
 
-interface AvgDurationChartProps {
-    data: DailyAvgDuration[];
-}
-
-export function AvgDurationChart({ data }: AvgDurationChartProps) {
+export const AvgDurationChart = React.memo(function AvgDurationChart({
+    data,
+    selectedMonth,
+    onMonthChange,
+}: AvgDurationChartProps) {
     const chartData = data.map((item) => ({
         date: new Date(item.date).toLocaleDateString("en-US", {
             month: "short",
@@ -226,10 +261,18 @@ export function AvgDurationChart({ data }: AvgDurationChartProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Average Call Duration</CardTitle>
-                <CardDescription>
-                    Daily average duration of completed calls (minutes)
-                </CardDescription>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <CardTitle>Average Call Duration</CardTitle>
+                        <CardDescription>
+                            Daily average duration of completed calls (minutes)
+                        </CardDescription>
+                    </div>
+                    <MonthPicker
+                        selectedMonth={selectedMonth}
+                        onMonthChange={onMonthChange}
+                    />
+                </div>
             </CardHeader>
             <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -266,4 +309,4 @@ export function AvgDurationChart({ data }: AvgDurationChartProps) {
             </CardContent>
         </Card>
     );
-}
+});

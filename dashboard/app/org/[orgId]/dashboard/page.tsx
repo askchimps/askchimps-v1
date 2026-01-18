@@ -12,52 +12,112 @@ import {
     PickupRateChart,
     AvgDurationChart,
 } from "@/components/dashboard/analytics-charts";
-import { DateRangePicker } from "@/components/dashboard/date-range-picker";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Loader2 } from "lucide-react";
+
+// Helper function to get current month in YYYY-MM format
+const getCurrentMonth = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+};
 
 export default function DashboardPage() {
     const { user } = useAuthStore();
     const params = useParams();
     const orgId = params.orgId as string;
 
-    // Default to last 30 days
-    const [dateRange, setDateRange] = useState(() => {
-        const end = new Date();
-        const start = new Date();
-        start.setDate(start.getDate() - 30);
-        return {
-            startDate: start.toISOString(),
-            endDate: end.toISOString(),
-        };
-    });
+    // Individual month states for each metric
+    const [overviewMonth, setOverviewMonth] = useState(getCurrentMonth());
+    const [callActivityMonth, setCallActivityMonth] =
+        useState(getCurrentMonth());
+    const [chatActivityMonth, setChatActivityMonth] =
+        useState(getCurrentMonth());
+    const [pickupRateMonth, setPickupRateMonth] = useState(getCurrentMonth());
+    const [avgDurationMonth, setAvgDurationMonth] = useState(getCurrentMonth());
 
-    // Default to current month for call activity
-    const [callActivityMonth, setCallActivityMonth] = useState(() => {
-        const now = new Date();
-        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-    });
+    // Memoized callbacks to prevent unnecessary re-renders
+    const handleOverviewMonthChange = useCallback((month: string) => {
+        setOverviewMonth(month);
+    }, []);
 
-    const { data: analytics, isLoading } = useQuery({
-        queryKey: ["analytics", orgId, dateRange],
+    const handleCallActivityMonthChange = useCallback((month: string) => {
+        setCallActivityMonth(month);
+    }, []);
+
+    const handleChatActivityMonthChange = useCallback((month: string) => {
+        setChatActivityMonth(month);
+    }, []);
+
+    const handlePickupRateMonthChange = useCallback((month: string) => {
+        setPickupRateMonth(month);
+    }, []);
+
+    const handleAvgDurationMonthChange = useCallback((month: string) => {
+        setAvgDurationMonth(month);
+    }, []);
+
+    // Separate queries for each metric
+    const { data: totalLeads, isLoading: isLoadingLeads } = useQuery({
+        queryKey: ["totalLeads", orgId, overviewMonth],
         queryFn: () =>
-            analyticsApi.getAnalytics(orgId, {
-                startDate: dateRange.startDate,
-                endDate: dateRange.endDate,
-            }),
+            analyticsApi.getTotalLeads(orgId, { month: overviewMonth }),
+        enabled: !!orgId,
+    });
+
+    const { data: totalCalls, isLoading: isLoadingCalls } = useQuery({
+        queryKey: ["totalCalls", orgId, overviewMonth],
+        queryFn: () =>
+            analyticsApi.getTotalCalls(orgId, { month: overviewMonth }),
+        enabled: !!orgId,
+    });
+
+    const { data: totalChats, isLoading: isLoadingChats } = useQuery({
+        queryKey: ["totalChats", orgId, overviewMonth],
+        queryFn: () =>
+            analyticsApi.getTotalChats(orgId, { month: overviewMonth }),
         enabled: !!orgId,
     });
 
     const { data: callActivity, isLoading: isLoadingCallActivity } = useQuery({
         queryKey: ["callActivity", orgId, callActivityMonth],
         queryFn: () =>
-            analyticsApi.getCallActivity(orgId, {
-                month: callActivityMonth,
+            analyticsApi.getCallActivity(orgId, { month: callActivityMonth }),
+        enabled: !!orgId,
+    });
+
+    const { data: chatActivity, isLoading: isLoadingChatActivity } = useQuery({
+        queryKey: ["chatActivity", orgId, chatActivityMonth],
+        queryFn: () =>
+            analyticsApi.getChatActivity(orgId, { month: chatActivityMonth }),
+        enabled: !!orgId,
+    });
+
+    const { data: pickupRate, isLoading: isLoadingPickupRate } = useQuery({
+        queryKey: ["pickupRate", orgId, pickupRateMonth],
+        queryFn: () =>
+            analyticsApi.getCallPickupRate(orgId, { month: pickupRateMonth }),
+        enabled: !!orgId,
+    });
+
+    const { data: avgDuration, isLoading: isLoadingAvgDuration } = useQuery({
+        queryKey: ["avgDuration", orgId, avgDurationMonth],
+        queryFn: () =>
+            analyticsApi.getAvgCallDuration(orgId, {
+                month: avgDurationMonth,
             }),
         enabled: !!orgId,
     });
 
-    if (isLoading || isLoadingCallActivity) {
+    const isLoading =
+        isLoadingLeads ||
+        isLoadingCalls ||
+        isLoadingChats ||
+        isLoadingCallActivity ||
+        isLoadingChatActivity ||
+        isLoadingPickupRate ||
+        isLoadingAvgDuration;
+
+    if (isLoading) {
         return (
             <DashboardLayout>
                 <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
@@ -71,49 +131,54 @@ export default function DashboardPage() {
         <DashboardLayout>
             <div className="space-y-6 p-6 lg:p-8">
                 {/* Header */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">
-                            Dashboard
-                        </h1>
-                        <p className="text-muted-foreground mt-2">
-                            Analytics and insights for your organization
-                        </p>
-                    </div>
-                    <DateRangePicker
-                        dateRange={dateRange}
-                        onDateRangeChange={setDateRange}
-                    />
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">
+                        Dashboard
+                    </h1>
+                    <p className="text-muted-foreground mt-2">
+                        Analytics and insights for your organization
+                    </p>
                 </div>
 
                 {/* Stats Cards */}
-                {analytics?.data && (
+                {totalLeads?.data && totalCalls?.data && totalChats?.data && (
                     <StatCards
-                        totalLeads={analytics.data.totalLeads}
-                        totalCalls={analytics.data.totalCalls}
-                        totalChats={analytics.data.totalChats}
+                        totalLeads={totalLeads.data.totalLeads}
+                        totalCalls={totalCalls.data.totalCalls}
+                        totalChats={totalChats.data.totalChats}
+                        selectedMonth={overviewMonth}
+                        onMonthChange={handleOverviewMonthChange}
                     />
                 )}
 
                 {/* Charts Grid */}
-                {analytics?.data && callActivity?.data && (
-                    <div className="grid gap-6 lg:grid-cols-2">
-                        <CallActivityChart
-                            data={callActivity.data}
-                            selectedMonth={callActivityMonth}
-                            onMonthChange={setCallActivityMonth}
-                        />
-                        <ChatActivityChart
-                            data={analytics.data.chatCountByHoursPerDay}
-                        />
-                        <PickupRateChart
-                            data={analytics.data.callPickupRatePerDay}
-                        />
-                        <AvgDurationChart
-                            data={analytics.data.avgCallDurationPerDay}
-                        />
-                    </div>
-                )}
+                {callActivity?.data &&
+                    chatActivity?.data &&
+                    pickupRate?.data &&
+                    avgDuration?.data && (
+                        <div className="grid gap-6 lg:grid-cols-2">
+                            <CallActivityChart
+                                data={callActivity.data}
+                                selectedMonth={callActivityMonth}
+                                onMonthChange={handleCallActivityMonthChange}
+                            />
+                            <ChatActivityChart
+                                data={chatActivity.data}
+                                selectedMonth={chatActivityMonth}
+                                onMonthChange={handleChatActivityMonthChange}
+                            />
+                            <PickupRateChart
+                                data={pickupRate.data}
+                                selectedMonth={pickupRateMonth}
+                                onMonthChange={handlePickupRateMonthChange}
+                            />
+                            <AvgDurationChart
+                                data={avgDuration.data}
+                                selectedMonth={avgDurationMonth}
+                                onMonthChange={handleAvgDurationMonthChange}
+                            />
+                        </div>
+                    )}
             </div>
         </DashboardLayout>
     );
