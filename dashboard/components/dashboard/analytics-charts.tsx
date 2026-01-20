@@ -93,8 +93,8 @@ export const CallActivityChart = React.memo(function CallActivityChart({
                                 border: "1px solid hsl(var(--border))",
                                 borderRadius: "8px",
                             }}
-                            formatter={(value: number) => [
-                                `${value} calls`,
+                            formatter={(value: number | undefined) => [
+                                `${value ?? 0} calls`,
                                 "Calls",
                             ]}
                             labelStyle={{ color: "hsl(var(--foreground))" }}
@@ -155,8 +155,8 @@ export const ChatActivityChart = React.memo(function ChatActivityChart({
                                 border: "1px solid hsl(var(--border))",
                                 borderRadius: "8px",
                             }}
-                            formatter={(value: number) => [
-                                `${value} chats`,
+                            formatter={(value: number | undefined) => [
+                                `${value ?? 0} chats`,
                                 "Chats",
                             ]}
                             labelStyle={{ color: "hsl(var(--foreground))" }}
@@ -224,8 +224,8 @@ export const PickupRateChart = React.memo(function PickupRateChart({
                                 border: "1px solid hsl(var(--border))",
                                 borderRadius: "8px",
                             }}
-                            formatter={(value: number) => [
-                                `${value.toFixed(2)}%`,
+                            formatter={(value: number | undefined) => [
+                                `${(value ?? 0).toFixed(2)}%`,
                                 "Pickup Rate",
                             ]}
                             labelStyle={{ color: "hsl(var(--foreground))" }}
@@ -290,8 +290,8 @@ export const AvgDurationChart = React.memo(function AvgDurationChart({
                                 border: "1px solid hsl(var(--border))",
                                 borderRadius: "8px",
                             }}
-                            formatter={(value: number) => [
-                                `${value} min`,
+                            formatter={(value: number | undefined) => [
+                                `${value ?? 0} min`,
                                 "Avg Duration",
                             ]}
                             labelStyle={{ color: "hsl(var(--foreground))" }}
