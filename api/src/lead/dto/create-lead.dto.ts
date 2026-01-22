@@ -71,7 +71,7 @@ export class CreateLeadDto {
         description: 'Email address of the lead',
         example: 'john.doe@example.com',
     })
-    @IsEmail()
+    @IsString()
     @IsOptional()
     email?: string;
 
