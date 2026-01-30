@@ -15,18 +15,18 @@ export class ChatEntity {
   isTransferred: boolean;
   transferReason: string | null;
 
-  @Exclude()
-  isDeleted: boolean;
+    @Exclude()
+    isDeleted: boolean;
 
-  createdAt: Date;
-  updatedAt: Date;
+    createdAt: Date;
+    updatedAt: Date;
 
   // Relations (optional, loaded when included)
   lead?: any;
   messages?: any[];
   agents?: any[]; // ChatAgent relations
 
-  constructor(partial: Partial<ChatEntity>) {
-    Object.assign(this, partial);
-  }
+    constructor(partial: Partial<ChatEntity>) {
+        Object.assign(this, partial);
+    }
 }

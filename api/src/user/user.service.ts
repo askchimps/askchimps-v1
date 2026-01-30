@@ -1,7 +1,7 @@
 import {
-  Injectable,
-  ConflictException,
-  NotFoundException,
+    Injectable,
+    ConflictException,
+    NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -11,103 +11,109 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: createUserDto.email },
-    });
+    async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+        const existingUser = await this.prisma.user.findUnique({
+            where: { email: createUserDto.email },
+        });
 
-    if (existingUser) {
-      throw new ConflictException('Email already exists');
+        if (existingUser) {
+            throw new ConflictException('Email already exists');
+        }
+
+        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+        const user = await this.prisma.user.create({
+            data: {
+                ...createUserDto,
+                password: hashedPassword,
+            },
+        });
+
+        return new UserEntity(user);
     }
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    async findAll(): Promise<UserEntity[]> {
+        const users = await this.prisma.user.findMany({
+            where: { isActive: true },
+        });
 
-    const user = await this.prisma.user.create({
-      data: {
-        ...createUserDto,
-        password: hashedPassword,
-      },
-    });
-
-    return new UserEntity(user);
-  }
-
-  async findAll(): Promise<UserEntity[]> {
-    const users = await this.prisma.user.findMany({
-      where: { isActive: true },
-    });
-
-    return users.map((user) => new UserEntity(user));
-  }
-
-  async findOne(id: string): Promise<UserEntity> {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-    });
-
-    if (!user || !user.isActive) {
-      throw new NotFoundException('User not found');
+        return users.map((user) => new UserEntity(user));
     }
 
-    return new UserEntity(user);
-  }
+    async findOne(id: string): Promise<UserEntity> {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+        });
 
-  async findByEmail(email: string) {
-    return this.prisma.user.findUnique({
-      where: { email },
-    });
-  }
+        if (!user || !user.isActive) {
+            throw new NotFoundException('User not found');
+        }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-    });
-
-    if (!user || !user.isActive) {
-      throw new NotFoundException('User not found');
+        return new UserEntity(user);
     }
 
-    // Check if email is being updated and if it already exists
-    if (updateUserDto.email && updateUserDto.email !== user.email) {
-      const existingUser = await this.prisma.user.findUnique({
-        where: { email: updateUserDto.email },
-      });
-
-      if (existingUser) {
-        throw new ConflictException('Email already exists');
-      }
+    async findByEmail(email: string) {
+        return this.prisma.user.findUnique({
+            where: { email },
+        });
     }
 
-    // Hash password if it's being updated
-    const dataToUpdate = { ...updateUserDto };
-    if (updateUserDto.password) {
-      dataToUpdate.password = await bcrypt.hash(updateUserDto.password, 10);
+    async update(
+        id: string,
+        updateUserDto: UpdateUserDto,
+    ): Promise<UserEntity> {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+        });
+
+        if (!user || !user.isActive) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Check if email is being updated and if it already exists
+        if (updateUserDto.email && updateUserDto.email !== user.email) {
+            const existingUser = await this.prisma.user.findUnique({
+                where: { email: updateUserDto.email },
+            });
+
+            if (existingUser) {
+                throw new ConflictException('Email already exists');
+            }
+        }
+
+        // Hash password if it's being updated
+        const dataToUpdate = { ...updateUserDto };
+        if (updateUserDto.password) {
+            dataToUpdate.password = await bcrypt.hash(
+                updateUserDto.password,
+                10,
+            );
+        }
+
+        const updatedUser = await this.prisma.user.update({
+            where: { id },
+            data: dataToUpdate,
+        });
+
+        return new UserEntity(updatedUser);
     }
 
-    const updatedUser = await this.prisma.user.update({
-      where: { id },
-      data: dataToUpdate,
-    });
+    async remove(id: string): Promise<UserEntity> {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+        });
 
-    return new UserEntity(updatedUser);
-  }
+        if (!user || !user.isActive) {
+            throw new NotFoundException('User not found');
+        }
 
-  async remove(id: string): Promise<UserEntity> {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-    });
+        const updatedUser = await this.prisma.user.update({
+            where: { id },
+            data: { isActive: false },
+        });
 
-    if (!user || !user.isActive) {
-      throw new NotFoundException('User not found');
+        return new UserEntity(updatedUser);
     }
-
-    const updatedUser = await this.prisma.user.update({
-      where: { id },
-      data: { isActive: false },
-    });
-
-    return new UserEntity(updatedUser);
-  }
 }

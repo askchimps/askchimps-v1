@@ -3,71 +3,72 @@ import { useAuthStore } from "@/stores/auth-store";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 class ApiClient {
-  private baseUrl: string;
+    private baseUrl: string;
 
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
-  }
-
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
-    const accessToken = useAuthStore.getState().accessToken;
-
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      ...(options.headers as Record<string, string>),
-    };
-
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
+    constructor(baseUrl: string) {
+        this.baseUrl = baseUrl;
     }
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    private async request<T>(
+        endpoint: string,
+        options: RequestInit = {},
+    ): Promise<T> {
+        const accessToken = useAuthStore.getState().accessToken;
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "An error occurred",
-      }));
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+        const headers: Record<string, string> = {
+            "Content-Type": "application/json",
+            ...(options.headers as Record<string, string>),
+        };
+
+        if (accessToken) {
+            headers["Authorization"] = `Bearer ${accessToken}`;
+        }
+
+        const response = await fetch(`${this.baseUrl}${endpoint}`, {
+            ...options,
+            headers,
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({
+                message: "An error occurred",
+            }));
+            throw new Error(
+                error.message || `HTTP error! status: ${response.status}`,
+            );
+        }
+
+        return response.json();
     }
 
-    return response.json();
-  }
+    async get<T>(endpoint: string): Promise<T> {
+        return this.request<T>(endpoint, { method: "GET" });
+    }
 
-  async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: "GET" });
-  }
+    async post<T>(endpoint: string, data?: unknown): Promise<T> {
+        return this.request<T>(endpoint, {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+    }
 
-  async post<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-  }
+    async put<T>(endpoint: string, data?: unknown): Promise<T> {
+        return this.request<T>(endpoint, {
+            method: "PUT",
+            body: JSON.stringify(data),
+        });
+    }
 
-  async put<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
-  }
+    async patch<T>(endpoint: string, data?: unknown): Promise<T> {
+        return this.request<T>(endpoint, {
+            method: "PATCH",
+            body: JSON.stringify(data),
+        });
+    }
 
-  async patch<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    });
-  }
-
-  async delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: "DELETE" });
-  }
+    async delete<T>(endpoint: string): Promise<T> {
+        return this.request<T>(endpoint, { method: "DELETE" });
+    }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);
-

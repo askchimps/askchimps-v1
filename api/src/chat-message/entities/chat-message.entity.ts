@@ -3,23 +3,23 @@ import { CHAT_MESSAGE_TYPE } from '@prisma/client';
 
 @Expose()
 export class ChatMessageEntity {
-  id: string;
-  chatId: string;
-  organisationId: string;
-  role: string;
-  content: string | null;
-  type: CHAT_MESSAGE_TYPE;
+    id: string;
+    chatId: string;
+    organisationId: string;
+    role: string;
+    content: string | null;
+    type: CHAT_MESSAGE_TYPE;
 
-  @Exclude()
-  isDeleted: boolean;
+    @Exclude()
+    isDeleted: boolean;
 
-  createdAt: Date;
-  updatedAt: Date;
+    createdAt: Date;
+    updatedAt: Date;
 
-  // Relations (optional, loaded when included)
-  attachments?: any[];
+    // Relations (optional, loaded when included)
+    attachments?: any[];
 
-  constructor(partial: Partial<ChatMessageEntity>) {
-    Object.assign(this, partial);
-  }
+    constructor(partial: Partial<ChatMessageEntity>) {
+        Object.assign(this, partial);
+    }
 }

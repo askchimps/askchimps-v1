@@ -3,12 +3,12 @@ import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { validate } from './env.validation';
 
 @Module({
-  imports: [
-    NestConfigModule.forRoot({
-      isGlobal: true,
-      validate,
-      envFilePath: '.env',
-    }),
-  ],
+    imports: [
+        NestConfigModule.forRoot({
+            isGlobal: true,
+            validate,
+            envFilePath: '.env',
+        }),
+    ],
 })
 export class ConfigModule {}

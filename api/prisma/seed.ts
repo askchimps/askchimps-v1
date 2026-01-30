@@ -18,25 +18,70 @@ async function main() {
     return;
   }
 
-  console.log('═══════════════════════════════════════════════════════════════');
+  console.log(
+    '═══════════════════════════════════════════════════════════════',
+  );
   console.log('🌱 Starting AskChimps Database Seed');
-  console.log('═══════════════════════════════════════════════════════════════');
-  console.log('💡 Tip: Run "npm run db:reset" to reset the entire database and reseed');
+  console.log(
+    '═══════════════════════════════════════════════════════════════',
+  );
+  console.log(
+    '💡 Tip: Run "npm run db:reset" to reset the entire database and reseed',
+  );
   console.log('⏱️  This may take a few moments...\n');
+
+  // Clean up existing data
+  console.log(
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  );
+  console.log('🧹 Cleaning up existing data...');
+  await prisma.chatMessage.deleteMany({});
+  await prisma.chat.deleteMany({});
+  await prisma.lead.deleteMany({});
+  await prisma.chatFollowUpMessages.deleteMany({});
+  await prisma.tag.deleteMany({});
+  await prisma.agent.deleteMany({});
+  await prisma.userOrganisation.deleteMany({});
+  await prisma.organisation.deleteMany({});
+  await prisma.user.deleteMany({});
+  console.log('✅ Cleanup completed\n');
 
   // Hash passwords
   const superAdminhashedPassword = await bcrypt.hash('SuperAdmin@123', 10);
-  const sunrooofOwnerhashedPassword = await bcrypt.hash('SunrooofOwner@123', 10);
-  const magppieOwnerhashedPassword = await bcrypt.hash('MagppieOwner@123', 10);
-  const sunrooofAIAdminHashedPassword = await bcrypt.hash('SunrooofAI@123', 10);
-  const sunrooofMarketingHashedPassword = await bcrypt.hash('MarketingSunrooof@123', 10);
-  const sunrooofSalesHashedPassword = await bcrypt.hash('SalesSunrooof@123', 10);
+  const sunrooofOwnerhashedPassword = await bcrypt.hash(
+    'SunrooofOwner@123',
+    10,
+  );
+  const magppieOwnerhashedPassword = await bcrypt.hash(
+    'MagppieOwner@123',
+    10,
+  );
+  const sunrooofAIAdminHashedPassword = await bcrypt.hash(
+    'SunrooofAI@123',
+    10,
+  );
+  const sunrooofMarketingHashedPassword = await bcrypt.hash(
+    'MarketingSunrooof@123',
+    10,
+  );
+  const sunrooofSalesHashedPassword = await bcrypt.hash(
+    'SalesSunrooof@123',
+    10,
+  );
   const magppieAIAdminHashedPassword = await bcrypt.hash('MagppieAI@123', 10);
-  const magppieMarketingHashedPassword = await bcrypt.hash('MarketingMagppie@123', 10);
-  const magppieSalesHashedPassword = await bcrypt.hash('SalesMagppie@123', 10);
+  const magppieMarketingHashedPassword = await bcrypt.hash(
+    'MarketingMagppie@123',
+    10,
+  );
+  const magppieSalesHashedPassword = await bcrypt.hash(
+    'SalesMagppie@123',
+    10,
+  );
 
   // Create Users
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  );
   console.log('👤 Creating users...');
   const superAdmin = await prisma.user.create({
     data: {
@@ -141,7 +186,9 @@ async function main() {
   console.log('✅ 9 users created successfully\n');
 
   // Create Organisations
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  );
   console.log('🏢 Creating organisations...');
   const askChimps = await prisma.organisation.create({
     data: {
@@ -185,7 +232,9 @@ async function main() {
   console.log('✅ 3 organisations created successfully\n');
 
   // Create User-Organisation relationships
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  );
   console.log('🔗 Creating user-organisation relationships...');
   await prisma.userOrganisation.create({
     data: {
@@ -271,7 +320,9 @@ async function main() {
   console.log('✅ 9 user-organisation relationships created successfully\n');
 
   // Create Tags
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  );
   console.log('🏷️  Creating tags...');
 
   // Sunrooof tags
@@ -321,7 +372,9 @@ async function main() {
   console.log('✅ 5 tags created successfully\n');
 
   // Create Chat Follow-Up Messages
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  );
   console.log('💬 Creating chat follow-up message templates...');
 
   // Sunrooof follow-up messages
@@ -329,24 +382,29 @@ async function main() {
     data: {
       slug: 'payment-reminder',
       organisationId: sunrooof.id,
-      content: 'Hi! Just following up on your payment. Please let us know if you need any assistance with the solar panel installation payment.',
+      content:
+        'Hi! Just following up on your payment. Please let us know if you need any assistance with the solar panel installation payment.',
     },
   });
 
-  const sunrooofInstallationUpdate = await prisma.chatFollowUpMessages.create({
-    data: {
-      slug: 'installation-update',
-      organisationId: sunrooof.id,
-      content: 'Hello! We wanted to update you on your solar panel installation schedule. Our team will reach out soon with the exact date.',
+  const sunrooofInstallationUpdate = await prisma.chatFollowUpMessages.create(
+    {
+      data: {
+        slug: 'installation-update',
+        organisationId: sunrooof.id,
+        content:
+          'Hello! We wanted to update you on your solar panel installation schedule. Our team will reach out soon with the exact date.',
+      },
     },
-  });
+  );
 
   // Magppie follow-up messages
   const magppieQuoteFollowUp = await prisma.chatFollowUpMessages.create({
     data: {
       slug: 'quote-follow-up',
       organisationId: magppie.id,
-      content: 'Hi! We sent you a quote for our design services. Have you had a chance to review it? Let us know if you have any questions!',
+      content:
+        'Hi! We sent you a quote for our design services. Have you had a chance to review it? Let us know if you have any questions!',
     },
   });
 
@@ -354,13 +412,10 @@ async function main() {
     data: {
       slug: 'project-update',
       organisationId: magppie.id,
-      content: 'Hello! Just checking in on your design project. Our team is ready to start whenever you are!',
+      content:
+        'Hello! Just checking in on your design project. Our team is ready to start whenever you are!',
     },
   });
-
-  console.log('   ✓ Sunrooof: Payment Reminder, Installation Update');
-  console.log('   ✓ Magppie: Quote Follow-up, Project Update');
-  console.log('✅ 4 follow-up message templates created successfully\n');
 
   // Create Agents
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -409,63 +464,249 @@ async function main() {
     },
   });
 
+
   console.log('   ✓ Alex - Marketing Agent (Sunrooof) [MARKETING]');
   console.log('   ✓ Dipika - Sales Agent (Sunrooof) [SALES]');
   console.log('   ✓ Alex - Marketing Agent (Magppie) [MARKETING]');
   console.log('   ✓ Priya - Sales Agent (Magppie) [SALES]');
   console.log('✅ 4 AI agents created successfully\n');
 
-  console.log('═══════════════════════════════════════════════════════════════');
+  // Create Leads
+  console.log(
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  );
+  console.log('👥 Creating leads...');
+
+  // Sunrooof leads
+  const sunrooofLead1 = await prisma.lead.create({
+    data: {
+      organisationId: sunrooof.id,
+      agentId: alexMarketingSunrooofAgent.id,
+      firstName: 'Amit',
+      lastName: 'Patel',
+      phone: '+919876543210',
+      email: 'amit.patel@example.com',
+      city: 'Mumbai',
+      state: 'Maharashtra',
+      country: 'India',
+    },
+  });
+
+  const sunrooofLead2 = await prisma.lead.create({
+    data: {
+      organisationId: sunrooof.id,
+      agentId: dipikaSalesSunrooofAgent.id,
+      firstName: 'Sneha',
+      lastName: 'Reddy',
+      phone: '+919876543211',
+      email: 'sneha.reddy@example.com',
+      city: 'Bangalore',
+      state: 'Karnataka',
+      country: 'India',
+    },
+  });
+
+  const sunrooofLead3 = await prisma.lead.create({
+    data: {
+      organisationId: sunrooof.id,
+      agentId: alexMarketingSunrooofAgent.id,
+      firstName: 'Rahul',
+      lastName: 'Sharma',
+      phone: '+919876543212',
+      email: 'rahul.sharma@example.com',
+      city: 'Delhi',
+      state: 'Delhi',
+      country: 'India',
+    },
+  });
+
+  const sunrooofLead4 = await prisma.lead.create({
+    data: {
+      organisationId: sunrooof.id,
+      agentId: dipikaSalesSunrooofAgent.id,
+      firstName: 'Priya',
+      lastName: 'Nair',
+      phone: '+919876543213',
+      email: 'priya.nair@example.com',
+      city: 'Chennai',
+      state: 'Tamil Nadu',
+      country: 'India',
+    },
+  });
+
+  const sunrooofLead5 = await prisma.lead.create({
+    data: {
+      organisationId: sunrooof.id,
+      agentId: alexMarketingSunrooofAgent.id,
+      firstName: 'Vikram',
+      lastName: 'Singh',
+      phone: '+919876543214',
+      city: 'Pune',
+      state: 'Maharashtra',
+      country: 'India',
+    },
+  });
+
+  // Magppie leads
+  const magppieLead1 = await prisma.lead.create({
+    data: {
+      organisationId: magppie.id,
+      agentId: alexMarketingMagppieAgent.id,
+      firstName: 'Ananya',
+      lastName: 'Gupta',
+      phone: '+919876543215',
+      email: 'ananya.gupta@example.com',
+      city: 'Hyderabad',
+      state: 'Telangana',
+      country: 'India',
+    },
+  });
+
+  const magppieLead2 = await prisma.lead.create({
+    data: {
+      organisationId: magppie.id,
+      agentId: priyaSalesMagppieAgent.id,
+      firstName: 'Rohan',
+      lastName: 'Mehta',
+      phone: '+919876543216',
+      email: 'rohan.mehta@example.com',
+      city: 'Ahmedabad',
+      state: 'Gujarat',
+      country: 'India',
+    },
+  });
+
+  const magppieLead3 = await prisma.lead.create({
+    data: {
+      organisationId: magppie.id,
+      agentId: alexMarketingMagppieAgent.id,
+      firstName: 'Kavya',
+      lastName: 'Iyer',
+      phone: '+919876543217',
+      email: 'kavya.iyer@example.com',
+      city: 'Kochi',
+      state: 'Kerala',
+      country: 'India',
+    },
+  });
+
+  const magppieLead4 = await prisma.lead.create({
+    data: {
+      organisationId: magppie.id,
+      agentId: priyaSalesMagppieAgent.id,
+      firstName: 'Arjun',
+      lastName: 'Desai',
+      phone: '+919876543218',
+      city: 'Surat',
+      state: 'Gujarat',
+      country: 'India',
+    },
+  });
+
+  console.log('   ✓ Sunrooof: 5 leads created');
+  console.log('   ✓ Magppie: 4 leads created');
+  console.log('✅ 9 leads created successfully\n');
+  
+  console.log(
+    '═══════════════════════════════════════════════════════════════',
+  );
   console.log('🎉 Database Seeding Completed Successfully!');
-  console.log('═══════════════════════════════════════════════════════════════\n');
+  console.log(
+    '═══════════════════════════════════════════════════════════════\n',
+  );
 
   console.log('📊 SUMMARY:');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  );
   console.log(`   👤 Users: 9`);
   console.log(`   🏢 Organisations: 3 (AskChimps, Sunrooof, Magppie)`);
   console.log(`   🤖 AI Agents: 4 (2 Marketing, 2 Sales)`);
   console.log(`   🔗 User-Organisation Relationships: 9`);
+  console.log(`   👥 Leads: 9 (5 Sunrooof, 4 Magppie)`);
+  console.log(`   💬 Chats: 7 (4 Sunrooof, 3 Magppie)`);
+  console.log(`   💭 Chat Messages: 17 (11 Sunrooof, 6 Magppie)`);
+  console.log(`   🏷️  Tags: 5`);
+  console.log(`   📝 Follow-up Message Templates: 4`);
 
   console.log('🔐 LOGIN CREDENTIALS:');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  );
   console.log('\n   🌟 SUPER ADMIN:');
   console.log('      Email: admin@askchimps.com');
   console.log('      Password: SuperAdmin@123\n');
 
   console.log('   ☀️  SUNROOOF TEAM:');
-  console.log('      Email: admin@sunrooof.com | Password: SunrooofOwner@123 (Owner)');
-  console.log('      Email: ai@sunrooof.com | Password: SunrooofAI@123 (Admin)');
-  console.log('      Email: marketing@sunrooof.com | Password: MarketingSunrooof@123 (Admin - Marketing)');
-  console.log('      Email: sales@sunrooof.com | Password: SalesSunrooof@123 (Admin - Sales)\n');
+  console.log(
+    '      Email: admin@sunrooof.com | Password: SunrooofOwner@123 (Owner)',
+  );
+  console.log(
+    '      Email: ai@sunrooof.com | Password: SunrooofAI@123 (Admin)',
+  );
+  console.log(
+    '      Email: marketing@sunrooof.com | Password: MarketingSunrooof@123 (Admin - Marketing)',
+  );
+  console.log(
+    '      Email: sales@sunrooof.com | Password: SalesSunrooof@123 (Admin - Sales)\n',
+  );
 
   console.log('   🎨 MAGPPIE TEAM:');
-  console.log('      Email: admin@magppie.com | Password: MagppieOwner@123 (Owner)');
-  console.log('      Email: ai@magppie.com | Password: MagppieAI@123 (Admin)');
-  console.log('      Email: marketing@magppie.com | Password: MarketingMagppie@123 (Admin - Marketing)');
-  console.log('      Email: sales@magppie.com | Password: SalesMagppie@123 (Admin - Sales)\n');
+  console.log(
+    '      Email: admin@magppie.com | Password: MagppieOwner@123 (Owner)',
+  );
+  console.log(
+    '      Email: ai@magppie.com | Password: MagppieAI@123 (Admin)',
+  );
+  console.log(
+    '      Email: marketing@magppie.com | Password: MarketingMagppie@123 (Admin - Marketing)',
+  );
+  console.log(
+    '      Email: sales@magppie.com | Password: SalesMagppie@123 (Admin - Sales)\n',
+  );
 
   console.log('🤖 AI AGENTS:');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  );
   console.log('   ☀️  Sunrooof:');
-  console.log('      • Alex - Marketing Agent (alex-marketing-sunrooof-ai-assistant) [MARKETING]');
-  console.log('      • Dipika - Sales Agent (dipika-sales-sunrooof-ai-assistant) [SALES]\n');
+  console.log(
+    '      • Alex - Marketing Agent (alex-marketing-sunrooof-ai-assistant) [MARKETING]',
+  );
+  console.log(
+    '      • Dipika - Sales Agent (dipika-sales-sunrooof-ai-assistant) [SALES]\n',
+  );
   console.log('   🎨 Magppie:');
-  console.log('      • Alex - Marketing Agent (alex-marketing-magppie-ai-assistant) [MARKETING]');
-  console.log('      • Priya - Sales Agent (priya-sales-magppie-ai-assistant) [SALES]\n');
+  console.log(
+    '      • Alex - Marketing Agent (alex-marketing-magppie-ai-assistant) [MARKETING]',
+  );
+  console.log(
+    '      • Priya - Sales Agent (priya-sales-magppie-ai-assistant) [SALES]\n',
+  );
 
   console.log('🏷️  TAGS:');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('   ☀️  Sunrooof: High Priority, VIP Customer, Needs Follow-up');
+  console.log(
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  );
+  console.log(
+    '   ☀️  Sunrooof: High Priority, VIP Customer, Needs Follow-up',
+  );
   console.log('   🎨 Magppie: Hot Lead, Quote Requested\n');
 
   console.log('💬 FOLLOW-UP MESSAGE TEMPLATES:');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  );
   console.log('   ☀️  Sunrooof: Payment Reminder, Installation Update');
   console.log('   🎨 Magppie: Quote Follow-up, Project Update\n');
 
-  console.log('═══════════════════════════════════════════════════════════════');
+  console.log(
+    '═══════════════════════════════════════════════════════════════',
+  );
   console.log('✨ Ready to develop and test all features!');
-  console.log('═══════════════════════════════════════════════════════════════\n');
+  console.log(
+    '═══════════════════════════════════════════════════════════════\n',
+  );
 }
 
 main()
@@ -476,4 +717,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

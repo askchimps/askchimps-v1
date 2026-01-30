@@ -4,9 +4,9 @@ import { ExecutionController } from './execution.controller';
 import { DatabaseModule } from '../database/database.module';
 
 @Module({
-  imports: [DatabaseModule],
-  controllers: [ExecutionController],
-  providers: [ExecutionService],
-  exports: [ExecutionService],
+    imports: [DatabaseModule],
+    controllers: [ExecutionController],
+    providers: [ExecutionService],
+    exports: [ExecutionService],
 })
 export class ExecutionModule {}

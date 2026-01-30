@@ -6,27 +6,27 @@ import { JwtPayload } from '../interfaces/jwt-payload.interface';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
-  Strategy,
-  'jwt-refresh',
+    Strategy,
+    'jwt-refresh',
 ) {
-  constructor(private readonly configService: ConfigService) {
-    super({
-      jwtFromRequest: ExtractJwt.fromBodyField('refreshToken'),
-      ignoreExpiration: false,
-      secretOrKey:
-        configService.get<string>('JWT_REFRESH_SECRET') ||
-        'default-refresh-secret',
-    });
-  }
-
-  async validate(payload: JwtPayload) {
-    if (!payload.sub || !payload.email) {
-      throw new UnauthorizedException('Invalid refresh token');
+    constructor(private readonly configService: ConfigService) {
+        super({
+            jwtFromRequest: ExtractJwt.fromBodyField('refreshToken'),
+            ignoreExpiration: false,
+            secretOrKey:
+                configService.get<string>('JWT_REFRESH_SECRET') ||
+                'default-refresh-secret',
+        });
     }
 
-    return {
-      id: payload.sub,
-      email: payload.email,
-    };
-  }
+    async validate(payload: JwtPayload) {
+        if (!payload.sub || !payload.email) {
+            throw new UnauthorizedException('Invalid refresh token');
+        }
+
+        return {
+            id: payload.sub,
+            email: payload.email,
+        };
+    }
 }

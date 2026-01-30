@@ -4,9 +4,9 @@ import { ChatFollowUpScheduleController } from './chat-follow-up-schedule.contro
 import { DatabaseModule } from '../database/database.module';
 
 @Module({
-  imports: [DatabaseModule],
-  controllers: [ChatFollowUpScheduleController],
-  providers: [ChatFollowUpScheduleService],
-  exports: [ChatFollowUpScheduleService],
+    imports: [DatabaseModule],
+    controllers: [ChatFollowUpScheduleController],
+    providers: [ChatFollowUpScheduleService],
+    exports: [ChatFollowUpScheduleService],
 })
 export class ChatFollowUpScheduleModule {}

@@ -1,16 +1,16 @@
 export class OrganisationEntity {
-  id: string;
-  name: string;
-  slug: string;
-  availableIndianChannels: number;
-  availableInternationalChannels: number;
-  chatCredits: number;
-  callCredits: number;
-  isDeleted: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+    id: string;
+    name: string;
+    slug: string;
+    availableIndianChannels: number;
+    availableInternationalChannels: number;
+    chatCredits: number;
+    callCredits: number;
+    isDeleted: boolean;
+    createdAt: Date;
+    updatedAt: Date;
 
-  constructor(partial: Partial<OrganisationEntity>) {
-    Object.assign(this, partial);
-  }
+    constructor(partial: Partial<OrganisationEntity>) {
+        Object.assign(this, partial);
+    }
 }

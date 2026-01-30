@@ -4,9 +4,9 @@ import { LeadController } from './lead.controller';
 import { DatabaseModule } from '../database/database.module';
 
 @Module({
-  imports: [DatabaseModule],
-  controllers: [LeadController],
-  providers: [LeadService],
-  exports: [LeadService],
+    imports: [DatabaseModule],
+    controllers: [LeadController],
+    providers: [LeadService],
+    exports: [LeadService],
 })
 export class LeadModule {}

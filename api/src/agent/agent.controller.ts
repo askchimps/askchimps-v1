@@ -30,7 +30,7 @@ import type { UserPayload } from '../common/interfaces/request-with-user.interfa
 @Controller({ path: 'organisation/:organisationId/agent', version: '1' })
 @UseGuards(JwtAuthGuard)
 export class AgentController {
-  constructor(private readonly agentService: AgentService) {}
+  constructor(private readonly agentService: AgentService) { }
 
   @Post()
   @UseGuards(RbacGuard)
@@ -63,10 +63,8 @@ export class AgentController {
           createdAt: '2024-01-15T10:30:00.000Z',
           updatedAt: '2024-01-15T10:30:00.000Z',
         },
-        statusCode: 201,
-        timestamp: '2024-01-15T10:30:00.000Z',
-      },
-    },
+      }
+    }
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -172,8 +170,6 @@ export class AgentController {
           organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
           name: 'Alex - Marketing Agent',
           type: 'MARKETING',
-          role: 'INBOUND_CHAT',
-          workflowId: null,
           slug: 'alex-marketing-agent',
           isActive: true,
           isDeleted: false,
