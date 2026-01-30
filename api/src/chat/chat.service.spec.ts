@@ -41,6 +41,7 @@ describe('ChatService', () => {
     phone: '+1234567890',
     reasonForCold: null,
     isTransferred: false,
+    transferReason: null,
     isDeleted: false,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -49,7 +50,6 @@ describe('ChatService', () => {
   const mockChat = {
     id: '01HZXYZ1234567890ABCDEFGHJN',
     organisationId: '01HZXYZ1234567890ABCDEFGHJK',
-    agentId: '01HZXYZ1234567890ABCDEFGHJL',
     leadId: '01HZXYZ1234567890ABCDEFGHJM',
     name: 'Test Chat',
     source: CHAT_SOURCE.WHATSAPP,
@@ -58,10 +58,21 @@ describe('ChatService', () => {
     shortSummary: 'Short summary',
     detailedSummary: 'Detailed summary',
     isTransferred: false,
+    transferReason: null,
     isDeleted: false,
     createdAt: new Date(),
     updatedAt: new Date(),
     lead: mockLead,
+    agents: [
+      {
+        id: '01HZXYZ1234567890ABCDEFGHJP',
+        chatId: '01HZXYZ1234567890ABCDEFGHJN',
+        agentId: '01HZXYZ1234567890ABCDEFGHJL',
+        isActive: true,
+        isDeleted: false,
+        agent: mockAgent,
+      },
+    ],
   };
 
   const mockPrismaService = {
@@ -70,6 +81,7 @@ describe('ChatService', () => {
     },
     agent: {
       findUnique: jest.fn(),
+      findMany: jest.fn(),
     },
     lead: {
       findFirst: jest.fn(),
@@ -109,7 +121,7 @@ describe('ChatService', () => {
 
   describe('create', () => {
     const createChatDto = {
-      agentId: '01HZXYZ1234567890ABCDEFGHJL',
+      agentIds: ['01HZXYZ1234567890ABCDEFGHJL'],
       leadId: '01HZXYZ1234567890ABCDEFGHJM',
       name: 'Test Chat',
       source: CHAT_SOURCE.WHATSAPP,
@@ -118,13 +130,14 @@ describe('ChatService', () => {
       shortSummary: 'Short summary',
       detailedSummary: 'Detailed summary',
       isTransferred: false,
+      transferReason: null,
     };
 
     it('should create a chat successfully', async () => {
       mockPrismaService.organisation.findUnique.mockResolvedValue(
         mockOrganisation,
       );
-      mockPrismaService.agent.findUnique.mockResolvedValue(mockAgent);
+      mockPrismaService.agent.findMany.mockResolvedValue([mockAgent]);
       mockPrismaService.lead.findFirst.mockResolvedValue(mockLead);
       mockPrismaService.chat.findFirst.mockResolvedValue(null);
       mockPrismaService.chat.create.mockResolvedValue(mockChat);
@@ -139,8 +152,12 @@ describe('ChatService', () => {
       expect(prisma.organisation.findUnique).toHaveBeenCalledWith({
         where: { id: '01HZXYZ1234567890ABCDEFGHJK', isDeleted: false },
       });
-      expect(prisma.agent.findUnique).toHaveBeenCalledWith({
-        where: { id: '01HZXYZ1234567890ABCDEFGHJL' },
+      expect(prisma.agent.findMany).toHaveBeenCalledWith({
+        where: {
+          id: { in: ['01HZXYZ1234567890ABCDEFGHJL'] },
+          organisationId: '01HZXYZ1234567890ABCDEFGHJK',
+          isDeleted: false,
+        },
       });
       expect(prisma.chat.create).toHaveBeenCalled();
     });
@@ -157,7 +174,7 @@ describe('ChatService', () => {
       mockPrismaService.organisation.findUnique.mockResolvedValue(
         mockOrganisation,
       );
-      mockPrismaService.agent.findUnique.mockResolvedValue(null);
+      mockPrismaService.agent.findMany.mockResolvedValue([]);
 
       await expect(
         service.create('01HZXYZ1234567890ABCDEFGHJK', createChatDto),
@@ -168,7 +185,7 @@ describe('ChatService', () => {
       mockPrismaService.organisation.findUnique.mockResolvedValue(
         mockOrganisation,
       );
-      mockPrismaService.agent.findUnique.mockResolvedValue(mockAgent);
+      mockPrismaService.agent.findMany.mockResolvedValue([mockAgent]);
       mockPrismaService.lead.findFirst.mockResolvedValue(null);
 
       await expect(
@@ -180,7 +197,7 @@ describe('ChatService', () => {
       mockPrismaService.organisation.findUnique.mockResolvedValue(
         mockOrganisation,
       );
-      mockPrismaService.agent.findUnique.mockResolvedValue(mockAgent);
+      mockPrismaService.agent.findMany.mockResolvedValue([mockAgent]);
       mockPrismaService.lead.findFirst.mockResolvedValue(mockLead);
       mockPrismaService.chat.findFirst.mockResolvedValue(mockChat);
 
@@ -194,7 +211,7 @@ describe('ChatService', () => {
       mockPrismaService.organisation.findUnique.mockResolvedValue(
         mockOrganisation,
       );
-      mockPrismaService.agent.findUnique.mockResolvedValue(mockAgent);
+      mockPrismaService.agent.findMany.mockResolvedValue([mockAgent]);
       mockPrismaService.chat.findFirst.mockResolvedValue(null);
       mockPrismaService.chat.create.mockResolvedValue({
         ...mockChat,
@@ -224,7 +241,23 @@ describe('ChatService', () => {
           organisationId: '01HZXYZ1234567890ABCDEFGHJK',
           isDeleted: false,
         },
-        include: { lead: true },
+        include: {
+          lead: true,
+          agents: {
+            where: { isDeleted: false },
+            include: {
+              agent: {
+                select: {
+                  id: true,
+                  name: true,
+                  type: true,
+                  role: true,
+                  workflowId: true,
+                },
+              },
+            },
+          },
+        },
         orderBy: { createdAt: 'desc' },
       });
     });
@@ -264,6 +297,20 @@ describe('ChatService', () => {
         },
         include: {
           lead: true,
+          agents: {
+            where: { isDeleted: false },
+            include: {
+              agent: {
+                select: {
+                  id: true,
+                  name: true,
+                  type: true,
+                  role: true,
+                  workflowId: true,
+                },
+              },
+            },
+          },
           messages: {
             where: { isDeleted: false },
             orderBy: { createdAt: 'asc' },
@@ -387,7 +434,23 @@ describe('ChatService', () => {
           leadId: '01HZXYZ1234567890ABCDEFGHJM',
           isDeleted: false,
         },
-        include: { lead: true },
+        include: {
+          lead: true,
+          agents: {
+            where: { isDeleted: false },
+            include: {
+              agent: {
+                select: {
+                  id: true,
+                  name: true,
+                  type: true,
+                  role: true,
+                  workflowId: true,
+                },
+              },
+            },
+          },
+        },
         orderBy: { createdAt: 'desc' },
       });
     });
@@ -438,7 +501,23 @@ describe('ChatService', () => {
       expect(prisma.chat.update).toHaveBeenCalledWith({
         where: { id: '01HZXYZ1234567890ABCDEFGHJN' },
         data: { status: CHAT_STATUS.CLOSED },
-        include: { lead: true },
+        include: {
+          lead: true,
+          agents: {
+            where: { isDeleted: false },
+            include: {
+              agent: {
+                select: {
+                  id: true,
+                  name: true,
+                  type: true,
+                  role: true,
+                  workflowId: true,
+                },
+              },
+            },
+          },
+        },
       });
     });
 

@@ -13,6 +13,7 @@ export class ChatEntity {
   shortSummary: string | null;
   detailedSummary: string | null;
   isTransferred: boolean;
+  transferReason: string | null;
 
   @Exclude()
   isDeleted: boolean;
@@ -23,6 +24,7 @@ export class ChatEntity {
   // Relations (optional, loaded when included)
   lead?: any;
   messages?: any[];
+  agents?: any[]; // ChatAgent relations
 
   constructor(partial: Partial<ChatEntity>) {
     Object.assign(this, partial);

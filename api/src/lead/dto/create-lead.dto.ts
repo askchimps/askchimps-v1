@@ -156,6 +156,16 @@ export class CreateLeadDto {
   reasonForCold?: string;
 
   @ApiPropertyOptional({
+    description: 'Reason for transferring the lead',
+    example: 'Customer requested different language support',
+    maxLength: 500,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  transferReason?: string;
+
+  @ApiPropertyOptional({
     description:
       'Whether the lead has been transferred to another agent or system',
     example: false,

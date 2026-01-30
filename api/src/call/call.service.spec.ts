@@ -215,12 +215,28 @@ describe('CallService', () => {
 
   describe('findAll', () => {
     it('should return all calls for organisation', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJL',
+        isDeleted: false,
+      });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.call.count.mockResolvedValue(1);
-      mockPrismaService.call.findMany.mockResolvedValue([{ ...mockCall, lead: { phone: '+1234567890' }, agent: { name: 'Test Agent' } }]);
+      mockPrismaService.call.findMany.mockResolvedValue([
+        {
+          ...mockCall,
+          lead: { phone: '+1234567890' },
+          agent: { name: 'Test Agent' },
+        },
+      ]);
 
-      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, {});
+      const result = await service.findAll(
+        '01HZXYZ1234567890ABCDEFGHJL',
+        'user-1',
+        false,
+        {},
+      );
 
       expect(result.data).toHaveLength(1);
       expect(result.data[0].id).toBe('01HZXYZ1234567890ABCDEFGHJK');
@@ -230,12 +246,28 @@ describe('CallService', () => {
     });
 
     it('should filter calls by status', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJL',
+        isDeleted: false,
+      });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
       mockPrismaService.call.count.mockResolvedValue(1);
-      mockPrismaService.call.findMany.mockResolvedValue([{ ...mockCall, lead: { phone: '+1234567890' }, agent: { name: 'Test Agent' } }]);
+      mockPrismaService.call.findMany.mockResolvedValue([
+        {
+          ...mockCall,
+          lead: { phone: '+1234567890' },
+          agent: { name: 'Test Agent' },
+        },
+      ]);
 
-      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, { status: 'COMPLETED' });
+      const result = await service.findAll(
+        '01HZXYZ1234567890ABCDEFGHJL',
+        'user-1',
+        false,
+        { status: 'COMPLETED' },
+      );
 
       expect(result.data).toHaveLength(1);
       expect(prisma.call.count).toHaveBeenCalledWith({
@@ -248,13 +280,33 @@ describe('CallService', () => {
     });
 
     it('should filter calls by agentId', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
-      mockPrismaService.agent.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJM', organisationId: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJL',
+        isDeleted: false,
+      });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
+      mockPrismaService.agent.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJM',
+        organisationId: '01HZXYZ1234567890ABCDEFGHJL',
+        isDeleted: false,
+      });
       mockPrismaService.call.count.mockResolvedValue(1);
-      mockPrismaService.call.findMany.mockResolvedValue([{ ...mockCall, lead: { phone: '+1234567890' }, agent: { name: 'Test Agent' } }]);
+      mockPrismaService.call.findMany.mockResolvedValue([
+        {
+          ...mockCall,
+          lead: { phone: '+1234567890' },
+          agent: { name: 'Test Agent' },
+        },
+      ]);
 
-      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, { agentId: '01HZXYZ1234567890ABCDEFGHJM' });
+      const result = await service.findAll(
+        '01HZXYZ1234567890ABCDEFGHJL',
+        'user-1',
+        false,
+        { agentId: '01HZXYZ1234567890ABCDEFGHJM' },
+      );
 
       expect(result.data).toHaveLength(1);
       expect(prisma.call.count).toHaveBeenCalledWith({
@@ -267,13 +319,33 @@ describe('CallService', () => {
     });
 
     it('should filter calls by leadId', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
-      mockPrismaService.lead.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJN', organisationId: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
+      mockPrismaService.organisation.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJL',
+        isDeleted: false,
+      });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
+      mockPrismaService.lead.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJN',
+        organisationId: '01HZXYZ1234567890ABCDEFGHJL',
+        isDeleted: false,
+      });
       mockPrismaService.call.count.mockResolvedValue(1);
-      mockPrismaService.call.findMany.mockResolvedValue([{ ...mockCall, lead: { phone: '+1234567890' }, agent: { name: 'Test Agent' } }]);
+      mockPrismaService.call.findMany.mockResolvedValue([
+        {
+          ...mockCall,
+          lead: { phone: '+1234567890' },
+          agent: { name: 'Test Agent' },
+        },
+      ]);
 
-      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, { leadId: '01HZXYZ1234567890ABCDEFGHJN' });
+      const result = await service.findAll(
+        '01HZXYZ1234567890ABCDEFGHJL',
+        'user-1',
+        false,
+        { leadId: '01HZXYZ1234567890ABCDEFGHJN' },
+      );
 
       expect(result.data).toHaveLength(1);
       expect(prisma.call.count).toHaveBeenCalledWith({
@@ -286,18 +358,42 @@ describe('CallService', () => {
     });
 
     it('should filter calls by multiple criteria', async () => {
-      mockPrismaService.organisation.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
-      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({ userId: 'user-1' });
-      mockPrismaService.agent.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJM', organisationId: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
-      mockPrismaService.lead.findUnique.mockResolvedValue({ id: '01HZXYZ1234567890ABCDEFGHJN', organisationId: '01HZXYZ1234567890ABCDEFGHJL', isDeleted: false });
-      mockPrismaService.call.count.mockResolvedValue(1);
-      mockPrismaService.call.findMany.mockResolvedValue([{ ...mockCall, lead: { phone: '+1234567890' }, agent: { name: 'Test Agent' } }]);
-
-      const result = await service.findAll('01HZXYZ1234567890ABCDEFGHJL', 'user-1', false, {
-        status: 'COMPLETED',
-        agentId: '01HZXYZ1234567890ABCDEFGHJM',
-        leadId: '01HZXYZ1234567890ABCDEFGHJN'
+      mockPrismaService.organisation.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJL',
+        isDeleted: false,
       });
+      mockPrismaService.userOrganisation.findFirst.mockResolvedValue({
+        userId: 'user-1',
+      });
+      mockPrismaService.agent.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJM',
+        organisationId: '01HZXYZ1234567890ABCDEFGHJL',
+        isDeleted: false,
+      });
+      mockPrismaService.lead.findUnique.mockResolvedValue({
+        id: '01HZXYZ1234567890ABCDEFGHJN',
+        organisationId: '01HZXYZ1234567890ABCDEFGHJL',
+        isDeleted: false,
+      });
+      mockPrismaService.call.count.mockResolvedValue(1);
+      mockPrismaService.call.findMany.mockResolvedValue([
+        {
+          ...mockCall,
+          lead: { phone: '+1234567890' },
+          agent: { name: 'Test Agent' },
+        },
+      ]);
+
+      const result = await service.findAll(
+        '01HZXYZ1234567890ABCDEFGHJL',
+        'user-1',
+        false,
+        {
+          status: 'COMPLETED',
+          agentId: '01HZXYZ1234567890ABCDEFGHJM',
+          leadId: '01HZXYZ1234567890ABCDEFGHJN',
+        },
+      );
 
       expect(result.data).toHaveLength(1);
       expect(prisma.call.count).toHaveBeenCalledWith({

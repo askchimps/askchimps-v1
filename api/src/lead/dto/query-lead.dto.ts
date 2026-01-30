@@ -79,4 +79,3 @@ export class QueryLeadDto {
   @IsOptional()
   sortOrder?: 'asc' | 'desc';
 }
-

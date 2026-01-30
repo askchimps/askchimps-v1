@@ -6,6 +6,7 @@ import {
   ConflictException,
   ForbiddenException,
 } from '@nestjs/common';
+import { AGENT_TYPE, AGENT_ROLE } from '@prisma/client';
 
 describe('AgentService', () => {
   let service: AgentService;
@@ -15,6 +16,9 @@ describe('AgentService', () => {
     id: '01HZXYZ1234567890ABCDEFGHJK',
     organisationId: '01HZXYZ1234567890ABCDEFGHJL',
     name: 'Test Agent',
+    type: AGENT_TYPE.HUMAN,
+    role: AGENT_ROLE.INBOUND_CHAT,
+    workflowId: null,
     slug: 'test-agent',
     isDeleted: false,
     createdAt: new Date(),

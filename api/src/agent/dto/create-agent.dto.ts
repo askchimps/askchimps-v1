@@ -1,7 +1,7 @@
-import { IsString, IsNotEmpty, MaxLength, IsEnum } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, MaxLength, IsEnum, IsOptional } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsULID } from '../../common/validators/is-ulid.validator';
-import { AGENT_TYPE } from '@prisma/client';
+import { AGENT_TYPE, AGENT_ROLE } from '@prisma/client';
 
 export class CreateAgentDto {
   @ApiProperty({
@@ -22,6 +22,24 @@ export class CreateAgentDto {
   @IsEnum(AGENT_TYPE)
   @IsNotEmpty()
   type: AGENT_TYPE;
+
+  @ApiProperty({
+    description: 'Role of the agent',
+    enum: AGENT_ROLE,
+    example: AGENT_ROLE.INBOUND_CHAT,
+  })
+  @IsEnum(AGENT_ROLE)
+  @IsNotEmpty()
+  role: AGENT_ROLE;
+
+  @ApiPropertyOptional({
+    description: 'Workflow ID associated with the agent (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @IsString()
+  @IsOptional()
+  @IsULID()
+  workflowId?: string;
 
   @ApiProperty({
     description: 'Organisation ID (ULID format)',

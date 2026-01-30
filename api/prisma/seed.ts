@@ -1,4 +1,4 @@
-import { PrismaClient, ROLE, CHAT_SOURCE, CHAT_STATUS, CHAT_MESSAGE_TYPE, AGENT_TYPE, EXECUTION_TYPE, CALL_STATUS, SENTIMENT } from '@prisma/client';
+import { PrismaClient, ROLE, CHAT_SOURCE, CHAT_STATUS, CHAT_MESSAGE_TYPE, AGENT_TYPE, AGENT_ROLE, EXECUTION_TYPE, CALL_STATUS, SENTIMENT } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import * as bcrypt from 'bcrypt';
@@ -370,6 +370,7 @@ async function main() {
       id: '01KEBJ0DS1Z20WMZCK4E0HPJYT',
       name: 'Alex - Marketing Agent',
       type: AGENT_TYPE.MARKETING,
+      role: AGENT_ROLE.INBOUND_CHAT,
       organisationId: sunrooof.id,
       slug: 'alex-marketing-sunrooof-ai-assistant',
     },
@@ -380,6 +381,7 @@ async function main() {
       id: '01KEBJ0DS7SV0FEAHAT60Q11H2',
       name: 'Dipika - Sales Agent',
       type: AGENT_TYPE.SALES,
+      role: AGENT_ROLE.OUTBOUND_SALES_CALL,
       organisationId: sunrooof.id,
       slug: 'dipika-sales-sunrooof-ai-assistant',
     },
@@ -390,6 +392,7 @@ async function main() {
       id: '01KEBJ0DSB83QJTHSE044YE3S3',
       name: 'Alex - Marketing Agent',
       type: AGENT_TYPE.MARKETING,
+      role: AGENT_ROLE.INBOUND_CHAT,
       organisationId: magppie.id,
       slug: 'alex-marketing-magppie-ai-assistant',
     },
@@ -400,6 +403,7 @@ async function main() {
       id: '01KEBJ0DSGY863F1MWMY8NM6P6',
       name: 'Priya - Sales Agent',
       type: AGENT_TYPE.SALES,
+      role: AGENT_ROLE.OUTBOUND_SALES_CALL,
       organisationId: magppie.id,
       slug: 'priya-sales-magppie-ai-assistant',
     },

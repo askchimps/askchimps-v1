@@ -145,4 +145,14 @@ export class UpdateLeadDto extends PartialType(
   @IsBoolean()
   @IsOptional()
   isTransferred?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Reason for transferring the lead to another agent',
+    example: 'Customer requested technical specialist',
+    maxLength: 500,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  transferReason?: string;
 }

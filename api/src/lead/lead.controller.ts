@@ -66,6 +66,7 @@ export class LeadController {
           city: 'Kochi',
           reasonForCold: null,
           isTransferred: false,
+          transferReason: null,
           isDeleted: false,
           createdAt: '2024-01-15T10:30:00.000Z',
           updatedAt: '2024-01-15T10:30:00.000Z',
@@ -107,6 +108,8 @@ export class LeadController {
           country: 'India',
           state: 'Karnataka',
           city: 'Bangalore',
+          isTransferred: true,
+          transferReason: 'Customer requested Spanish-speaking agent',
         },
         summary: 'Create a lead with all available fields',
       },
@@ -127,7 +130,8 @@ export class LeadController {
   @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
   @ApiOperation({
     summary: 'Get all leads in organisation',
-    description: 'Retrieve paginated leads for the specified organisation with optional filters.',
+    description:
+      'Retrieve paginated leads for the specified organisation with optional filters.',
   })
   @ApiParam({
     name: 'organisationId',
@@ -159,6 +163,7 @@ export class LeadController {
               city: 'Kochi',
               reasonForCold: null,
               isTransferred: false,
+              transferReason: null,
               isDeleted: false,
               createdAt: '2024-01-15T10:30:00.000Z',
               updatedAt: '2024-01-15T10:30:00.000Z',
@@ -189,7 +194,12 @@ export class LeadController {
     @Query() queryDto: QueryLeadDto,
     @CurrentUser() user: UserPayload,
   ) {
-    return this.LeadService.findAll(organisationId, user.sub, user.isSuperAdmin, queryDto);
+    return this.LeadService.findAll(
+      organisationId,
+      user.sub,
+      user.isSuperAdmin,
+      queryDto,
+    );
   }
 
   @Get(':id')
@@ -232,6 +242,7 @@ export class LeadController {
           city: 'Kochi',
           reasonForCold: null,
           isTransferred: false,
+          transferReason: null,
           isDeleted: false,
           createdAt: '2024-01-15T10:30:00.000Z',
           updatedAt: '2024-01-15T10:30:00.000Z',
@@ -290,7 +301,8 @@ export class LeadController {
           state: 'Karnataka',
           city: 'Bangalore',
           reasonForCold: null,
-          isTransferred: false,
+          isTransferred: true,
+          transferReason: 'Customer requested technical specialist',
           isDeleted: false,
           createdAt: '2024-01-15T10:30:00.000Z',
           updatedAt: '2024-01-15T14:45:00.000Z',
@@ -311,6 +323,13 @@ export class LeadController {
           isTransferred: false,
         },
         summary: 'Update lead status and disposition',
+      },
+      'Transfer Lead': {
+        value: {
+          isTransferred: true,
+          transferReason: 'Customer requested technical specialist',
+        },
+        summary: 'Transfer lead to another agent with reason',
       },
       'Update Contact Info': {
         value: {
@@ -341,6 +360,8 @@ export class LeadController {
           country: 'India',
           state: 'Karnataka',
           city: 'Bangalore',
+          isTransferred: true,
+          transferReason: 'Customer requested Spanish-speaking agent',
         },
         summary: 'Update multiple fields at once',
       },

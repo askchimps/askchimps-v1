@@ -46,13 +46,21 @@ export class ChatService {
       throw new NotFoundException('Organisation not found');
     }
 
-    // Verify agent exists and belongs to organisation
-    const agent = await this.prisma.agent.findUnique({
-      where: { id: createChatDto.agentId },
-    });
+    // Verify all agents exist and belong to organisation
+    if (createChatDto.agentIds && createChatDto.agentIds.length > 0) {
+      const agents = await this.prisma.agent.findMany({
+        where: {
+          id: { in: createChatDto.agentIds },
+          organisationId,
+          isDeleted: false,
+        },
+      });
 
-    if (!agent || agent.isDeleted || agent.organisationId !== organisationId) {
-      throw new NotFoundException('Agent not found');
+      if (agents.length !== createChatDto.agentIds.length) {
+        throw new NotFoundException(
+          'One or more agents not found or do not belong to this organisation',
+        );
+      }
     }
 
     // If leadId provided, verify it exists and belongs to organisation
@@ -105,13 +113,23 @@ export class ChatService {
       }
     }
 
-    const { tagIds, ...chatData } = createChatDto;
+    const { tagIds, agentIds, ...chatData } = createChatDto;
 
     const chat = await this.prisma.chat.create({
       data: {
         ...chatData,
         organisationId,
         status: chatData.status || CHAT_STATUS.NEW,
+        ...(agentIds && agentIds.length > 0
+          ? {
+              agents: {
+                create: agentIds.map((agentId) => ({
+                  agentId,
+                  isActive: true,
+                })),
+              },
+            }
+          : {}),
         ...(tagIds && tagIds.length > 0
           ? {
               tags: {
@@ -123,6 +141,20 @@ export class ChatService {
       include: {
         lead: true,
         tags: true,
+        agents: {
+          where: { isDeleted: false },
+          include: {
+            agent: {
+              select: {
+                id: true,
+                name: true,
+                type: true,
+                role: true,
+                workflowId: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -137,6 +169,20 @@ export class ChatService {
       },
       include: {
         lead: true,
+        agents: {
+          where: { isDeleted: false },
+          include: {
+            agent: {
+              select: {
+                id: true,
+                name: true,
+                type: true,
+                role: true,
+                workflowId: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -158,6 +204,20 @@ export class ChatService {
       },
       include: {
         lead: true,
+        agents: {
+          where: { isDeleted: false },
+          include: {
+            agent: {
+              select: {
+                id: true,
+                name: true,
+                type: true,
+                role: true,
+                workflowId: true,
+              },
+            },
+          },
+        },
         messages: {
           where: { isDeleted: false },
           orderBy: { createdAt: 'asc' },
@@ -212,6 +272,23 @@ export class ChatService {
       }
     }
 
+    // Verify agents exist and belong to organisation if provided
+    if (updateChatDto.agentIds && updateChatDto.agentIds.length > 0) {
+      const agents = await this.prisma.agent.findMany({
+        where: {
+          id: { in: updateChatDto.agentIds },
+          organisationId,
+          isDeleted: false,
+        },
+      });
+
+      if (agents.length !== updateChatDto.agentIds.length) {
+        throw new NotFoundException(
+          'One or more agents not found or do not belong to this organisation',
+        );
+      }
+    }
+
     // Verify tags exist and belong to organisation if provided
     if (updateChatDto.tagIds && updateChatDto.tagIds.length > 0) {
       const tags = await this.prisma.tag.findMany({
@@ -229,12 +306,23 @@ export class ChatService {
       }
     }
 
-    const { tagIds, ...chatData } = updateChatDto;
+    const { tagIds, agentIds, ...chatData } = updateChatDto;
 
     const chat = await this.prisma.chat.update({
       where: { id: existingChat.id },
       data: {
         ...chatData,
+        ...(agentIds !== undefined
+          ? {
+              agents: {
+                deleteMany: { chatId: existingChat.id },
+                create: agentIds.map((agentId) => ({
+                  agentId,
+                  isActive: true,
+                })),
+              },
+            }
+          : {}),
         ...(tagIds !== undefined
           ? {
               tags: {
@@ -246,6 +334,20 @@ export class ChatService {
       include: {
         lead: true,
         tags: true,
+        agents: {
+          where: { isDeleted: false },
+          include: {
+            agent: {
+              select: {
+                id: true,
+                name: true,
+                type: true,
+                role: true,
+                workflowId: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -285,6 +387,20 @@ export class ChatService {
       },
       include: {
         lead: true,
+        agents: {
+          where: { isDeleted: false },
+          include: {
+            agent: {
+              select: {
+                id: true,
+                name: true,
+                type: true,
+                role: true,
+                workflowId: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -308,6 +424,20 @@ export class ChatService {
       },
       include: {
         lead: true,
+        agents: {
+          where: { isDeleted: false },
+          include: {
+            agent: {
+              select: {
+                id: true,
+                name: true,
+                type: true,
+                role: true,
+                workflowId: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -336,6 +466,20 @@ export class ChatService {
       data: { status },
       include: {
         lead: true,
+        agents: {
+          where: { isDeleted: false },
+          include: {
+            agent: {
+              select: {
+                id: true,
+                name: true,
+                type: true,
+                role: true,
+                workflowId: true,
+              },
+            },
+          },
+        },
       },
     });
 

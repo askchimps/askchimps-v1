@@ -77,17 +77,19 @@ model Agent {
   id               String                  @id @default(ulid())
   name             String
   type             AGENT_TYPE
+  role             AGENT_ROLE              @default(INBOUND_CHAT)
+  workflowId       String?                 @map("workflow_id")
   organisationId   String                  @map("organisation_id")
   slug             String                  @unique
   isDeleted        Boolean                 @default(false) @map("is_deleted")
   createdAt        DateTime                @default(now()) @map("created_at")
   updatedAt        DateTime                @updatedAt @map("updated_at")
   organisation     Organisation            @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  chats            Chat[]
   calls            Call[]
   leads            Lead[]
   leadCallSchedule AgentLeadCallSchedule[]
   executions       Execution[]
+  chats            ChatAgent[]
 
   @@map("agents")
 }
@@ -110,6 +112,7 @@ model Lead {
   state          String?
   city           String?
   isTransferred  Boolean                 @default(false) @map("is_transferred")
+  transferReason String?                 @map("transfer_reason")
   isDeleted      Boolean                 @default(false) @map("is_deleted")
   createdAt      DateTime                @default(now()) @map("created_at")
   updatedAt      DateTime                @updatedAt @map("updated_at")
@@ -161,7 +164,6 @@ model LeadOwner {
 model Chat {
   id                    String                 @id @default(ulid())
   organisationId        String                 @map("organisation_id")
-  agentId               String                 @map("agent_id")
   leadId                String?                @map("lead_id")
   name                  String?
   source                CHAT_SOURCE
@@ -170,18 +172,34 @@ model Chat {
   shortSummary          String?                @map("short_summary")
   detailedSummary       String?                @map("detailed_summary")
   isTransferred         Boolean                @default(false) @map("is_transferred")
+  transferReason        String?                @map("transfer_reason")
   isDeleted             Boolean                @default(false) @map("is_deleted")
   createdAt             DateTime               @default(now()) @map("created_at")
   updatedAt             DateTime               @updatedAt @map("updated_at")
   messages              ChatMessage[]
   lead                  Lead?                  @relation(fields: [leadId], references: [id])
   organisation          Organisation           @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  agent                 Agent                  @relation(fields: [agentId], references: [id], onDelete: Cascade)
   executions            Execution[]
   tags                  Tag[]                  @relation("ChatTags")
   chatFollowUpSchedules ChatFollowUpSchedule[]
+  agents                ChatAgent[]
 
   @@map("chats")
+}
+
+model ChatAgent {
+  id        String   @id @default(ulid())
+  chatId    String   @map("chat_id")
+  agentId   String   @map("agent_id")
+  isActive  Boolean  @default(true) @map("is_active")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([chatId, agentId])
+  @@map("chat_agents")
 }
 
 model ChatMessage {
@@ -412,6 +430,15 @@ enum ROLE {
 enum AGENT_TYPE {
   MARKETING
   SALES
+}
+
+enum AGENT_ROLE {
+  INBOUND_CHAT
+  POST_CALL_CHAT
+  INBOUND_CALL
+  OUTBOUND_PRE_SALES_CALL
+  OUTBOUND_SALES_CALL
+  FEEDBACK_CALL
 }
 
 enum CHAT_SOURCE {

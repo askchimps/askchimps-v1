@@ -60,7 +60,6 @@ export class ChatController {
         data: {
           id: '01HZXYZ1234567890ABCDEFGHJK',
           organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
-          agentId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
           leadId: '01HZXYZ1234567890ABCDEFGHJK',
           name: 'Product Inquiry - John Doe',
           source: 'WHATSAPP',
@@ -69,9 +68,19 @@ export class ChatController {
           shortSummary: null,
           detailedSummary: null,
           isTransferred: false,
+          transferReason: null,
           isDeleted: false,
           createdAt: '2024-01-15T10:30:00.000Z',
           updatedAt: '2024-01-15T10:30:00.000Z',
+          agents: [
+            {
+              id: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+              name: 'John Doe',
+              type: 'HUMAN',
+              role: 'INBOUND_CHAT',
+              workflowId: null,
+            },
+          ],
         },
         statusCode: 201,
         timestamp: '2024-01-15T10:30:00.000Z',
@@ -119,7 +128,6 @@ export class ChatController {
           {
             id: '01HZXYZ1234567890ABCDEFGHJK',
             organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
-            agentId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
             leadId: '01HZXYZ1234567890ABCDEFGHJK',
             name: 'Product Inquiry - John Doe',
             source: 'WHATSAPP',
@@ -129,9 +137,19 @@ export class ChatController {
             detailedSummary:
               'Customer John Doe contacted via WhatsApp asking about solar panel installation.',
             isTransferred: false,
+            transferReason: null,
             isDeleted: false,
             createdAt: '2024-01-15T10:30:00.000Z',
             updatedAt: '2024-01-15T10:30:00.000Z',
+            agents: [
+              {
+                id: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+                name: 'John Doe',
+                type: 'HUMAN',
+                role: 'INBOUND_CHAT',
+                workflowId: null,
+              },
+            ],
           },
         ],
         statusCode: 200,
@@ -181,7 +199,6 @@ export class ChatController {
         data: {
           id: '01HZXYZ1234567890ABCDEFGHJK',
           organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
-          agentId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
           leadId: '01HZXYZ1234567890ABCDEFGHJK',
           name: 'Product Inquiry - John Doe',
           source: 'WHATSAPP',
@@ -191,9 +208,19 @@ export class ChatController {
           detailedSummary:
             'Customer John Doe contacted via WhatsApp asking about solar panel installation.',
           isTransferred: false,
+          transferReason: null,
           isDeleted: false,
           createdAt: '2024-01-15T10:30:00.000Z',
           updatedAt: '2024-01-15T10:30:00.000Z',
+          agents: [
+            {
+              id: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+              name: 'John Doe',
+              type: 'HUMAN',
+              role: 'INBOUND_CHAT',
+              workflowId: null,
+            },
+          ],
           messages: [
             {
               id: '01HZXYZ1234567890ABCDEFGHJK',

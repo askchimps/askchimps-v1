@@ -15,6 +15,7 @@ export class LeadEntity {
   state: string | null;
   city: string | null;
   reasonForCold: string | null;
+  transferReason: string | null;
   isTransferred: boolean;
   isDeleted: boolean;
   createdAt: Date;

@@ -13,12 +13,14 @@ import { IsULID } from '../../common/validators/is-ulid.validator';
 
 export class CreateChatDto {
   @ApiProperty({
-    description: 'Agent ID (ULID format)',
-    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+    description: 'Array of Agent IDs to assign to this chat (ULID format)',
+    example: ['01ARZ3NDEKTSV4RRFFQ69G5FAV'],
+    type: [String],
   })
+  @IsArray()
   @IsNotEmpty()
-  @IsULID()
-  agentId: string;
+  @IsString({ each: true })
+  agentIds: string[];
 
   @ApiPropertyOptional({
     description: 'Lead ID to associate with this chat (ULID format)',
@@ -99,6 +101,16 @@ export class CreateChatDto {
   @IsOptional()
   @IsBoolean()
   isTransferred?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Reason for transferring the chat to another agent',
+    example: 'Customer requested Spanish-speaking agent',
+    maxLength: 500,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  transferReason?: string;
 
   @ApiPropertyOptional({
     description: 'Array of tag IDs to associate with this chat (ULID format)',
