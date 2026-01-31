@@ -52,11 +52,13 @@ export function LeadFilters({
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="ALL">All Status</SelectItem>
-                    {availableStatuses.map((statusValue) => (
-                        <SelectItem key={statusValue} value={statusValue}>
-                            {statusValue}
-                        </SelectItem>
-                    ))}
+                    {availableStatuses
+                        .filter((statusValue) => statusValue && statusValue.trim() !== "")
+                        .map((statusValue) => (
+                            <SelectItem key={statusValue} value={statusValue}>
+                                {statusValue}
+                            </SelectItem>
+                        ))}
                 </SelectContent>
             </Select>
 
@@ -70,14 +72,16 @@ export function LeadFilters({
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="ALL">All Disposition</SelectItem>
-                    {availableDispositions.map((dispositionValue) => (
-                        <SelectItem
-                            key={dispositionValue}
-                            value={dispositionValue}
-                        >
-                            {dispositionValue}
-                        </SelectItem>
-                    ))}
+                    {availableDispositions
+                        .filter((dispositionValue) => dispositionValue && dispositionValue.trim() !== "")
+                        .map((dispositionValue) => (
+                            <SelectItem
+                                key={dispositionValue}
+                                value={dispositionValue}
+                            >
+                                {dispositionValue}
+                            </SelectItem>
+                        ))}
                 </SelectContent>
             </Select>
         </div>
