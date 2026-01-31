@@ -24,9 +24,10 @@ export class ChatEntity {
   // Relations (optional, loaded when included)
   lead?: any;
   messages?: any[];
-  agents?: any[]; // ChatAgent relations
+  agents?: any[]; // ChatAgent relations with agent details
+  tags?: any[]; // Tag relations
 
-    constructor(partial: Partial<ChatEntity>) {
-        Object.assign(this, partial);
-    }
+  constructor(partial: Partial<ChatEntity>) {
+    Object.assign(this, partial);
+  }
 }

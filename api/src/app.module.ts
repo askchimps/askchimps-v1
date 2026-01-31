@@ -19,11 +19,11 @@ import { CallMessageModule } from './call-message/call-message.module';
 import { AgentLeadCallScheduleModule } from './agent-lead-call-schedule/agent-lead-call-schedule.module';
 import { ExecutionModule } from './execution/execution.module';
 import { HistoryModule } from './history/history.module';
-import { HealthModule } from './health/health.module';
 import { TagModule } from './tag/tag.module';
+import { ChatAgentModule } from './chat-agent/chat-agent.module';
 import { ChatFollowUpMessageModule } from './chat-follow-up-message/chat-follow-up-message.module';
 import { ChatFollowUpScheduleModule } from './chat-follow-up-schedule/chat-follow-up-schedule.module';
-import { ChatAgentModule } from './chat-agent/chat-agent.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
