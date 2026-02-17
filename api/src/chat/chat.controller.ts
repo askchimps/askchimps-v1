@@ -119,6 +119,21 @@ export class ChatController {
     description: 'Filter chats by lead ID (ULID format)',
     example: '01HZXYZ1234567890ABCDEFGHJK',
   })
+  @ApiQuery({
+    name: 'lastMessageWithinMinutes',
+    required: false,
+    type: Number,
+    description:
+      'Filter chats that have at least one message created within the last X minutes',
+    example: 30,
+  })
+  @ApiQuery({
+    name: 'source',
+    required: false,
+    enum: ['WHATSAPP', 'INSTAGRAM'],
+    description: 'Filter chats by source',
+    example: 'WHATSAPP',
+  })
   @ApiResponse({
     status: 200,
     description: 'Chats retrieved successfully',
@@ -165,11 +180,18 @@ export class ChatController {
   findAll(
     @Param('organisationId') organisationId: string,
     @Query('leadId') leadId?: string,
+    @Query('lastMessageWithinMinutes') lastMessageWithinMinutes?: number,
+    @Query('source') source?: string,
   ) {
     if (leadId) {
       return this.chatService.findByLead(organisationId, leadId);
     }
-    return this.chatService.findAll(organisationId);
+    return this.chatService.findAll(organisationId, {
+      lastMessageWithinMinutes: lastMessageWithinMinutes
+        ? Number(lastMessageWithinMinutes)
+        : undefined,
+      source: source,
+    });
   }
 
   @Get(':id')

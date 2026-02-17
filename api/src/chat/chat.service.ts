@@ -161,12 +161,42 @@ export class ChatService {
     return new ChatEntity(chat);
   }
 
-  async findAll(organisationId: string): Promise<ChatEntity[]> {
+  async findAll(
+    organisationId: string,
+    queryDto?: {
+      lastMessageWithinMinutes?: number;
+      source?: string;
+    },
+  ): Promise<ChatEntity[]> {
+    const where: any = {
+      organisationId,
+      isDeleted: false,
+    };
+
+    // Filter by source if provided
+    if (queryDto?.source) {
+      where.source = queryDto.source;
+    }
+
+    // Filter by recent message activity if provided
+    if (queryDto?.lastMessageWithinMinutes) {
+      const minutesAgo = new Date();
+      minutesAgo.setMinutes(
+        minutesAgo.getMinutes() - queryDto.lastMessageWithinMinutes,
+      );
+
+      where.messages = {
+        some: {
+          createdAt: {
+            gte: minutesAgo,
+          },
+          isDeleted: false,
+        },
+      };
+    }
+
     const chats = await this.prisma.chat.findMany({
-      where: {
-        organisationId,
-        isDeleted: false,
-      },
+      where,
       include: {
         lead: true,
         agents: {

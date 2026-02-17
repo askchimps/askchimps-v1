@@ -24,6 +24,7 @@ import { ChatAgentModule } from './chat-agent/chat-agent.module';
 import { ChatFollowUpMessageModule } from './chat-follow-up-message/chat-follow-up-message.module';
 import { ChatFollowUpScheduleModule } from './chat-follow-up-schedule/chat-follow-up-schedule.module';
 import { HealthModule } from './health/health.module';
+import { CustomerModule } from './customer/customer.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { HealthModule } from './health/health.module';
     ChatFollowUpMessageModule,
     ChatFollowUpScheduleModule,
     ChatAgentModule,
+    CustomerModule,
   ],
   providers: [
     {

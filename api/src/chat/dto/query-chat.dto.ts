@@ -81,4 +81,15 @@ export class QueryChatDto {
     @IsString()
     @IsOptional()
     sortOrder?: 'asc' | 'desc';
+
+    @ApiPropertyOptional({
+        description: 'Filter chats that have at least one message created within the last X minutes',
+        example: 30,
+        minimum: 1,
+    })
+    @Type(() => Number)
+    @IsInt()
+    @Min(1)
+    @IsOptional()
+    lastMessageWithinMinutes?: number;
 }

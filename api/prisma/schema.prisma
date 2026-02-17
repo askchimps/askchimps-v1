@@ -421,6 +421,18 @@ model Tag {
   @@map("tags")
 }
 
+model Customers {
+  id        Int     @id @default(autoincrement())
+  firstName String?
+  lastName  String?
+  email     String?
+  phone     String?
+  address   Json?
+  company   String?
+
+  @@map("customers")
+}
+
 enum ROLE {
   OWNER
   ADMIN
