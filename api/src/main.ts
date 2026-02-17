@@ -5,9 +5,15 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+        bodyParser: true,
+    });
 
     const configService = app.get(ConfigService);
+
+    // Increase body size limit for bulk uploads (50MB)
+    app.use(require('express').json({ limit: '50mb' }));
+    app.use(require('express').urlencoded({ limit: '50mb', extended: true }));
 
     // API Versioning
     app.enableVersioning({

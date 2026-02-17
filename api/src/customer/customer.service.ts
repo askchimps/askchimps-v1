@@ -2,7 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
-  BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -12,30 +12,49 @@ import { CustomerEntity } from './entities/customer.entity';
 
 @Injectable()
 export class CustomerService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Create a new customer
    */
   async create(createCustomerDto: CreateCustomerDto): Promise<CustomerEntity> {
     try {
+      console.log(
+        `[CustomerService] Creating customer with email: ${createCustomerDto.email || 'N/A'}, phone: ${createCustomerDto.phone || 'N/A'}`,
+      );
+
       const customer = await this.prisma.customers.create({
         data: createCustomerDto,
       });
 
+      console.log(`[CustomerService] Customer created successfully with ID: ${customer.id}`);
       return new CustomerEntity(customer);
     } catch (error: any) {
       if (error.code === 'P2002') {
         const target = (error.meta?.target as string[]) || [];
         if (target.includes('email')) {
+          console.warn(
+            `[CustomerService] Duplicate email attempted: ${createCustomerDto.email}`,
+          );
           throw new ConflictException('Email already exists');
         }
         if (target.includes('phone')) {
+          console.warn(
+            `[CustomerService] Duplicate phone attempted: ${createCustomerDto.phone}`,
+          );
           throw new ConflictException('Phone number already exists');
         }
+        console.warn(
+          `[CustomerService] Duplicate customer attempted: ${JSON.stringify(createCustomerDto)}`,
+        );
         throw new ConflictException('Customer already exists');
       }
-      throw error;
+
+      console.error(
+        `[CustomerService] Error creating customer: ${error.message}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException('Failed to create customer');
     }
   }
 
@@ -48,45 +67,48 @@ export class CustomerService {
     limit: number;
     offset: number;
   }> {
-    const { search, company, limit = 50, offset = 0, sortOrder = 'desc' } = queryDto;
+    try {
+      const { search, company, limit = 50, offset = 0, sortOrder = 'desc' } = queryDto;
+      const where: any = {};
 
-    const where: any = {};
+      // Search across multiple fields
+      if (search) {
+        where.OR = [
+          { firstName: { contains: search, mode: 'insensitive' } },
+          { lastName: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+          { phone: { contains: search } },
+          { company: { contains: search, mode: 'insensitive' } },
+        ];
+      }
 
-    // Search across multiple fields
-    if (search) {
-      where.OR = [
-        { firstName: { contains: search, mode: 'insensitive' } },
-        { lastName: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-        { phone: { contains: search } },
-        { company: { contains: search, mode: 'insensitive' } },
-      ];
+      // Filter by company
+      if (company) {
+        where.company = { contains: company, mode: 'insensitive' };
+      }
+
+      // Execute queries in parallel for better performance
+      const [customers, total] = await Promise.all([
+        this.prisma.customers.findMany({
+          where,
+          take: limit,
+          skip: offset,
+          orderBy: {
+            id: sortOrder,
+          },
+        }),
+        this.prisma.customers.count({ where }),
+      ]);
+
+      return {
+        data: customers.map((customer) => new CustomerEntity(customer)),
+        total,
+        limit,
+        offset,
+      };
+    } catch (error: any) {
+      throw new InternalServerErrorException('Failed to fetch customers');
     }
-
-    // Filter by company
-    if (company) {
-      where.company = { contains: company, mode: 'insensitive' };
-    }
-
-    // Execute queries in parallel for better performance
-    const [customers, total] = await Promise.all([
-      this.prisma.customers.findMany({
-        where,
-        take: limit,
-        skip: offset,
-        orderBy: {
-          id: sortOrder,
-        },
-      }),
-      this.prisma.customers.count({ where }),
-    ]);
-
-    return {
-      data: customers.map((customer) => new CustomerEntity(customer)),
-      total,
-      limit,
-      offset,
-    };
   }
 
   /**
@@ -158,6 +180,10 @@ export class CustomerService {
     created: CustomerEntity[];
     summary: { total: number; successful: number; skipped: number };
   }> {
+    console.log(
+      `[CustomerService] Starting bulk customer creation - Total records: ${customers.length}`,
+    );
+
     const created: CustomerEntity[] = [];
     let skippedCount = 0;
 
@@ -165,56 +191,111 @@ export class CustomerService {
     const batchSize = 50;
     for (let i = 0; i < customers.length; i += batchSize) {
       const batch = customers.slice(i, i + batchSize);
+      const batchNumber = Math.floor(i / batchSize) + 1;
+      const totalBatches = Math.ceil(customers.length / batchSize);
+
+      console.log(
+        `[CustomerService] Processing batch ${batchNumber}/${totalBatches} (${batch.length} records)`,
+      );
 
       const results = await Promise.allSettled(
-        batch.map(async (customer) => {
+        batch.map(async (customer, index) => {
+          const globalIndex = i + index;
+          console.log(
+            `[CustomerService] Attempting to create customer at index ${globalIndex} - Customer Body: ${JSON.stringify(customer)}`,
+          );
           try {
             const result = await this.prisma.customers.create({
               data: customer,
             });
             return {
               success: true as const,
-              data: new CustomerEntity(result)
+              data: new CustomerEntity(result),
+              index: globalIndex,
             };
           } catch (error: any) {
+            // Log detailed error information
+            const customerInfo = {
+              index: globalIndex,
+              email: customer.email || 'N/A',
+              phone: customer.phone || 'N/A',
+              firstName: customer.firstName || 'N/A',
+              lastName: customer.lastName || 'N/A',
+            };
+
             // Skip duplicates silently (P2002 is unique constraint violation)
             if (error.code === 'P2002') {
+              const target = (error.meta?.target as string[]) || [];
+              const duplicateField = target.join(', ');
+
+              console.warn(
+                `[CustomerService] Duplicate record skipped at index ${globalIndex} - Field: ${duplicateField}, Email: ${customer.email || 'N/A'}, Phone: ${customer.phone || 'N/A'}`,
+              );
+
               return {
                 success: false as const,
-                reason: 'duplicate'
+                reason: 'duplicate',
+                index: globalIndex,
               };
             }
-            // For other errors, also skip but could log them
+
+            // For other errors, log detailed information
+            console.error(
+              `[CustomerService] Error creating customer at index ${globalIndex} - Customer: ${JSON.stringify(customerInfo)} ${JSON.stringify(customer)} ${JSON.stringify(batch)}, Error: ${error.message}, Code: ${error.code || 'N/A'}`,
+            );
+            console.error(`[CustomerService] Stack trace:`, error.stack);
+
             return {
               success: false as const,
-              reason: 'error'
+              reason: 'error',
+              index: globalIndex,
+              error: error.message,
             };
           }
-        })
+        }),
       );
 
       // Process results
+      let batchCreated = 0;
+      let batchSkipped = 0;
+
       results.forEach((result) => {
         if (result.status === 'fulfilled') {
           if (result.value.success) {
             created.push(result.value.data);
+            batchCreated++;
           } else {
             skippedCount++;
+            batchSkipped++;
           }
         } else {
-          // Promise rejected - count as skipped
+          // Promise rejected - count as skipped and log error
           skippedCount++;
+          batchSkipped++;
+          console.error(
+            `[CustomerService] Promise rejected in batch ${batchNumber}: ${result.reason}`,
+          );
         }
       });
+
+      console.log(
+        `[CustomerService] Batch ${batchNumber}/${totalBatches} completed - Created: ${batchCreated}, Skipped: ${batchSkipped}`,
+      );
     }
+
+    const summary = {
+      total: customers.length,
+      successful: created.length,
+      skipped: skippedCount,
+    };
+
+    console.log(
+      `[CustomerService] Bulk customer creation completed - Total: ${summary.total}, Successful: ${summary.successful}, Skipped: ${summary.skipped}`,
+    );
 
     return {
       created,
-      summary: {
-        total: customers.length,
-        successful: created.length,
-        skipped: skippedCount,
-      },
+      summary,
     };
   }
 }

@@ -30,7 +30,7 @@ import { Public } from '../common/decorators';
 @Public()
 @Controller('customer')
 export class CustomerController {
-  constructor(private readonly customerService: CustomerService) {}
+  constructor(private readonly customerService: CustomerService) { }
 
   @Post()
   @ApiOperation({
@@ -345,7 +345,7 @@ export class CustomerController {
     status: 400,
     description: 'Bad Request - Invalid input data or exceeds max limit (500)',
   })
-  async bulkCreate(@Body() bulkCreateDto: BulkCreateCustomerDto) {
+  async bulkCreate(@Body() bulkCreateDto: any) {
     const data = await this.customerService.bulkCreate(
       bulkCreateDto.customers,
     );
