@@ -433,6 +433,18 @@ model Customers {
   @@map("customers")
 }
 
+model instagram_chat_history {
+  id         Int    @id @default(autoincrement())
+  session_id String @db.VarChar(255)
+  message    Json
+}
+
+model whatsapp_chat_history {
+  id         Int    @id @default(autoincrement())
+  session_id String @db.VarChar(255)
+  message    Json
+}
+
 enum ROLE {
   OWNER
   ADMIN
