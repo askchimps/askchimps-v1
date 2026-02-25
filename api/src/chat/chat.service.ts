@@ -652,7 +652,6 @@ export class ChatService {
       const updatedChat = await tx.chat.update({
         where: { id: chatId },
         data: {
-          isTransferred: true,
           ...(transferChatDto.transferReason && {
             transferReason: transferChatDto.transferReason,
           }),
