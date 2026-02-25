@@ -9,6 +9,7 @@ import { PrismaService } from '../database/prisma.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { CheckInstagramMessageDto } from './dto/check-instagram-message.dto';
+import { TransferChatDto } from './dto/transfer-chat.dto';
 import { ChatEntity } from './entities/chat.entity';
 import { CHAT_STATUS } from '@prisma/client';
 
@@ -164,8 +165,10 @@ export class ChatService {
   async findAll(
     organisationId: string,
     queryDto?: {
+      leadId?: string;
       lastMessageWithinMinutes?: number;
       source?: string;
+      activeAgentId?: string;
     },
   ): Promise<ChatEntity[]> {
     const where: any = {
@@ -173,9 +176,25 @@ export class ChatService {
       isDeleted: false,
     };
 
+    // Filter by lead ID if provided
+    if (queryDto?.leadId) {
+      where.leadId = queryDto.leadId;
+    }
+
     // Filter by source if provided
     if (queryDto?.source) {
       where.source = queryDto.source;
+    }
+
+    // Filter by active agent if provided
+    if (queryDto?.activeAgentId) {
+      where.agents = {
+        some: {
+          agentId: queryDto.activeAgentId,
+          isActive: true,
+          isDeleted: false,
+        },
+      };
     }
 
     // Filter by recent message activity if provided
@@ -185,14 +204,27 @@ export class ChatService {
         minutesAgo.getMinutes() - queryDto.lastMessageWithinMinutes,
       );
 
-      where.messages = {
-        some: {
-          createdAt: {
-            gte: minutesAgo,
+      // If activeAgentId filter is already set, we need to combine conditions
+      if (queryDto?.activeAgentId) {
+        // Add message filter to existing where clause
+        where.messages = {
+          some: {
+            createdAt: {
+              gte: minutesAgo,
+            },
+            isDeleted: false,
           },
-          isDeleted: false,
-        },
-      };
+        };
+      } else {
+        where.messages = {
+          some: {
+            createdAt: {
+              gte: minutesAgo,
+            },
+            isDeleted: false,
+          },
+        };
+      }
     }
 
     const chats = await this.prisma.chat.findMany({
@@ -514,6 +546,144 @@ export class ChatService {
     });
 
     return new ChatEntity(updatedChat);
+  }
+
+  /**
+   * Transfer chat to a new active agent
+   * Deactivates all current agents and activates the new agent
+   * @param organisationId - Organisation ID
+   * @param chatId - Chat ID
+   * @param transferChatDto - DTO containing newAgentId and optional transferReason
+   * @returns Updated chat with new active agent
+   */
+  async transferChat(
+    organisationId: string,
+    chatId: string,
+    transferChatDto: TransferChatDto,
+  ): Promise<ChatEntity> {
+    console.log(
+      `[ChatService] Transferring chat ${chatId} to agent ${transferChatDto.newAgentId}`,
+    );
+
+    // Validate chat exists and belongs to organisation
+    const chat = await this.prisma.chat.findFirst({
+      where: {
+        id: chatId,
+        organisationId,
+        isDeleted: false,
+      },
+    });
+
+    if (!chat) {
+      throw new NotFoundException('Chat not found');
+    }
+
+    // Validate new agent exists and belongs to same organisation
+    const newAgent = await this.prisma.agent.findUnique({
+      where: { id: transferChatDto.newAgentId },
+    });
+
+    if (
+      !newAgent ||
+      newAgent.isDeleted ||
+      newAgent.organisationId !== organisationId
+    ) {
+      throw new NotFoundException(
+        'Agent not found or does not belong to this organisation',
+      );
+    }
+
+    console.log(
+      `[ChatService] Validated chat and agent - proceeding with transfer`,
+    );
+
+    // Use Prisma transaction to ensure atomicity
+    const result = await this.prisma.$transaction(async (tx) => {
+      // Step 1: Deactivate all current agents for this chat
+      const deactivatedCount = await tx.chatAgent.updateMany({
+        where: {
+          chatId,
+          isDeleted: false,
+        },
+        data: {
+          isActive: false,
+        },
+      });
+
+      console.log(
+        `[ChatService] Deactivated ${deactivatedCount.count} existing agent(s)`,
+      );
+
+      // Step 2: Check if new agent already has a relationship with this chat
+      const existingAssignment = await tx.chatAgent.findFirst({
+        where: {
+          chatId,
+          agentId: transferChatDto.newAgentId,
+        },
+      });
+
+      if (existingAssignment) {
+        // Update existing assignment to active
+        await tx.chatAgent.update({
+          where: { id: existingAssignment.id },
+          data: {
+            isActive: true,
+            isDeleted: false, // Restore if it was soft deleted
+          },
+        });
+        console.log(
+          `[ChatService] Reactivated existing agent assignment ${existingAssignment.id}`,
+        );
+      } else {
+        // Create new agent assignment
+        const newAssignment = await tx.chatAgent.create({
+          data: {
+            chatId,
+            agentId: transferChatDto.newAgentId,
+            isActive: true,
+          },
+        });
+        console.log(
+          `[ChatService] Created new agent assignment ${newAssignment.id}`,
+        );
+      }
+
+      // Step 3: Update chat transfer status and reason
+      const updatedChat = await tx.chat.update({
+        where: { id: chatId },
+        data: {
+          isTransferred: true,
+          ...(transferChatDto.transferReason && {
+            transferReason: transferChatDto.transferReason,
+          }),
+        },
+        include: {
+          lead: true,
+          agents: {
+            where: { isDeleted: false },
+            include: {
+              agent: {
+                select: {
+                  id: true,
+                  name: true,
+                  type: true,
+                  role: true,
+                  workflowId: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return updatedChat;
+    });
+
+    console.log(
+      `[ChatService] Chat transfer completed successfully - Chat ${chatId} now assigned to agent ${transferChatDto.newAgentId}`,
+    );
+
+    return new ChatEntity(result);
   }
 
   /**

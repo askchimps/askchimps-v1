@@ -18,6 +18,7 @@ import {
 import { OrganisationService } from './organisation.service';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { UpdateOrganisationDto } from './dto/update-organisation.dto';
+import { UpdateCreditsDto } from './dto/update-credits.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../common/guards/rbac.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -49,6 +50,7 @@ export class OrganisationController {
                     slug: 'acme-corp',
                     availableIndianChannels: 100,
                     availableInternationalChannels: 50,
+                    credits: 5000,
                     chatCredits: 1000,
                     callCredits: 500,
                     isDeleted: false,
@@ -91,6 +93,7 @@ export class OrganisationController {
                         slug: 'acme-corp',
                         availableIndianChannels: 100,
                         availableInternationalChannels: 50,
+                        credits: 5000,
                         chatCredits: 1000,
                         callCredits: 500,
                         isDeleted: false,
@@ -130,6 +133,7 @@ export class OrganisationController {
                     slug: 'acme-corp',
                     availableIndianChannels: 100,
                     availableInternationalChannels: 50,
+                    credits: 5000,
                     chatCredits: 1000,
                     callCredits: 500,
                     isDeleted: false,
@@ -179,6 +183,7 @@ export class OrganisationController {
                     slug: 'acme-corp',
                     availableIndianChannels: 150,
                     availableInternationalChannels: 75,
+                    credits: 7500,
                     chatCredits: 1500,
                     callCredits: 750,
                     isDeleted: false,
@@ -205,6 +210,62 @@ export class OrganisationController {
         return this.OrganisationService.update(
             organisationId,
             updateOrganisationDto,
+            user.sub,
+            user.isSuperAdmin,
+        );
+    }
+
+    @Patch(':organisationId/credits')
+    @UseGuards(RbacGuard)
+    @Roles(Role.OWNER, Role.ADMIN)
+    @ApiOperation({
+        summary: 'Update organisation credits',
+        description:
+            'Increment or decrement organisation credits. Only owners and admins can update credits.',
+    })
+    @ApiParam({
+        name: 'organisationId',
+        description: 'Organisation ID (ULID format)',
+        example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Credits updated successfully',
+        schema: {
+            example: {
+                data: {
+                    id: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+                    name: 'Acme Corporation',
+                    slug: 'acme-corp',
+                    availableIndianChannels: 100,
+                    availableInternationalChannels: 50,
+                    credits: 5100,
+                    chatCredits: 1000,
+                    callCredits: 500,
+                    isDeleted: false,
+                    createdAt: '2024-01-15T10:30:00.000Z',
+                    updatedAt: '2024-01-15T14:45:00.000Z',
+                },
+                statusCode: 200,
+                timestamp: '2024-01-15T14:45:00.000Z',
+            },
+        },
+    })
+    @ApiResponse({ status: 400, description: 'Invalid input or insufficient credits' })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @ApiResponse({
+        status: 403,
+        description: 'Forbidden - Insufficient permissions',
+    })
+    @ApiResponse({ status: 404, description: 'Organisation not found' })
+    updateCredits(
+        @Param('organisationId') organisationId: string,
+        @Body() updateCreditsDto: UpdateCreditsDto,
+        @CurrentUser() user: UserPayload,
+    ) {
+        return this.OrganisationService.updateCredits(
+            organisationId,
+            updateCreditsDto,
             user.sub,
             user.isSuperAdmin,
         );

@@ -65,6 +65,17 @@ export class CreateOrganisationDto {
     availableInternationalChannels?: number;
 
     @ApiPropertyOptional({
+        description: 'Total credits available for the organisation',
+        example: 1000.0,
+        minimum: 0,
+        default: 0,
+    })
+    @IsNumber()
+    @Min(0)
+    @IsOptional()
+    credits?: number;
+
+    @ApiPropertyOptional({
         description: 'Number of chat credits available for the organisation',
         example: 100.5,
         minimum: 0,

@@ -25,6 +25,7 @@ import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { CheckInstagramMessageDto } from './dto/check-instagram-message.dto';
+import { TransferChatDto } from './dto/transfer-chat.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../common/guards/rbac.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -134,6 +135,14 @@ export class ChatController {
     description: 'Filter chats by source',
     example: 'WHATSAPP',
   })
+  @ApiQuery({
+    name: 'activeAgentId',
+    required: false,
+    type: String,
+    description:
+      'Filter chats by active agent ID - returns only chats where this agent is currently active',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
   @ApiResponse({
     status: 200,
     description: 'Chats retrieved successfully',
@@ -182,15 +191,15 @@ export class ChatController {
     @Query('leadId') leadId?: string,
     @Query('lastMessageWithinMinutes') lastMessageWithinMinutes?: number,
     @Query('source') source?: string,
+    @Query('activeAgentId') activeAgentId?: string,
   ) {
-    if (leadId) {
-      return this.chatService.findByLead(organisationId, leadId);
-    }
     return this.chatService.findAll(organisationId, {
+      leadId: leadId,
       lastMessageWithinMinutes: lastMessageWithinMinutes
         ? Number(lastMessageWithinMinutes)
         : undefined,
       source: source,
+      activeAgentId: activeAgentId,
     });
   }
 
@@ -305,6 +314,76 @@ export class ChatController {
     @Body('status') status: CHAT_STATUS,
   ) {
     return this.chatService.updateStatus(organisationId, id, status);
+  }
+
+  @Patch(':id/transfer')
+  @UseGuards(RbacGuard)
+  @Roles(Role.OWNER, Role.ADMIN, Role.MEMBER)
+  @ApiOperation({
+    summary: 'Transfer chat to a new active agent',
+    description:
+      'Deactivates all current agents for the chat and assigns a new active agent. Optionally provide a transfer reason.',
+  })
+  @ApiParam({
+    name: 'organisationId',
+    description: 'Organisation ID (ULID format)',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Chat ID (ULID format)',
+    example: '01HZXYZ1234567890ABCDEFGHJK',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Chat transferred successfully',
+    schema: {
+      example: {
+        data: {
+          id: '01HZXYZ1234567890ABCDEFGHJK',
+          organisationId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          leadId: '01HZXYZ1234567890ABCDEFGHJK',
+          name: 'Product Inquiry - John Doe',
+          source: 'WHATSAPP',
+          sourceId: '+919876543210',
+          status: 'OPEN',
+          shortSummary: 'Customer inquiring about solar panels',
+          detailedSummary:
+            'Customer John Doe contacted via WhatsApp asking about solar panel installation.',
+          isTransferred: true,
+          transferReason: 'Customer requested to speak with a senior agent',
+          isDeleted: false,
+          createdAt: '2024-01-15T10:30:00.000Z',
+          updatedAt: '2024-01-15T11:00:00.000Z',
+          agents: [
+            {
+              id: '01NEWAGENT123456789ABCDEFGH',
+              name: 'Senior Agent Sarah',
+              type: 'HUMAN',
+              role: 'INBOUND_CHAT',
+              workflowId: null,
+              isActive: true,
+            },
+          ],
+        },
+        statusCode: 200,
+        timestamp: '2024-01-15T11:00:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  @ApiResponse({ status: 404, description: 'Chat or Agent not found' })
+  transferChat(
+    @Param('organisationId') organisationId: string,
+    @Param('id') id: string,
+    @Body() transferChatDto: TransferChatDto,
+  ) {
+    return this.chatService.transferChat(organisationId, id, transferChatDto);
   }
 
   @Delete(':id')

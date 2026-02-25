@@ -3,10 +3,12 @@ import {
     NotFoundException,
     ConflictException,
     ForbiddenException,
+    BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateOrganisationDto } from './dto/create-organisation.dto';
 import { UpdateOrganisationDto } from './dto/update-organisation.dto';
+import { UpdateCreditsDto, CreditOperation } from './dto/update-credits.dto';
 import { OrganisationEntity } from './entities/organisation.entity';
 import { Role } from '../common/enums';
 
@@ -41,6 +43,9 @@ export class OrganisationService {
                     undefined && {
                     availableInternationalChannels:
                         createOrganisationDto.availableInternationalChannels,
+                }),
+                ...(createOrganisationDto.credits !== undefined && {
+                    credits: createOrganisationDto.credits,
                 }),
                 ...(createOrganisationDto.chatCredits !== undefined && {
                     chatCredits: createOrganisationDto.chatCredits,
@@ -216,5 +221,85 @@ export class OrganisationService {
         });
 
         return new OrganisationEntity(deleted);
+    }
+
+    async updateCredits(
+        id: string,
+        updateCreditsDto: UpdateCreditsDto,
+        userId: string,
+        isSuperAdmin: boolean,
+    ): Promise<OrganisationEntity> {
+        console.log(
+            `[OrganisationService] Updating credits for organisation: ${id}, Operation: ${updateCreditsDto.operation}, Amount: ${updateCreditsDto.amount}`,
+        );
+
+        // Find organisation and check permissions
+        const organisation = await this.prisma.organisation.findUnique({
+            where: { id },
+            include: {
+                userOrganisations: {
+                    where: { userId, isDeleted: false },
+                },
+            },
+        });
+
+        if (!organisation || organisation.isDeleted) {
+            console.error(
+                `[OrganisationService] Organisation not found: ${id}`,
+            );
+            throw new NotFoundException('Organisation not found');
+        }
+
+        // Check permissions (OWNER or ADMIN or SuperAdmin)
+        if (!isSuperAdmin) {
+            const userOrg = organisation.userOrganisations[0];
+            if (
+                !userOrg ||
+                (userOrg.role !== Role.OWNER && userOrg.role !== Role.ADMIN)
+            ) {
+                console.error(
+                    `[OrganisationService] Insufficient permissions for user: ${userId}`,
+                );
+                throw new ForbiddenException(
+                    'Insufficient permissions to update credits',
+                );
+            }
+        }
+
+        // Calculate new credits
+        let newCredits: number;
+        if (updateCreditsDto.operation === CreditOperation.INCREMENT) {
+            newCredits = organisation.credits + updateCreditsDto.amount;
+            console.log(
+                `[OrganisationService] Incrementing credits: ${organisation.credits} + ${updateCreditsDto.amount} = ${newCredits}`,
+            );
+        } else {
+            newCredits = organisation.credits - updateCreditsDto.amount;
+            console.log(
+                `[OrganisationService] Decrementing credits: ${organisation.credits} - ${updateCreditsDto.amount} = ${newCredits}`,
+            );
+        }
+
+        // Prevent negative credits
+        if (newCredits < 0) {
+            console.error(
+                `[OrganisationService] Insufficient credits. Current: ${organisation.credits}, Requested: ${updateCreditsDto.amount}`,
+            );
+            throw new BadRequestException(
+                `Insufficient credits. Current credits: ${organisation.credits}, Requested amount: ${updateCreditsDto.amount}`,
+            );
+        }
+
+        // Update credits
+        const updated = await this.prisma.organisation.update({
+            where: { id },
+            data: { credits: newCredits },
+        });
+
+        console.log(
+            `[OrganisationService] Credits updated successfully. New balance: ${updated.credits}`,
+        );
+
+        return new OrganisationEntity(updated);
     }
 }

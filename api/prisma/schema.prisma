@@ -39,6 +39,7 @@ model Organisation {
   slug                           String                 @unique
   availableIndianChannels        Int                    @default(0) @map("available_indian_channels")
   availableInternationalChannels Int                    @default(0) @map("available_international_channels")
+  credits                        Float                  @default(0)
   chatCredits                    Float                  @default(0) @map("chat_credits")
   callCredits                    Float                  @default(0) @map("call_credits")
   isDeleted                      Boolean                @default(false) @map("is_deleted")
@@ -126,7 +127,6 @@ model Lead {
   tags           Tag[]                   @relation("LeadTags")
 
   @@unique([phone, organisationId])
-  @@unique([email, organisationId])
   @@map("leads")
 }
 

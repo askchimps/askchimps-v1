@@ -4,6 +4,7 @@ export class OrganisationEntity {
     slug: string;
     availableIndianChannels: number;
     availableInternationalChannels: number;
+    credits: number;
     chatCredits: number;
     callCredits: number;
     isDeleted: boolean;

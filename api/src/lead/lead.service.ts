@@ -85,7 +85,7 @@ export class LeadService {
       });
 
       if (existingLead) {
-        if (existingLead.email === createLeadDto.email) {
+        if (createLeadDto.email && existingLead.email === createLeadDto.email) {
           throw new ConflictException(
             'A lead with this email already exists in this organisation',
           );
