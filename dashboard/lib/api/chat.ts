@@ -31,11 +31,26 @@ export interface Lead {
     phone: string;
 }
 
+export interface Agent {
+    id: string;
+    name: string;
+    type: string;
+    role: string;
+    workflowId: string | null;
+}
+
+export interface ChatAgent {
+    id: string;
+    chatId: string;
+    agentId: string;
+    isActive: boolean;
+    agent: Agent;
+}
+
 export interface Chat {
     id: string;
     organisationId: string;
-    agentId: string;
-    leadId: string;
+    leadId: string | null;
     name: string | null;
     source: ChatSource;
     sourceId: string;
@@ -43,20 +58,16 @@ export interface Chat {
     shortSummary: string | null;
     detailedSummary: string | null;
     isTransferred: boolean;
-    isDeleted: boolean;
+    transferReason: string | null;
     createdAt: string;
     updatedAt: string;
     lead?: Lead;
     messages?: ChatMessage[];
+    agents?: ChatAgent[];
 }
 
-export interface PaginatedChatsResponse {
-    data: {
-        data: Chat[];
-        total: number;
-        limit: number;
-        offset: number;
-    };
+export interface ChatsResponse {
+    data: Chat[];
     statusCode: number;
     timestamp: string;
 }
@@ -82,26 +93,18 @@ export const chatApi = {
     getAll: async (
         organisationId: string,
         params?: ChatQueryParams,
-    ): Promise<PaginatedChatsResponse> => {
+    ): Promise<ChatsResponse> => {
         const queryParams = new URLSearchParams();
 
-        if (params?.agentId) queryParams.append("agentId", params.agentId);
         if (params?.leadId) queryParams.append("leadId", params.leadId);
-        if (params?.status) queryParams.append("status", params.status);
         if (params?.source) queryParams.append("source", params.source);
-        if (params?.limit) queryParams.append("limit", params.limit.toString());
-        if (params?.offset)
-            queryParams.append("offset", params.offset.toString());
-        if (params?.sortOrder)
-            queryParams.append("sortOrder", params.sortOrder);
-        if (params?.search) queryParams.append("search", params.search);
 
         const queryString = queryParams.toString();
         const endpoint = `/v1/organisation/${organisationId}/chat${
             queryString ? `?${queryString}` : ""
         }`;
 
-        return apiClient.get<PaginatedChatsResponse>(endpoint);
+        return apiClient.get<ChatsResponse>(endpoint);
     },
 
     getById: async (

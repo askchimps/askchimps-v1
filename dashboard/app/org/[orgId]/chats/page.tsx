@@ -1,14 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useOrganisationStore } from "@/stores/organisation-store";
-import { chatApi, ChatStatus, ChatSource } from "@/lib/api/chat";
-import { ChatFilters } from "@/components/chats/chat-filters";
+import { chatApi, ChatSource } from "@/lib/api/chat";
 import { ChatListItem } from "@/components/chats/chat-list-item";
-import { ChatPagination } from "@/components/chats/chat-pagination";
 import { ChatDetail } from "@/components/chats/chat-detail";
 import { ChatEmptyState } from "@/components/chats/chat-empty-state";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,13 +16,23 @@ import { MessageSquare } from "lucide-react";
 
 export default function ChatsPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { selectedOrganisation } = useOrganisationStore();
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
-    const [search, setSearch] = useState("");
-    const [status, setStatus] = useState<ChatStatus | "ALL">("ALL");
     const [source, setSource] = useState<ChatSource | "ALL">("ALL");
-    const [limit, setLimit] = useState(20);
-    const [offset, setOffset] = useState(0);
+
+    // Read chatId and source from URL on mount
+    useEffect(() => {
+        const chatIdFromUrl = searchParams.get("chatId");
+        const sourceFromUrl = searchParams.get("source");
+
+        if (chatIdFromUrl) {
+            setSelectedChatId(chatIdFromUrl);
+        }
+        if (sourceFromUrl && (sourceFromUrl === "WHATSAPP" || sourceFromUrl === "INSTAGRAM")) {
+            setSource(sourceFromUrl as ChatSource);
+        }
+    }, [searchParams]);
 
     // Fetch chats list
     const {
@@ -32,23 +40,10 @@ export default function ChatsPage() {
         isLoading: isLoadingChats,
         error: chatsError,
     } = useQuery({
-        queryKey: [
-            "chats",
-            selectedOrganisation?.id,
-            search,
-            status,
-            source,
-            limit,
-            offset,
-        ],
+        queryKey: ["chats", selectedOrganisation?.id, source],
         queryFn: () =>
             chatApi.getAll(selectedOrganisation!.id, {
-                search: search || undefined,
-                status: status !== "ALL" ? status : undefined,
                 source: source !== "ALL" ? source : undefined,
-                sortOrder: "desc",
-                limit,
-                offset,
             }),
         enabled: !!selectedOrganisation,
         staleTime: 30000, // 30 seconds
@@ -63,25 +58,25 @@ export default function ChatsPage() {
         staleTime: 60000, // 1 minute
     });
 
-    const chats = chatsData?.data.data || [];
-    const total = chatsData?.data.total || 0;
+    console.log("Chats Data:", chatsData);
+    console.log("Chat Detail Data:", chatDetailData);
+
+    const chats = chatsData?.data || [];
+    const total = chats.length;
     const selectedChat = chatDetailData?.data;
 
-    // Update URL when chat is selected (preserve pagination state)
+    // Update URL when chat is selected (using query params to preserve the page)
     const handleChatSelect = (chatId: string) => {
         setSelectedChatId(chatId);
         const orgId = selectedOrganisation?.id;
         if (orgId) {
             const params = new URLSearchParams();
-            if (offset > 0) params.set("offset", offset.toString());
-            if (limit !== 20) params.set("limit", limit.toString());
-            if (search) params.set("search", search);
-            if (status !== "ALL") params.set("status", status);
+            params.set("chatId", chatId);
             if (source !== "ALL") params.set("source", source);
 
             const queryString = params.toString();
             router.replace(
-                `/org/${orgId}/chats/${chatId}${queryString ? `?${queryString}` : ""}`,
+                `/org/${orgId}/chats?${queryString}`,
                 { scroll: false },
             );
         }
@@ -104,23 +99,21 @@ export default function ChatsPage() {
                     </div>
 
                     {/* Filters */}
-                    <ChatFilters
-                        search={search}
-                        onSearchChange={(value) => {
-                            setSearch(value);
-                            setOffset(0);
-                        }}
-                        status={status}
-                        onStatusChange={(value) => {
-                            setStatus(value as ChatStatus | "ALL");
-                            setOffset(0);
-                        }}
-                        source={source}
-                        onSourceChange={(value) => {
-                            setSource(value as ChatSource | "ALL");
-                            setOffset(0);
-                        }}
-                    />
+                    <div className="space-y-3 border-b p-4">
+                        <div className="grid grid-cols-1 gap-2">
+                            <select
+                                value={source}
+                                onChange={(e) =>
+                                    setSource(e.target.value as ChatSource | "ALL")
+                                }
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            >
+                                <option value="ALL">All Sources</option>
+                                <option value="WHATSAPP">WhatsApp</option>
+                                <option value="INSTAGRAM">Instagram</option>
+                            </select>
+                        </div>
+                    </div>
 
                     {/* Chat List */}
                     <ScrollArea className="flex-1">
@@ -146,8 +139,6 @@ export default function ChatsPage() {
                             <ChatEmptyState
                                 message="No chats found"
                                 description={
-                                    search ||
-                                    status !== "ALL" ||
                                     source !== "ALL"
                                         ? "Try adjusting your filters"
                                         : "Chats will appear here once they are created"
@@ -169,17 +160,6 @@ export default function ChatsPage() {
                             </div>
                         )}
                     </ScrollArea>
-
-                    {/* Pagination */}
-                    {!isLoadingChats && chats.length > 0 && (
-                        <ChatPagination
-                            total={total}
-                            limit={limit}
-                            offset={offset}
-                            onLimitChange={setLimit}
-                            onOffsetChange={setOffset}
-                        />
-                    )}
                 </div>
 
                 {/* Right Panel - Chat Detail */}
