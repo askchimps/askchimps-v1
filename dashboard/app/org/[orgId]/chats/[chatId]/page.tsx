@@ -81,8 +81,10 @@ export default function ChatDetailPage() {
         staleTime: 60000, // 1 minute
     });
 
-    const chats = chatsData?.data.data || [];
-    const total = chatsData?.data.total || 0;
+    console.log("ChatsData =====", chatsData);
+
+    const chats = chatsData?.data || [];
+    const total = chatsData?.data.length || 0;
     const selectedChat = chatDetailData?.data;
 
     // Check if the selected chat is in the current page
