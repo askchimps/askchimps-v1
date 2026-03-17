@@ -78,8 +78,8 @@ export function CallDetail({ call, orgId }: CallDetailProps) {
 
     const handleCopyUrl = async () => {
         const url = orgId
-            ? `https://app.askchimps.com/org/${orgId}/calls/${call.id}`
-            : `https://app.askchimps.com/calls/${call.id}`;
+            ? `https://askchimps-v1.vercel.app/org/${orgId}/calls/${call.id}`
+            : `https://askchimps-v1.vercel.app/calls/${call.id}`;
         await navigator.clipboard.writeText(url);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);

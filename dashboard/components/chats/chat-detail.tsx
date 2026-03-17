@@ -81,8 +81,8 @@ export function ChatDetail({ chat, orgId }: ChatDetailProps) {
 
     const handleCopyUrl = async () => {
         const url = orgId
-            ? `https://app.askchimps.com/org/${orgId}/chats/${chat.id}`
-            : `https://app.askchimps.com/chats/${chat.id}`;
+            ? `https://askchimps-v1.vercel.app/org/${orgId}/chats/${chat.id}`
+            : `https://askchimps-v1.vercel.app/chats/${chat.id}`;
         await navigator.clipboard.writeText(url);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
