@@ -10,11 +10,11 @@ import { CreateAgentLeadCallScheduleDto } from './dto/create-agent-lead-call-sch
 import { UpdateAgentLeadCallScheduleDto } from './dto/update-agent-lead-call-schedule.dto';
 import { AgentLeadCallScheduleEntity } from './entities/agent-lead-call-schedule.entity';
 
-const SCHEDULE_TYPE_PRIORITY: Record<SCHEDULE_TYPE, number> = {
-    [SCHEDULE_TYPE.INITIAL]: 0,
-    [SCHEDULE_TYPE.FOLLOW_UP]: 1,
-    [SCHEDULE_TYPE.RESCHEDULE]: 2,
-};
+const SCHEDULE_TYPE_PRIORITY_ORDER: SCHEDULE_TYPE[] = [
+    SCHEDULE_TYPE.INITIAL,
+    SCHEDULE_TYPE.FOLLOW_UP,
+    SCHEDULE_TYPE.RESCHEDULE,
+];
 
 @Injectable()
 export class AgentLeadCallScheduleService {
@@ -194,21 +194,37 @@ export class AgentLeadCallScheduleService {
             }
         }
 
-        const schedules = await this.prisma.agentLeadCallSchedule.findMany({
-            where,
-            ...(limit !== undefined && { take: limit }),
-        });
+        // If a specific type is requested, run a single query
+        if (where.type) {
+            const schedules = await this.prisma.agentLeadCallSchedule.findMany({
+                where,
+                orderBy: { callTime: 'asc' },
+                ...(limit !== undefined && { take: limit }),
+            });
+            return schedules.map((s) => new AgentLeadCallScheduleEntity(s));
+        }
 
-        schedules.sort((a, b) => {
-            const priorityDiff =
-                SCHEDULE_TYPE_PRIORITY[a.type] - SCHEDULE_TYPE_PRIORITY[b.type];
-            if (priorityDiff !== 0) return priorityDiff;
-            return a.callTime.getTime() - b.callTime.getTime();
-        });
+        // Otherwise fetch each type in priority order, stop once limit is filled
+        const result: AgentLeadCallScheduleEntity[] = [];
+        let remaining = limit;
 
-        return schedules.map(
-            (schedule) => new AgentLeadCallScheduleEntity(schedule),
-        );
+        for (const scheduleType of SCHEDULE_TYPE_PRIORITY_ORDER) {
+            if (remaining !== undefined && remaining <= 0) break;
+
+            const batch = await this.prisma.agentLeadCallSchedule.findMany({
+                where: { ...where, type: scheduleType },
+                orderBy: { callTime: 'asc' },
+                ...(remaining !== undefined && { take: remaining }),
+            });
+
+            result.push(...batch.map((s) => new AgentLeadCallScheduleEntity(s)));
+
+            if (remaining !== undefined) {
+                remaining -= batch.length;
+            }
+        }
+
+        return result;
     }
 
     async findOne(
