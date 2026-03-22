@@ -4,10 +4,17 @@ import {
     ForbiddenException,
     ConflictException,
 } from '@nestjs/common';
+import { SCHEDULE_TYPE } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { CreateAgentLeadCallScheduleDto } from './dto/create-agent-lead-call-schedule.dto';
 import { UpdateAgentLeadCallScheduleDto } from './dto/update-agent-lead-call-schedule.dto';
 import { AgentLeadCallScheduleEntity } from './entities/agent-lead-call-schedule.entity';
+
+const SCHEDULE_TYPE_PRIORITY: Record<SCHEDULE_TYPE, number> = {
+    [SCHEDULE_TYPE.INITIAL]: 0,
+    [SCHEDULE_TYPE.FOLLOW_UP]: 1,
+    [SCHEDULE_TYPE.RESCHEDULE]: 2,
+};
 
 @Injectable()
 export class AgentLeadCallScheduleService {
@@ -189,8 +196,14 @@ export class AgentLeadCallScheduleService {
 
         const schedules = await this.prisma.agentLeadCallSchedule.findMany({
             where,
-            orderBy: { callTime: 'asc' },
             ...(limit !== undefined && { take: limit }),
+        });
+
+        schedules.sort((a, b) => {
+            const priorityDiff =
+                SCHEDULE_TYPE_PRIORITY[a.type] - SCHEDULE_TYPE_PRIORITY[b.type];
+            if (priorityDiff !== 0) return priorityDiff;
+            return a.callTime.getTime() - b.callTime.getTime();
         });
 
         return schedules.map(
